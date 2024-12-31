@@ -1,0 +1,40 @@
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+canvas {
+  width: 100% !important;
+  height: 300px !important;
+}
+
+.rounded-circle {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rounded-circle i {
+  font-size: 1.5rem;
+}
+
+/* Custom shadows */
+.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 1rem !important;
+  }
+
+  canvas {
+    height: 250px !important;
+  }
+}

@@ -1,0 +1,49 @@
+<div class="register-container">
+    <h2>Créer un compte</h2>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <!-- Champ username -->
+      <div class="form-group">
+        <label for="username">Nom d'utilisateur</label>
+        <input
+          id="username"
+          type="text"
+          class="form-control"
+          formControlName="username"
+          placeholder="Entrez votre nom d'utilisateur"
+        />
+        <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched" class="error">
+          Le nom d'utilisateur est requis (min. 3 caractères).
+        </div>
+      </div>
+  
+      <!-- Champ role -->
+      <div class="form-group">
+        <label for="role">Rôle</label>
+        <select id="role" class="form-control" formControlName="role">
+          <option value="">-- Sélectionnez un rôle --</option>
+          <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+        </select>
+        <div *ngIf="registerForm.get('role')?.invalid && registerForm.get('role')?.touched" class="error">
+          Le rôle est requis.
+        </div>
+      </div>
+  
+      <!-- Champ mot de passe -->
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input
+          id="password"
+          type="password"
+          class="form-control"
+          formControlName="password"
+          placeholder="Entrez votre mot de passe"
+        />
+        <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error">
+          Le mot de passe est requis (min. 6 caractères).
+        </div>
+      </div>
+  
+      <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid">Créer un compte</button>
+    </form>
+  </div>
+  

@@ -1,0 +1,48 @@
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Gestion des Tickets</h2>
+  
+    <!-- Formulaire d'ajout de ticket -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Ajouter un Ticket</h5>
+        <form (ngSubmit)="ajouterTicket()">
+          <div class="form-group">
+            <label for="titre">Titre</label>
+            <input type="text" id="titre" class="form-control" [(ngModel)]="nouveauTicket.titre" name="titre" required>
+          </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" class="form-control" [(ngModel)]="nouveauTicket.description" name="description" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">Ajouter le Ticket</button>
+        </form>
+      </div>
+    </div>
+  
+    <!-- Liste des tickets -->
+    <div *ngIf="tickets.length > 0; else noTickets" class="row">
+      <div *ngFor="let ticket of tickets" class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ ticket.titre }}</h5>
+            <p class="card-text">{{ ticket.description }}</p>
+            <p class="card-text"><small class="text-muted">Date: {{ ticket.date | date: 'short' }}</small></p>
+            <p class="card-text"><strong>Status: </strong>{{ ticket.status }}</p>
+            <div class="d-flex justify-content-between">
+              <button (click)="modifierTicket(ticket)" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Modifier
+              </button>
+              <button (click)="supprimerTicket(ticket.id)" class="btn btn-danger">
+                <i class="fas fa-trash-alt"></i> Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <ng-template #noTickets>
+      <p class="text-center">Aucun ticket disponible.</p>
+    </ng-template>
+  </div>
+  

@@ -1,0 +1,43 @@
+<form [formGroup]="roleForm" (ngSubmit)="onSubmit()" class="role-form-container">
+
+
+  <div *ngIf="!loading">
+    <div class="role-header">
+      <h2>Ajouter un rôle</h2>
+    </div>
+
+    <div class="form-field">
+      <label>NOM DU RÔLE</label>
+      <input type="text" formControlName="name">
+    </div>
+
+    <div class="form-field">
+      <label>DESCRIPTION</label>
+      <textarea formControlName="description"></textarea>
+    </div>
+
+    <div formGroupName="permissions" class="permissions-section">
+      <ng-container *ngFor="let groupEntry of permissionGroups | keyvalue">
+        <div [formGroupName]="groupEntry.key" class="permission-group">
+          <div class="permission-group-header">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" formControlName="enabled"
+                     (change)="updateChildControls(groupEntry.key, $event)">
+              <span>{{groupEntry.key}}</span>
+            </div>
+          </div>
+          <div class="sub-permissions">
+            <div *ngFor="let permission of groupEntry.value" class="checkbox-wrapper">
+              <input type="checkbox" [formControlName]="permission.key">
+              <span [title]="permission.description">{{permission.name}}</span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <button type="submit" class="submit-button">
+      Enregistrer
+    </button>
+  </div>
+</form>

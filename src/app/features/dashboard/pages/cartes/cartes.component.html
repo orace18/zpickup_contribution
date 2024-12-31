@@ -1,0 +1,114 @@
+<div class="map-container">
+  <!-- Bouton toggle avec effet hover -->
+  <button
+    mat-fab
+    class="toggle-button"
+    (click)="toggleControlPanel()"
+    [class.panel-open]="isPanelVisible">
+    <mat-icon>{{ isPanelVisible ? 'close' : 'tune' }}</mat-icon>
+  </button>
+
+  <!-- Panneau de contrôle -->
+  <div class="control-panel" *ngIf="isPanelVisible" [@slideInOut]>
+    <div class="panel-header">
+      <h2>Filtres</h2>
+      <mat-divider></mat-divider>
+    </div>
+
+    <form [formGroup]="filterForm" class="filter-form">
+      <div class="filter-section">
+        <h3>Statuts</h3>
+        <!-- Filtres des transporteurs -->
+        <mat-form-field appearance="outline">
+          <mat-label>Transporteurs</mat-label>
+          <mat-select formControlName="transporteurStatus">
+            <mat-option value="all">Tous</mat-option>
+            <mat-option value="active">Actifs</mat-option>
+            <mat-option value="inactive">Inactifs</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Filtres des clients -->
+        <mat-form-field appearance="outline">
+          <mat-label>Clients</mat-label>
+          <mat-select formControlName="clientStatus">
+            <mat-option value="all">Tous</mat-option>
+            <mat-option value="active">Actifs</mat-option>
+            <mat-option value="inactive">Inactifs</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Filtres des courses -->
+        <mat-form-field appearance="outline">
+          <mat-label>Courses</mat-label>
+          <mat-select formControlName="courseStatus">
+            <mat-option value="all">Toutes</mat-option>
+            <mat-option value="active">Actives</mat-option>
+            <mat-option value="completed">Terminées</mat-option>
+            <mat-option value="canceled">Annulées</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="filter-section">
+        <h3>Localisation</h3>
+        <!-- Filtre régional -->
+        <mat-form-field appearance="outline">
+          <mat-label>Région</mat-label>
+          <input matInput formControlName="region" placeholder="Entrez une région">
+          <mat-icon matSuffix>location_on</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="filter-section">
+        <h3>Période</h3>
+        <!-- Plage de dates -->
+        <mat-form-field appearance="outline">
+          <mat-label>Sélectionner une période</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate formControlName="startDate" placeholder="Date début">
+            <input matEndDate formControlName="endDate" placeholder="Date fin">
+          </mat-date-range-input>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="action-buttons">
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="applyFilters()"
+          class="action-button">
+          <mat-icon>filter_list</mat-icon>
+          Appliquer
+        </button>
+        <button
+          mat-stroked-button
+          (click)="resetFilters()"
+          class="action-button">
+          <mat-icon>clear</mat-icon>
+          Réinitialiser
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Carte Google -->
+  <google-map
+    height="100vh"
+    width="100%"
+    [center]="center"
+    [zoom]="zoom">
+    <map-marker
+      *ngIf="currentPosition"
+      [position]="currentPosition"
+      title="Ma position">
+    </map-marker>
+  </google-map>
+</div>

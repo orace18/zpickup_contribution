@@ -1,0 +1,85 @@
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  width: 250px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+
+  &.collapsed {
+    width: 70px;
+
+    .menu-title,
+    .menu-arrow {
+      display: none;
+    }
+
+    .menu-icon {
+      margin-right: 0;
+    }
+  }
+}
+
+.menu-item {
+  cursor: pointer;
+
+  .menu-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: #5e6278;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #f5f8fa;
+      color: #796ce7;
+    }
+  }
+}
+
+.menu-sub {
+  padding-left: 1.75rem;
+}
+
+.menu-icon {
+  margin-right: 0.75rem;
+}
+
+.menu-bullet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+}
+
+.bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #b5b5c3;
+}
+
+.menu-arrow {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+
+  .show & {
+    transform: rotate(90deg);
+  }
+}
+
+
+.menu-link.active {
+  color: #ffffff !important; /* Texte en blanc */
+  background-color: #796ce7 ; /* Couleur de fond pour l'élément actif */
+}
+
+.menu-link.active .bullet-dot {
+  background-color: #796ce7 !important; /* Point en blanc pour l'élément actif */
+}
+
+/* Pour éviter que le hover ne change la couleur quand l'élément est actif */
+.menu-link.active:hover {
+  color: #ffffff !important;
+}

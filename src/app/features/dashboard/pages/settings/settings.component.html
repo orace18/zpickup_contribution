@@ -1,0 +1,28 @@
+<div class="settings-container">
+    <h2>Gestion des Paramètres</h2>
+  
+    <!-- Section des tarifs -->
+    <div class="section">
+      <h3>Tarifs</h3>
+      <div *ngFor="let tarif of parametres.tarifs" class="tarif-item">
+        <label>{{ tarif.service }} :</label>
+        <input [(ngModel)]="tarif.prix" type="number" placeholder="Prix" class="input-field" />
+      </div>
+    </div>
+  
+    <!-- Section des rôles -->
+    <div class="section">
+      <h3>Rôles</h3>
+      <div *ngFor="let role of parametres.roles" class="role-item">
+        <span>{{ role }}</span>
+      </div>
+      <div class="role-add">
+        <input [(ngModel)]="nouveauRole" placeholder="Ajouter un rôle" class="input-field" />
+        <button (click)="ajouterRole(nouveauRole)" class="add-button">Ajouter</button>
+      </div>
+    </div>
+  
+    <!-- Sauvegarder les paramètres -->
+    <button (click)="sauvegarderParametres()" class="save-button">Sauvegarder</button>
+  </div>
+  

@@ -1,0 +1,218 @@
+.ticket-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    max-width: 900px;
+    margin: 30px auto;
+  }
+  
+  h2 {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .ticket-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+  }
+  
+  .ticket-table th, .ticket-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .ticket-table th {
+    background-color: #4b6d8c;
+    color: white;
+  }
+  
+  .edit-button, .delete-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .edit-button {
+    background-color: #ffc107;
+    color: white;
+  }
+  
+  .edit-button:hover {
+    background-color: #e0a800;
+  }
+  
+  .delete-button {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .delete-button:hover {
+    background-color: #c82333;
+  }
+  
+  .add-ticket {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .input-field, .textarea-field, .status-select {
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .add-button {
+    background-color: #796ce7;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .add-button:hover {
+    background-color: #5a4ac7;
+  }
+  
+
+  /* Styles pour les cartes de tickets */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .card-body {
+    background-color: #f9f9f9;
+  }
+  
+  .card-text {
+    font-size: 0.9rem;
+  }
+  
+  .btn {
+    transition: background-color 0.3s, transform 0.3s;
+  }
+  
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Boutons d'édition et de suppression */
+  .btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+  }
+  
+  .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+  
+  .btn-warning:hover {
+    background-color: #e0a800;
+  }
+  
+  .btn-danger:hover {
+    background-color: #c82333;
+  }
+  
+  .fas {
+    margin-right: 5px;
+  }
+  
+  /* Styles pour le formulaire d'ajout */
+  .form-group label {
+    font-weight: bold;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    border-radius: 8px;
+  }
+  
+  .container {
+    max-width: 1200px;
+  }
+  
+  /* Responsivité : rendre la mise en page plus fluide sur petits écrans */
+  @media (max-width: 768px) {
+    .card {
+      margin-bottom: 15px;
+    }
+  
+    .card-body {
+      padding: 15px;
+    }
+  
+    .btn {
+      width: 100%;
+      margin-top: 10px;
+    }
+  }
+
+  /* Boutons d'édition et de suppression */
+.edit-button,
+.delete-button,
+.add-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  color: white; /* Couleur du texte par défaut */
+}
+
+/* Bouton d'édition */
+.edit-button {
+  background-color: #ffc107;
+}
+
+.edit-button:hover {
+  background-color: #ffc107; /* Couleur de fond reste inchangée */
+  color: white; /* Couleur du texte devient blanche */
+}
+
+/* Bouton de suppression */
+.delete-button {
+  background-color: #dc3545;
+}
+
+.delete-button:hover {
+  background-color: #dc3545; /* Couleur de fond reste inchangée */
+  color: white; /* Couleur du texte devient blanche */
+}
+
+/* Bouton d'ajout */
+.add-button {
+  background-color: #796ce7;
+  color: white;
+}
+
+.add-button:hover {
+  background-color: #796ce7; /* Couleur de fond reste inchangée */
+  color: white; /* Couleur du texte devient blanche */
+}
+
+/* Effet de transition */
+.edit-button,
+.delete-button,
+.add-button {
+  transition: color 0.3s; /* Ajout de transition uniquement sur la couleur du texte */
+}
+
+  

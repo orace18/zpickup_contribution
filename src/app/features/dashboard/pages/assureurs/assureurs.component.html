@@ -1,0 +1,65 @@
+<div class="assureurs-container">
+    <h1>Gestion des Assureurs</h1>
+  
+    <button class="add-button" (click)="onAddAssureur()">
+      <i class="fas fa-plus"></i> Ajouter un Assureur
+    </button>
+  
+    <!-- Formulaire de modification -->
+    <div *ngIf="isEditing" class="edit-form">
+      <h2>Modifier l'Assureur</h2>
+      <form (ngSubmit)="onSaveAssureur()">
+        <div>
+          <label for="nom">Nom</label>
+          <input id="nom" [(ngModel)]="selectedAssureur.nom" name="nom" required />
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" [(ngModel)]="selectedAssureur.email" name="email" required />
+        </div>
+        <div>
+          <label for="telephone">Téléphone</label>
+          <input id="telephone" [(ngModel)]="selectedAssureur.telephone" name="telephone" required />
+        </div>
+        <div>
+          <label for="utilisateursAssocies">Utilisateurs Associés</label>
+          <input id="utilisateursAssocies" [(ngModel)]="selectedAssureur.utilisateursAssocies" name="utilisateursAssocies" type="number" required />
+        </div>
+  
+        <button type="submit">Sauvegarder</button>
+        <button type="button" (click)="onCancelEdit()">Annuler</button>
+      </form>
+    </div>
+  
+    <!-- Tableau des assureurs -->
+    <table *ngIf="!isEditing">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Utilisateurs Associés</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let assureur of assureurs">
+          <td>{{ assureur.id }}</td>
+          <td>{{ assureur.nom }}</td>
+          <td>{{ assureur.email }}</td>
+          <td>{{ assureur.telephone }}</td>
+          <td>{{ assureur.utilisateursAssocies }}</td>
+          <td>
+            <button class="edit-button" (click)="onEditAssureur(assureur)">
+              <i class="fas fa-edit"></i> Modifier
+            </button>
+            <button class="delete-button" (click)="selectedAssureur(assureur.id)">
+              <i class="fas fa-trash"></i> Supprimer
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
