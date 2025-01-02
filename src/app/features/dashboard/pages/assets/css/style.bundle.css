@@ -38,7 +38,7 @@
   --bs-danger: #F1416C;
   --bs-dark: #071437;
   --bs-light-rgb: 249, 249, 249;
-  --bs-primary-rgb: 0, 163, 255;
+  --bs-primary-rgb: 121, 108, 231;
   --bs-secondary-rgb: 219, 223, 233;
   --bs-success-rgb: 80, 205, 137;
   --bs-info-rgb: 114, 57, 234;
@@ -28523,7 +28523,7 @@ textarea.form-control-lg {
   --bs-danger-inverse: #FFFFFF;
   --bs-dark-inverse: #ffffff;
   --bs-light-rgb: 249, 249, 249;
-  --bs-primary-rgb: 0, 163, 255;
+  --bs-primary-rgb: 121, 108, 231;
   --bs-secondary-rgb: 219, 223, 233;
   --bs-success-rgb: 80, 205, 137;
   --bs-info-rgb: 114, 57, 234;
@@ -28641,7 +28641,7 @@ textarea.form-control-lg {
   --bs-gray-900-rgb: 255, 255, 255;
   --bs-white: #ffffff;
   --bs-light: #2B2B40;
-  --bs-primary: #00A3FF;
+  --bs-primary: #796CE7;
   --bs-success: #50CD89;
   --bs-info: #7239EA;
   --bs-warning: #FFC700;

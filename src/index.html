@@ -6,29 +6,75 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDX4MVyTaZuPq_c30dr7jKbIoFSjTzMo4Q"></script>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
+  <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700"/>        <!--end::Fonts-->
+  <link href="/assets/plugins/custom/leaflet/leaflet.bundle.css" rel="stylesheet" type="text/css"/>
+  <link href="/assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css"/>
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '../../www.googletagmanager.com/gtm5445.html?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-5FS8GGP');</script>
+
+  <script>
+    if (window.top != window.self) {
+      window.top.location.replace(window.self.location.href);
+    }
+  </script>
+
 </head>
 <body class="mat-typography">
-  <app-root></app-root>
-  <script src="/app/features/dashboard/pages/assets/js/widgets.bundle.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/widgets.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/apps/chat/chat.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/upgrade-plan.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/create-project/type.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/create-project/budget.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/create-project/settings.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/create-project/team.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/create-project/targets.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/create-project/files.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/create-project/complete.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/create-project/main.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/select-location.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/create-app.js"></script>
-  <script src="/app/features/dashboard/pages/assets/js/custom/utilities/modals/users-search.js"></script>
+<script>
+  var defaultThemeMode = "light";
+  var themeMode;
 
+  if ( document.documentElement ) {
+    if ( document.documentElement.hasAttribute("data-bs-theme-mode")) {
+      themeMode = document.documentElement.getAttribute("data-bs-theme-mode");
+    } else {
+      if ( localStorage.getItem("data-bs-theme") !== null ) {
+        themeMode = localStorage.getItem("data-bs-theme");
+      } else {
+        themeMode = defaultThemeMode;
+      }
+    }
+
+    if (themeMode === "system") {
+      themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+
+    document.documentElement.setAttribute("data-bs-theme", themeMode);
+  }
+</script>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5FS8GGP" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<app-root></app-root>
+
+  <script src="/assets/plugins/global/plugins.bundle.js"></script>
+  <script src="/assets/js/scripts.bundle.js"></script>
+  <script src="/assets/plugins/custom/leaflet/leaflet.bundle.js"></script>
+  <script src="/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+<script src="assets/plugins/custom/datatables/test.js"></script>
+  <script src="/assets/js/widgets.bundle.js"></script>
+  <script src="/assets/js/custom/widgets.js"></script>
+  <script src="/assets/js/custom/apps/chat/chat.js"></script>
+  <script src="/assets/js/custom/utilities/modals/upgrade-plan.js"></script>
+  <script src="/assets/js/custom/utilities/modals/create-project/type.js"></script>
+  <script src="/assets/js/custom/utilities/modals/create-project/budget.js"></script>
+  <script src="/assets/js/custom/utilities/modals/create-project/settings.js"></script>
+  <script src="/assets/js/custom/utilities/modals/create-project/team.js"></script>
+  <script src="/assets/js/custom/utilities/modals/create-project/targets.js"></script>
+  <script src="/assets/js/custom/utilities/modals/create-project/files.js"></script>
+  <script src="/assets/js/custom/utilities/modals/create-project/complete.js"></script>
+  <script src="/assets/js/custom/utilities/modals/create-project/main.js"></script>
+  <script src="/assets/js/custom/utilities/modals/select-location.js"></script>
+  <script src="/assets/js/custom/utilities/modals/create-app.js"></script>
+  <script src="/assets/js/custom/utilities/modals/users-search.js"></script>
 </body>
 </html>

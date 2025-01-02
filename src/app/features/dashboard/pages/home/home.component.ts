@@ -13,8 +13,8 @@ import { User } from './models/users.model';
   imports: [CommonModule, RouterModule, HttpClientModule],
   standalone: true
 })
-export class HomeComponent implements OnInit {
-  users: User[] = [];
+export class HomeComponent /*implements OnInit*/ {
+ /* users: User[] = [];
   stats: any = { total: 0, customers: 0, zem: 0, admin: 0, lastUpdate: new Date() };
   registrationChart: Chart | undefined = undefined;
   userTypeChart: Chart | undefined = undefined;
@@ -176,5 +176,5 @@ export class HomeComponent implements OnInit {
     if (this.userTypeChart) {
       this.userTypeChart.destroy();
     }
-  }
+  }*/
 }

@@ -64,21 +64,7 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/pages/roles/roles.component')
           .then(m => m.RolesComponent)
       },
-      {
-        path: 'logistics',
-        loadComponent: () => import('./features/dashboard/pages/logistic/logistic.component')
-          .then(m => m.LogisticComponent)
-      },
-      {
-        path: 'analytics',
-        loadComponent: () => import('./features/dashboard/pages/analytic/analytic.component')
-          .then(m => m.AnalyticComponent)
-      },
-      {
-        path: 'projects',
-        loadComponent: () => import('./features/dashboard/pages/project/project.component')
-          .then(m => m.ProjectComponent)
-      }
+
     ]
   },
   {
