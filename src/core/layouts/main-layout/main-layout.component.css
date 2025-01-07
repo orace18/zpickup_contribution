@@ -10,7 +10,6 @@
 
 .sidebar {
   width: 250px;
-  background-color: #f5f5f5;
 }
 
 .right-content {
@@ -20,7 +19,7 @@
 }
 
 .header {
-  height: 60px;
+
 }
 
 .main-content {

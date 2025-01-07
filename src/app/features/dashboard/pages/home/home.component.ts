@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Chart, ChartConfiguration } from 'chart.js/auto';
+
 import { HttpClientModule } from '@angular/common/http';
-import { UserService } from './services/home.service';
-import { User } from './models/users.model';
+import {CharteTestComponent} from '../../../../charte-test/charte-test.component';
+
+
+
 
 @Component({
   selector: 'app-home',
@@ -14,6 +16,9 @@ import { User } from './models/users.model';
   standalone: true
 })
 export class HomeComponent /*implements OnInit*/ {
+
+
+
  /* users: User[] = [];
   stats: any = { total: 0, customers: 0, zem: 0, admin: 0, lastUpdate: new Date() };
   registrationChart: Chart | undefined = undefined;
@@ -177,4 +182,5 @@ export class HomeComponent /*implements OnInit*/ {
       this.userTypeChart.destroy();
     }
   }*/
+
 }

@@ -19,6 +19,14 @@ export const routes: Routes = [
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
+/*
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+*/
+
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/pages/home/home.component')
@@ -63,6 +71,11 @@ export const routes: Routes = [
         path: 'roles',
         loadComponent: () => import('./features/dashboard/pages/roles/roles.component')
           .then(m => m.RolesComponent)
+      },
+      {
+        path: 'addrole',
+        loadComponent: () => import('../core/components/add-role/add-role.component')
+          .then(m => m.AddRoleComponent)
       },
 
     ]

@@ -15,23 +15,9 @@
     <div class="menu menu-sub-indention menu-column menu-rounded menu-title-gray-600 menu-icon-gray-400 menu-active-bg menu-state-primary menu-arrow-gray-500 fw-semibold fs-6 my-5 mt-lg-2 mb-lg-0">
       <div class="hover-scroll-y mx-4">
 
-        <!-- Accueil -->
+        <!-- Tableau de bord -->
         <div class="menu-item">
           <a class="menu-link" routerLink="/dashboard" routerLinkActive="active">
-            <span class="menu-icon">
-              <i class="ki-duotone ki-home fs-2">
-                <span class="path1"></span>
-                <span class="path2"></span>
-              </i>
-            </span>
-            <span class="menu-title">Accueil</span>
-          </a>
-        </div>
-
-        <!-- Dashboard Menu Item -->
-        <div class="menu-item menu-accordion" [class.show]="isDashboardExpanded">
-
-          <span class="menu-link" (click)="toggleDashboard()">
             <span class="menu-icon">
               <i class="ki-duotone ki-element-11 fs-2">
                 <span class="path1"></span>
@@ -40,68 +26,70 @@
                 <span class="path4"></span>
               </i>
             </span>
-            <a class="menu-link" routerLink="/dashboard" routerLinkActive="active">
             <span class="menu-title">Tableau de bord</span>
-            <span class="menu-arrow"></span>
-            </a>
-          </span>
-
-          <!-- Submenu -->
-          <div class="menu-sub menu-sub-accordion" [@submenuAnimation]="isDashboardExpanded ? 'expanded' : 'collapsed'">
-            <div class="menu-item">
-              <a class="menu-link" routerLink="/cartes" routerLinkActive="active">
-                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                <span class="menu-title">Cartes en temps réel</span>
-              </a>
-            </div>
-
-            <div class="menu-item">
-              <a class="menu-link" routerLink="/users" routerLinkActive="active">
-                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                <span class="menu-title">Utilisateurs</span>
-              </a>
-            </div>
-
-            <div class="menu-item">
-              <a class="menu-link" routerLink="/tickets" routerLinkActive="active">
-                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                <span class="menu-title">Tickets & Chats</span>
-              </a>
-            </div>
-
-            <div class="menu-item">
-              <a class="menu-link" routerLink="/assureurs" routerLinkActive="active">
-                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                <span class="menu-title">Assureurs</span>
-              </a>
-            </div>
-
-            <div class="menu-item">
-              <a class="menu-link" routerLink="/statistiques" routerLinkActive="active">
-                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                <span class="menu-title">Statistiques</span>
-
-              </a>
-            </div>
-            <div class="menu-item">
-              <a class="menu-link" routerLink="/settings" routerLinkActive="active">
-                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                <span class="menu-title">Paramètres</span>
-              </a>
-            </div>
-            <!--<div class="menu-item">
-              <a class="menu-link" routerLink="/settings" routerLinkActive="active">
-                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-                <span class="menu-title">Paramètres</span>
-              </a>
-            </div>-->
-
-            </div>
-
-          </div>
+          </a>
         </div>
 
+        <!-- Cartes -->
+        <div class="menu-item">
+          <a class="menu-link" routerLink="/cartes" routerLinkActive="active">
+            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-title">Cartes en temps réel</span>
+          </a>
+        </div>
 
+        <!-- Utilisateurs -->
+        <div class="menu-item">
+          <a class="menu-link" routerLink="/users" routerLinkActive="active">
+            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-title">Utilisateurs</span>
+          </a>
+        </div>
+
+        <!-- Tickets -->
+        <div class="menu-item">
+          <a class="menu-link" routerLink="/tickets" routerLinkActive="active">
+            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-title">Tickets & Chats</span>
+          </a>
+        </div>
+
+        <!-- Assureurs -->
+        <div class="menu-item">
+          <a class="menu-link" routerLink="/assureurs" routerLinkActive="active">
+            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-title">Assureurs</span>
+          </a>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="menu-item">
+          <a class="menu-link" routerLink="/statistiques" routerLinkActive="active">
+            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-title">Statistiques</span>
+          </a>
+        </div>
+
+        <!-- Rôles -->
+        <div class="menu-item">
+          <a class="menu-link" routerLink="/roles" routerLinkActive="active">
+            <span class="menu-icon">
+              <i class="ki-duotone ki-shield-tick fs-2">
+                <span class="path1"></span>
+                <span class="path2"></span>
+              </i>
+            </span>
+            <span class="menu-title">Rôles</span>
+          </a>
+        </div>
+
+        <!-- Paramètres -->
+        <div class="menu-item">
+          <a class="menu-link" routerLink="/settings" routerLinkActive="active">
+            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-title">Paramètres</span>
+          </a>
+        </div>
 
         <!-- Separator -->
         <div class="menu-item">
@@ -125,3 +113,4 @@
       </div>
     </div>
   </div>
+</div>

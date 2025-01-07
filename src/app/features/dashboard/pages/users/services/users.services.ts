@@ -12,12 +12,12 @@ export class UsersService {
 
   constructor(private http: HttpClient) {}
 
-  getUsers(): Observable<User[]> {
+  /*getUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl).pipe(
       tap(response => {
         console.log('Réponse API getUsers:', response);
       }));
-  }
+  }*/
 
 
   validateAccount(userId: string): Observable<any> {
@@ -34,5 +34,16 @@ export class UsersService {
 
   deactivateAccount(userId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/users/${userId}/deactivate`, {});
+  }
+
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>(this.apiUrl);
+  }
+
+  deleteUser(userId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${userId}`);
+  }
+  updateUser(userId: string, userData: Partial<User>): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/${userId}`, userData);
   }
 }

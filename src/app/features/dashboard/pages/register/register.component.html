@@ -47,7 +47,7 @@
 
           <!--begin::Form-->
           <form class="form w-100" novalidate="novalidate"
-                data-kt-redirect-url="/craft/authentication/sign-in/basic.html" id="kt_sign_up_form">
+                data-kt-redirect-url="/register" id="kt_sign_up_form">
             <!--begin::Heading-->
             <div class="mb-10 text-center">
               <!--begin::Title-->
@@ -60,7 +60,7 @@
               <div class="text-gray-400 fw-semibold fs-4">
                 Already have an account?
 
-                <a href="../sign-in/basic.html" class="link-primary fw-bold">
+                <a href="/login" class="link-primary fw-bold">
                   Sign in here
                 </a>
               </div>
@@ -109,6 +109,32 @@
               <label class="form-label fw-bold text-dark fs-6">Email</label>
               <input class="form-control form-control-lg form-control-solid" type="email"
                      placeholder="" name="email" autocomplete="off" />
+            </div>
+            <!--end::Input group-->
+
+            <!--begin::Input group-->
+            <div class="fv-row mb-7">
+              <label class="form-label fw-bold text-dark fs-6">Rôle</label>
+              <div class="position-relative">
+                <select
+                  class="form-select form-select-lg form-select-solid"
+                  formControlName="roleId"
+                  (mouseenter)="onRoleHover($event)"
+                  (change)="onRoleSelect($event)">
+                  <option value="" disabled>Choisissez votre rôle</option>
+                  <option *ngFor="let role of roles" [value]="role._id" [attr.data-description]="role.description">
+                    {{ role.name }}
+                  </option>
+                </select>
+
+                <div *ngIf="selectedRoleDescription"
+                     class="position-absolute start-0 mt-2 p-3 bg-white shadow rounded border border-gray-200 w-100 z-1">
+                  <div class="d-flex align-items-center">
+                    <i class="ki-duotone ki-information-5 fs-2 text-primary me-2"></i>
+                    <span class="text-gray-600 fs-7">{{ selectedRoleDescription }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
             <!--end::Input group-->
 
