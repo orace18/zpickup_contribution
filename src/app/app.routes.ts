@@ -30,53 +30,57 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/pages/home/home.component')
-          .then(m => m.HomeComponent)
+          .then(m => m.HomeComponent),
       },
       {
         path: 'cartes',
         loadComponent: () => import('./features/dashboard/pages/cartes/cartes.component')
-          .then(m => m.CartesComponent)
+          .then(m => m.CartesComponent),
+        data: { permission: 'view_cartes' }
       },
       {
         path: 'users',
         loadComponent: () => import('./features/dashboard/pages/users/users.component')
-          .then(m => m.UsersComponent)
+          .then(m => m.UsersComponent),
+        data: { permission: 'view_users' }
       },
       {
         path: 'tickets',
         loadComponent: () => import('./features/dashboard/pages/tickets/tickets.component')
-          .then(m => m.TicketsComponent)
+          .then(m => m.TicketsComponent),
+        data: { permission: 'view_tickets' }
       },
       {
         path: 'chats',
         loadComponent: () => import('./features/dashboard/pages/chats/chats.component')
-          .then(m => m.ChatsComponent)
+          .then(m => m.ChatsComponent),
+        data: { permission: 'view_chat' }
       },
       {
         path: 'assureurs',
         loadComponent: () => import('./features/dashboard/pages/assureurs/assureurs.component')
-          .then(m => m.AssureursComponent)
+          .then(m => m.AssureursComponent),
+        data: { permission: 'view_assureurs' }
       },
       {
         path: 'statistics',
         loadComponent: () => import('./features/dashboard/pages/statistics/statistics.component')
-          .then(m => m.StatisticsComponent)
+          .then(m => m.StatisticsComponent),
+        data: { permission: 'view_statistics' }
       },
       {
         path: 'settings',
         loadComponent: () => import('./features/dashboard/pages/settings/settings.component')
-          .then(m => m.SettingsComponent)
+          .then(m => m.SettingsComponent),
+        data: { permission: 'manage_settings' }
       },
       {
         path: 'roles',
         loadComponent: () => import('./features/dashboard/pages/roles/roles.component')
-          .then(m => m.RolesComponent)
+          .then(m => m.RolesComponent),
+        data: { permission: 'manage_roles' }
       },
-      {
-        path: 'addrole',
-        loadComponent: () => import('../core/components/add-role/add-role.component')
-          .then(m => m.AddRoleComponent)
-      },
+
 
     ]
   },

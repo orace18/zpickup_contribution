@@ -31,47 +31,67 @@
         </div>
 
         <!-- Cartes -->
-        <div class="menu-item">
+        <div class="menu-item" *ngIf="authService.hasPermission('view_cartes')">
           <a class="menu-link" routerLink="/cartes" routerLinkActive="active">
-            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
             <span class="menu-title">Cartes en temps réel</span>
           </a>
         </div>
 
         <!-- Utilisateurs -->
-        <div class="menu-item">
+        <div class="menu-item" *ngIf="authService.hasPermission('view_users')">
           <a class="menu-link" routerLink="/users" routerLinkActive="active">
-            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
             <span class="menu-title">Utilisateurs</span>
           </a>
         </div>
 
         <!-- Tickets -->
-        <div class="menu-item">
+        <div class="menu-item" *ngIf="authService.hasPermission('view_tickets')">
           <a class="menu-link" routerLink="/tickets" routerLinkActive="active">
-            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
-            <span class="menu-title">Tickets & Chats</span>
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">Tickets</span>
+          </a>
+        </div>
+
+        <!-- Chats -->
+        <div class="menu-item" *ngIf="authService.hasPermission('view_chat')">
+          <a class="menu-link" routerLink="/chats" routerLinkActive="active">
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
+            <span class="menu-title">Chats</span>
           </a>
         </div>
 
         <!-- Assureurs -->
-        <div class="menu-item">
+        <div class="menu-item" *ngIf="authService.hasPermission('view_assureurs')">
           <a class="menu-link" routerLink="/assureurs" routerLinkActive="active">
-            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
             <span class="menu-title">Assureurs</span>
           </a>
         </div>
 
         <!-- Statistiques -->
-        <div class="menu-item">
+        <div class="menu-item" *ngIf="authService.hasPermission('view_statistics')">
           <a class="menu-link" routerLink="/statistiques" routerLinkActive="active">
-            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
             <span class="menu-title">Statistiques</span>
           </a>
         </div>
 
         <!-- Rôles -->
-        <div class="menu-item">
+        <div class="menu-item" *ngIf="authService.hasPermission('manage_roles')">
           <a class="menu-link" routerLink="/roles" routerLinkActive="active">
             <span class="menu-icon">
               <i class="ki-duotone ki-shield-tick fs-2">
@@ -84,9 +104,11 @@
         </div>
 
         <!-- Paramètres -->
-        <div class="menu-item">
+        <div class="menu-item" *ngIf="authService.hasPermission('manage_settings')">
           <a class="menu-link" routerLink="/settings" routerLinkActive="active">
-            <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+            <span class="menu-bullet">
+              <span class="bullet bullet-dot"></span>
+            </span>
             <span class="menu-title">Paramètres</span>
           </a>
         </div>
@@ -100,7 +122,7 @@
 
         <!-- Déconnexion -->
         <div class="menu-item">
-          <a class="menu-link" (click)="deconnexion()">
+          <a class="menu-link" (click)="deconnexion()" style="cursor: pointer;">
             <span class="menu-icon">
               <i class="ki-duotone ki-logout fs-2">
                 <span class="path1"></span>
@@ -110,6 +132,7 @@
             <span class="menu-title">Déconnexion</span>
           </a>
         </div>
+
       </div>
     </div>
   </div>

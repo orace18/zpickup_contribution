@@ -6,7 +6,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 
 interface LoginResponse {
-  access_token: string;  // Changé de 'token' à 'access_token'
+  access_token: string;
   user: {
     email_address: string;
     phone_number: string;
@@ -47,11 +47,11 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/admin/auth/login`, credentials)
       .pipe(
         tap(response => {
-          console.log('Login response:', response); // Voir la réponse complète
+          console.log('Login response:', response);
           localStorage.setItem('currentUser', JSON.stringify(response));
-          console.log('Stored in localStorage:', localStorage.getItem('currentUser')); // Vérifier le stockage
+          console.log('Stored in localStorage:', localStorage.getItem('currentUser'));
           this.currentUserSubject.next(response);
-          console.log('Current user subject value:', this.currentUserSubject.value); // Vérifier le BehaviorSubject
+          console.log('Current user subject value:', this.currentUserSubject.value);
         }),
         catchError(this.handleError)
       );
@@ -94,7 +94,7 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return this.currentUserSubject.value?.token || null;
+    return this.currentUserSubject.value?.access_token || null;
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -124,6 +124,20 @@ export class AuthService {
     }
 
     return throwError(() => new Error(errorMessage));
+  }
+
+
+  hasPermission(permission: string): boolean {
+    console.log('Checking permission:', {
+      permission,
+      currentUser: this.currentUserSubject.value,
+      userPermissions: this.currentUserSubject.value?.user?.role?.permissions
+    });
+    return this.currentUserSubject.value?.user?.role?.permissions?.includes(permission) || false;
+  }
+
+  hasAnyPermission(permissions: string[]): boolean {
+    return permissions.some(permission => this.hasPermission(permission));
   }
 
 

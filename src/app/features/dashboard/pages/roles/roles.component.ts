@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, Validators, AbstractControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { PermissionsResponse } from './models/permission.model';
 import { PermissionsService } from './services/permission.service';
@@ -7,7 +7,7 @@ import {ToastrModule, ToastrService} from 'ngx-toastr';
 import { finalize } from 'rxjs/operators';
 import {CommonModule} from '@angular/common';
 import {Role} from './models/role.model';
-declare const bootstrap: any; // Pour résoudre l'erreur bootstrap
+declare const bootstrap: any;
 
 @Component({
   selector: 'app-roles',
@@ -15,13 +15,17 @@ declare const bootstrap: any; // Pour résoudre l'erreur bootstrap
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule],
   templateUrl: './roles.component.html'
 })
-export class RolesComponent implements OnInit {
+export class RolesComponent implements OnInit, AfterViewInit {
   roleForm!: FormGroup;
   permissionGroups: PermissionsResponse = {};
   loading = false;
   submitting = false;
   roles: any[] = [];
   selectedRole: Role | null = null;
+  private unfilteredRoles: any[] = [];
+  permissionNames: Map<string, string> = new Map();
+  permissionsByKey: Map<string, string> = new Map();
+  dropdowns: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -40,7 +44,54 @@ export class RolesComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+  private initializePermissionNames(): void {
+    Object.values(this.permissionGroups).forEach(permissions => {
+      permissions.forEach(permission => {
+        this.permissionNames.set(permission._id, permission.name);
+        this.permissionsByKey.set(permission.key, permission.name);
+      });
+    });
+  }
+
+  getPermissionName(permissionIdentifier: unknown): string {
+    const identifier = permissionIdentifier as string;
+
+    // Essayer de trouver par ID
+    let name = this.permissionNames.get(identifier);
+
+    // Si non trouvé par ID, essayer par clé
+    if (!name) {
+      name = this.permissionsByKey.get(identifier);
+    }
+
+    if (!name) {
+      console.warn(`Permission name not found for identifier: ${identifier}`);
+      return 'Permission inconnue';
+    }
+
+    return name;
+  }
+
+
+  // Nouvelle méthode pour rafraîchir toutes les données
+  private refreshData(): void {
+    // Recharger les permissions
+    this.permissionsService.getAllPermissions()
+      .subscribe({
+        next: (permissions) => {
+          this.permissionGroups = permissions;
+          this.initializePermissionNames();
+          // Puis recharger les rôles
+          this.loadRoles();
+        },
+        error: (error) => {
+          console.error('Error refreshing permissions:', error);
+          this.toastr.error('Erreur lors du rafraîchissement des permissions');
+        }
+      });
+  }
+
+  /*ngOnInit(): void {
     this.loading = true;
 
     this.roleService.getAllRoles()
@@ -48,6 +99,7 @@ export class RolesComponent implements OnInit {
       .subscribe({
         next: (roles) => {
           this.roles = roles;
+          this.unfilteredRoles = [...roles]; // Garder une copie des rôles non filtrés
         },
         error: (error) => {
           this.toastr.error('Erreur lors du chargement des rôles');
@@ -68,29 +120,71 @@ export class RolesComponent implements OnInit {
         }
       });
   }
+*/
+
+  ngOnInit(): void {
+    this.loading = true;
+
+    this.roleService.getAllRoles()
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: (roles) => {
+          this.roles = roles;
+          this.unfilteredRoles = [...roles];
+        },
+        error: (error) => {
+          this.toastr.error('Erreur lors du chargement des rôles');
+          console.error('Role loading error:', error);
+        }
+      });
+
+    this.permissionsService.getAllPermissions()
+      .pipe(finalize(() => this.loading = false))
+      .subscribe({
+        next: (permissions) => {
+          this.permissionGroups = permissions;
+          this.initializePermissionNames(); // Initialiser les noms des permissions
+          this.setupPermissionControls();
+          this.refreshData();
+          this.roleForm.reset();
+          this.discardForm()
+        },
+        error: (error) => {
+          this.toastr.error('Erreur lors du chargement des permissions');
+          console.error('Permission loading error:', error);
+        }
+      });
+
+
+    setTimeout(() => {
+      const dropdownElements = document.querySelectorAll('.dropdown-toggle');
+      dropdownElements.forEach(element => {
+        const dropdown = new bootstrap.Dropdown(element);
+        this.dropdowns.push(dropdown);
+      });
+    });
+  }
+
+  toggleDropdown(event: Event) {
+    const dropdownMenu = (event.target as HTMLElement)
+      .closest('.dropdown')
+      ?.querySelector('.dropdown-menu');
+    if (dropdownMenu) {
+      dropdownMenu.classList.toggle('show');
+    }
+  }
 
   private setupPermissionControls(): void {
     const permissionsGroup = this.fb.group({});
 
     Object.entries(this.permissionGroups).forEach(([groupName, permissions]) => {
       const groupControls = this.fb.group({
-        enabled: [false],
         permissions: this.fb.group(
           permissions.reduce((acc, perm) => ({
             ...acc,
             [perm.key]: [false]
           }), {})
         )
-      });
-
-      // Gestion de la sélection/désélection de groupe
-      groupControls.get('enabled')?.valueChanges.subscribe(checked => {
-        const permissionsFormGroup = groupControls.get('permissions') as FormGroup;
-        if (permissionsFormGroup) {
-          Object.keys(permissionsFormGroup.controls || {}).forEach(key => {
-            permissionsFormGroup.get(key)?.setValue(checked, { emitEvent: false });
-          });
-        }
       });
 
       permissionsGroup.addControl(groupName, groupControls);
@@ -103,10 +197,20 @@ export class RolesComponent implements OnInit {
     const checked = (event.target as HTMLInputElement).checked;
     const group = this.roleForm.get(`permissions.${groupName}.permissions`);
     if (group && group instanceof FormGroup) {
-      Object.keys(group.controls || {}).forEach(key => {
-        group.get(key)?.setValue(checked, { emitEvent: false });
+      Object.keys(group.controls).forEach(key => {
+        group.get(key)?.setValue(checked);
       });
     }
+  }
+
+  isGroupFullySelected(groupName: string): boolean {
+    const group = this.roleForm.get(`permissions.${groupName}.permissions`);
+    if (!group || !(group instanceof FormGroup)) return false;
+
+    const controls = Object.keys(group.controls);
+    if (controls.length === 0) return false;
+
+    return controls.every(key => group.get(key)?.value === true);
   }
 
   selectAllPermissions(event: Event): void {
@@ -114,13 +218,12 @@ export class RolesComponent implements OnInit {
     const permissionsGroup = this.roleForm.get('permissions');
 
     if (permissionsGroup && permissionsGroup instanceof FormGroup) {
-      Object.keys(permissionsGroup.controls || {}).forEach(groupName => {
+      Object.keys(permissionsGroup.controls).forEach(groupName => {
         const group = permissionsGroup.get(groupName);
         if (group && group instanceof FormGroup) {
-          group.get('enabled')?.setValue(checked);
           const perms = group.get('permissions');
           if (perms && perms instanceof FormGroup) {
-            Object.keys(perms.controls || {}).forEach(key => {
+            Object.keys(perms.controls).forEach(key => {
               perms.get(key)?.setValue(checked);
             });
           }
@@ -142,6 +245,23 @@ export class RolesComponent implements OnInit {
     });
   }
 
+  private setupPermissionsForEdit(permissions: string[]): void {
+    const permissionsFormGroup = this.roleForm.get('permissions');
+    if (permissionsFormGroup && permissionsFormGroup instanceof FormGroup) {
+      Object.keys(this.permissionGroups).forEach(groupName => {
+        const group = permissionsFormGroup.get(groupName);
+        if (group && group instanceof FormGroup) {
+          const permissionsControl = group.get('permissions');
+          if (permissionsControl && permissionsControl instanceof FormGroup) {
+            Object.keys(permissionsControl.controls).forEach(key => {
+              const isSelected = permissions.includes(key);
+              permissionsControl.get(key)?.setValue(isSelected);
+            });
+          }
+        }
+      });
+    }
+  }
   discardForm(): void {
     this.roleForm.reset();
     const modal = document.getElementById('kt_modal_add_role');
@@ -158,14 +278,6 @@ export class RolesComponent implements OnInit {
       const modalInstance = bootstrap.Modal.getInstance(modal);
       modalInstance?.hide();
     }
-  }
-
-
-  isGroupFullySelected(groupName: string): boolean {
-    const group = this.roleForm.get(`permissions.${groupName}.permissions`);
-    if (!group || !(group instanceof FormGroup)) return false;
-
-    return Object.keys(group.controls || {}).every(key => group.get(key)?.value === true);
   }
 
   /*onSubmit(): void {
@@ -216,8 +328,6 @@ export class RolesComponent implements OnInit {
   }
 */
 
-
-
   @ViewChild('kt_modal_add_role') modal!: ElementRef;
 
   closeModal() {
@@ -231,13 +341,31 @@ export class RolesComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    // Ajouter l'écouteur d'événement pour le bouton de fermeture
+    // Initialiser les boutons de fermeture modaux
     const closeButton = document.querySelector('[data-kt-roles-modal-action="close"]');
     if (closeButton) {
       closeButton.addEventListener('click', () => {
         this.closeModal();
       });
     }
+
+
+    setTimeout(() => {
+      this.initializeDropdowns();
+    });
+  }
+
+  private initializeDropdowns(): void {
+    // Détruire les anciens dropdowns
+    this.dropdowns.forEach(dropdown => dropdown.dispose());
+    this.dropdowns = [];
+
+    // Initialiser les nouveaux dropdowns
+    const dropdownElements = document.querySelectorAll('.dropdown-toggle');
+    dropdownElements.forEach(element => {
+      const dropdown = new bootstrap.Dropdown(element);
+      this.dropdowns.push(dropdown);
+    });
   }
 
   editRole(role: Role): void {
@@ -306,7 +434,7 @@ export class RolesComponent implements OnInit {
             this.toastr.success('Rôle mis à jour avec succès');
             this.roleForm.reset();
             this.selectedRole = null;
-            //this.discardForm();
+            this.discardForm();
             this.discardUpdateForm();
             this.loadRoles();
           },
@@ -326,6 +454,7 @@ export class RolesComponent implements OnInit {
             this.roleForm.reset();
             this.discardForm();
             this.loadRoles();
+            this.refreshData();
           },
           error: (error) => {
             console.error('Error creating role:', error);
@@ -403,7 +532,7 @@ export class RolesComponent implements OnInit {
       });
   }*/
 
-// Nouvelle méthode pour charger les rôles
+
   private loadRoles(): void {
     this.loading = true;
     this.roleService.getAllRoles()
@@ -411,6 +540,10 @@ export class RolesComponent implements OnInit {
       .subscribe({
         next: (roles) => {
           this.roles = roles;
+          this.unfilteredRoles = [...roles];
+          setTimeout(() => {
+            this.initializeDropdowns();
+          });
         },
         error: (error) => {
           this.toastr.error('Erreur lors du chargement des rôles');
@@ -419,33 +552,10 @@ export class RolesComponent implements OnInit {
       });
   }
 
-  private setupPermissionsForEdit(permissions: string[]): void {
-    const permissionsFormGroup = this.roleForm.get('permissions');
-    if (permissionsFormGroup && permissionsFormGroup instanceof FormGroup) {
-      Object.keys(this.permissionGroups).forEach(groupName => {
-        const group = permissionsFormGroup.get(groupName);
-        if (group && group instanceof FormGroup) {
-          const permissionsControl = group.get('permissions');
-          if (permissionsControl && permissionsControl instanceof FormGroup) {
-            let hasSelectedPermissions = false;
-
-            Object.keys(permissionsControl.controls).forEach(key => {
-              const isSelected = permissions.includes(key);
-              permissionsControl.get(key)?.setValue(isSelected);
-              if (isSelected) hasSelectedPermissions = true;
-            });
-
-            // Mettre à jour l'état "enabled" du groupe
-            group.get('enabled')?.setValue(hasSelectedPermissions);
-          }
-        }
-      });
-    }
-  }
-
 
 
   @ViewChild('kt_modal_delete_role') deleteModal!: ElementRef;
+  searchQuery: any;
 
   openDeleteModal(role: Role): void {
     this.selectedRole = role;
@@ -486,9 +596,24 @@ export class RolesComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error deleting role:', error);
-          this.toastr.error('Erreur lors de la suppression du rôle');
+          this.toastr.error(`Erreur lors de la suppression du rôle:${error.error.message}`);
         }
       });
   }
+
+  applyFilters(): void {
+    if (!this.searchQuery || this.searchQuery.trim() === '') {
+      this.roles = [...this.unfilteredRoles];
+      return;
+    }
+
+    const query = this.searchQuery.toLowerCase().trim();
+    this.roles = this.unfilteredRoles.filter(role =>
+      role.name.toLowerCase().includes(query) ||
+      role.description?.toLowerCase().includes(query) ||
+      role.key.toLowerCase().includes(query)
+    );
+  }
+
 
 }

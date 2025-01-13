@@ -4,26 +4,16 @@ import { RouterLink, Router, RouterLinkActive } from '@angular/router';
 import {AuthService} from '../../services/auth.service';
 import {MENU_CONFIG} from './sidebar.config';
 import {AuthResponse} from '../../models/datatype.model';
+import {filter} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-sidebar',
   imports: [
     RouterLink,
-    RouterLinkActive
-  ],
-  animations: [
-    trigger('submenuAnimation', [
-      state('collapsed', style({
-        height: '0',
-        overflow: 'hidden'
-      })),
-      state('expanded', style({
-        height: '*'
-      })),
-      transition('collapsed <=> expanded', [
-        animate('300ms ease-in-out')
-      ])
-    ])
+    RouterLinkActive,
+    CommonModule
   ],
   templateUrl: './sidebar.component.html',
   standalone: true,
@@ -37,24 +27,34 @@ export class SidebarComponent implements OnInit{
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    protected authService: AuthService
   ) {}
 
+
+
   ngOnInit() {
-    const authData = localStorage.getItem('access_token');
-    if (authData) {
-      const auth: AuthResponse = JSON.parse(authData);
-      const userPermissions = auth.user?.role?.permissions || [];
+    this.authService.currentUser$.pipe(
+      filter(user => !!user),
+      map(auth => {
+        console.log('Current auth in sidebar:', auth);
+        const userPermissions = auth.user?.role?.permissions || [];
+        console.log('User permissions:', userPermissions);
 
-      this.menuItems = MENU_CONFIG.dashboard.items.filter(item =>
-        userPermissions.includes(item.permission)
-      );
-    }
+        const filteredItems = MENU_CONFIG.menuItems.filter(item => {
+          const hasPermission = !item.permission || userPermissions.includes(item.permission);
+          console.log(`Menu item ${item.title}: permission=${item.permission}, has permission=${hasPermission}`);
+          return hasPermission;
+        });
+
+        return filteredItems;
+      })
+    ).subscribe(filteredItems => {
+      console.log('Final filtered items:', filteredItems);
+      this.menuItems = filteredItems;
+    });
   }
 
-  toggleDashboard() {
-    this.isDashboardExpanded = !this.isDashboardExpanded;
-  }
+
 
   isRouteActive(route: string): boolean {
     return this.router.url === route;

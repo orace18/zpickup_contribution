@@ -4,36 +4,31 @@
     <div class=" container-fluid  d-flex flex-stack flex-wrap flex-sm-nowrap">
       <!--begin::Info-->
       <div class="d-flex flex-column align-items-start justify-content-center flex-wrap me-2">
-        <!--begin::Title-->
-      <!--  <h1 class="text-dark fw-bold my-1 fs-2">
-          Roles List </h1>
-        &lt;!&ndash;end::Title&ndash;&gt;
 
-        &lt;!&ndash;begin::Breadcrumb&ndash;&gt;
-        <ul class="breadcrumb fw-semibold fs-base my-1">
-          <li class="breadcrumb-item text-muted">
-            <a href="../../../index.html" class="text-muted text-hover-primary">
-              Home </a>
-          </li>
-
-          <li class="breadcrumb-item text-muted">
-            User Management </li>
-
-          <li class="breadcrumb-item text-muted">
-            Roles </li>
-
-          <li class="breadcrumb-item text-dark">
-            Roles List </li>
-
-        </ul>-->
-        <!--end::Breadcrumb-->
       </div>
       <!--end::Info-->
 
       <!--begin::Actions-->
+      <div class="card-title">
+
+
+      </div>
       <div class="d-flex align-items-center flex-nowrap text-nowrap py-1">
+        <div class="d-flex align-items-center position-relative my-1 ms-2 me-2">
+          <input type="text"
+                 name="searchQuery"
+                 class="form-control form-control-solid w-250px ps-13"
+                 placeholder="Rechercher un utilisateur"
+                 [(ngModel)]="searchQuery"
+                 (keyup)="applyFilters()" />
+        </div>
+        <button type="button" class="btn btn-light-primary me-3"
+                data-bs-toggle="modal" data-bs-target="#kt_modal_export_users">
+          <i class="ki-duotone ki-exit-up fs-2"><span class="path1"></span><span class="path2"></span></i>
+          Export
+        </button>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_role">
-          <i class="ki-duotone ki-plus fs-2"></i> Add Role
+          <i class="ki-duotone ki-plus fs-2"></i> Ajouter un nouveau Role
         </button>
       </div>
       <!--end::Actions-->
@@ -64,39 +59,45 @@
                 Total users with this role: {{ role.totalUsers }}
               </div>
               <div class="d-flex flex-column text-gray-600">
-                <div
-                  class="d-flex align-items-center py-2"
-                  *ngFor="let permission of role.permissions"
-                >
-                  <span class="bullet bg-primary me-3"></span> {{ permission}}
+                <div class="d-flex align-items-center py-2" *ngFor="let permission of role.permissions | slice:0:5">
+                  <span class="bullet bg-primary me-3"></span> {{ getPermissionName(permission) }}
                 </div>
+
               </div>
             </div>
             <!--end::Card body-->
 
             <!--begin::Card footer-->
             <div class="card-footer flex-wrap pt-0">
-              <button
-                type="button"
-                class="btn btn-light btn-active-primary my-1 me-2"
-                (click)="openViewModal(role)"
-              >
-                View Role
-              </button>
-              <button
-                type="button"
-                class="btn btn-light btn-active-light-primary my-1"
-                (click)="editRole(role)"
-              >
-                Edit Role
-              </button>
-              <button
-                type="button"
-                class="btn btn-light btn-active-light-danger my-1"
-                (click)="openDeleteModal(role)"
-              >
-                Delete Role
-              </button>
+              <div class="dropdown">
+                <button class="btn btn-light btn-active-light-primary dropdown-toggle"
+                        type="button"
+                        (click)="toggleDropdown($event)"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                  Actions
+                  <span class="svg-icon svg-icon-5 m-0">
+
+      </span>
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" (click)="openViewModal(role)">
+                      Voir le Role
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" (click)="editRole(role)">
+                      Modifier le Role
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item text-danger" (click)="openDeleteModal(role)">
+                      Supprimer le Role
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
             <!--end::Card footer-->
           </div>
@@ -117,7 +118,7 @@
                 <!--end::Illustration-->
 
                 <!--begin::Label-->
-                <div class="fw-bold fs-3 text-gray-600 text-hover-primary">Add New Role
+                <div class="fw-bold fs-3 text-gray-600 text-hover-primary">Ajouter un nouveau Role
                 </div>
                 <!--end::Label-->
               </button>
@@ -139,7 +140,7 @@
           <div class="modal-content">
             <!-- Modal Header -->
             <div class="modal-header">
-              <h2 class="fw-bold">Add a Role</h2>
+              <h2 class="fw-bold">Ajouter un nouveau Role</h2>
               <div class="btn btn-icon btn-sm btn-active-icon-primary" data-kt-roles-modal-action="close"  >
                 <i class="ki-duotone ki-cross fs-1" (click)="closeModal()">
                   <span class="path1"></span>
@@ -157,23 +158,23 @@
                   <!-- Role Name Input -->
                   <div class="fv-row mb-10">
                     <label class="fs-5 fw-bold form-label mb-2">
-                      <span class="required">Role name</span>
+                      <span class="required">Nom du Role</span>
                     </label>
                     <input formControlName="name" class="form-control form-control-solid" placeholder="Enter a role name" />
                     <div *ngIf="roleForm.get('name')?.touched && roleForm.get('name')?.errors?.['required']" class="invalid-feedback">
-                      Role name is required
+                      Le nom du role est requis
                     </div>
                   </div>
 
                   <!-- Role Description -->
                   <div class="fv-row mb-10">
-                    <label class="fs-5 fw-bold form-label mb-2">Description</label>
+                    <label class="fs-5 fw-bold form-label mb-2">Description du Role</label>
                     <textarea formControlName="description" class="form-control form-control-solid" rows="3" placeholder="Enter role description"></textarea>
                   </div>
 
                   <!-- Permissions Section -->
                   <div class="fv-row">
-                    <label class="fs-5 fw-bold form-label mb-2">Role Permissions</label>
+                    <label class="fs-5 fw-bold form-label mb-2">Les Permissions</label>
 
                     <!-- Permissions Table -->
                     <div class="table-responsive">
@@ -182,14 +183,14 @@
                         <!-- Administrator Access Row -->
                         <tr>
                           <td class="text-gray-800">
-                            Administrator Access
+                            Les Access Administrateur
                             <span class="ms-2" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content="Allows a full access to the system">
-                          <i class="ki-duotone ki-information fs-7">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                            <span class="path3"></span>
-                          </i>
-                        </span>
+              <i class="ki-duotone ki-information fs-7">
+                <span class="path1"></span>
+                <span class="path2"></span>
+                <span class="path3"></span>
+              </i>
+            </span>
                           </td>
                           <td>
                             <label class="form-check form-check-custom form-check-solid me-9">
@@ -198,38 +199,57 @@
                                 type="checkbox"
                                 (change)="selectAllPermissions($event)"
                                 [checked]="isAllPermissionsSelected()" />
-                              <span class="form-check-label">Select all</span>
+                              <span class="form-check-label">Tout sélectionner</span>
                             </label>
                           </td>
                         </tr>
 
-                        <!-- Permission Groups -->
+                        <!-- Permission Groups with Collapse -->
                         <ng-container formGroupName="permissions">
                           <tr *ngFor="let group of permissionGroups | keyvalue">
-                            <td class="text-gray-800">{{ group.key }}</td>
-                            <td>
-                              <div class="d-flex" [formGroupName]="group.key">
-                                <!-- Group Enable/Disable -->
-                                <label class="form-check form-check-sm form-check-custom form-check-solid me-5 me-lg-20">
-                                  <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    formControlName="enabled"
-                                    (change)="updateChildControls(group.key, $event)" />
-                                  <span class="form-check-label">Enable</span>
-                                </label>
+                            <td colspan="2">
+                              <div class="accordion" [id]="'accordion_' + group.key">
+                                <div class="accordion-item border-0">
+                                  <!-- Group Header -->
+                                  <div class="accordion-header" [id]="'heading_' + group.key">
+                                    <div class="accordion-button collapsed py-3"
+                                         data-bs-toggle="collapse"
+                                         [attr.data-bs-target]="'#collapse_' + group.key"
+                                         [attr.aria-controls]="'collapse_' + group.key">
+                                      <div class="d-flex align-items-center w-100">
+                                        <label class="form-check form-check-custom form-check-solid me-3">
+                                          <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            [checked]="isGroupFullySelected(group.key)"
+                                            (change)="updateChildControls(group.key, $event)" />
+                                        </label>
+                                        <span class="fs-5 fw-semibold">{{ group.key }}</span>
+                                      </div>
+                                    </div>
+                                  </div>
 
-                                <!-- Individual Permissions -->
-                                <div formGroupName="permissions" class="d-flex">
-                                  <ng-container *ngFor="let perm of group.value">
-                                    <label class="form-check form-check-sm form-check-custom form-check-solid me-5 me-lg-20">
-                                      <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        [formControlName]="perm.key" />
-                                      <span class="form-check-label">{{ perm.name }}</span>
-                                    </label>
-                                  </ng-container>
+                                  <!-- Group Content -->
+                                  <div [id]="'collapse_' + group.key"
+                                       class="accordion-collapse collapse"
+                                       [attr.aria-labelledby]="'heading_' + group.key"
+                                       [attr.data-bs-parent]="'#accordion_' + group.key">
+                                    <div class="accordion-body py-3">
+                                      <div class="d-flex flex-column" [formGroupName]="group.key">
+                                        <div formGroupName="permissions">
+                                          <ng-container *ngFor="let perm of group.value">
+                                            <label class="form-check form-check-custom form-check-solid mb-3">
+                                              <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                [formControlName]="perm.key" />
+                                              <span class="form-check-label ms-2">{{ perm.name }}</span>
+                                            </label>
+                                          </ng-container>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </td>
@@ -248,16 +268,16 @@
                     class="btn btn-light me-3"
                     (click)="discardForm()"
                     [disabled]="submitting">
-                    Discard
+                    Retourner
                   </button>
 
                   <button
                     type="submit"
                     class="btn btn-primary"
                     [disabled]="roleForm.invalid || submitting">
-                    <span class="indicator-label" *ngIf="!submitting">Submit</span>
+                    <span class="indicator-label" *ngIf="!submitting">Envoyer</span>
                     <span class="indicator-progress" *ngIf="submitting">
-                Please wait...
+                Veuillez patienter...
                 <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
               </span>
                   </button>
@@ -277,7 +297,7 @@
         <div class="modal-dialog modal-dialog-centered mw-750px">
           <div class="modal-content">
             <div class="modal-header">
-              <h2 class="fw-bold">Update Role</h2>
+              <h2 class="fw-bold">Mettre à jour le Role</h2>
               <div class="btn btn-icon btn-sm btn-active-icon-primary" data-kt-roles-modal-action="close">
                 <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
               </div>
@@ -289,66 +309,71 @@
                   <!-- Role Name -->
                   <div class="fv-row mb-10">
                     <label class="fs-5 fw-bold form-label mb-2">
-                      <span class="required">Role name</span>
+                      <span class="required">Nom du Role</span>
                     </label>
                     <input class="form-control form-control-solid"
                            formControlName="name"
                            placeholder="Enter a role name" />
                   </div>
 
-                  <!-- Description si nécessaire -->
+                  <!-- Description -->
                   <div class="fv-row mb-10">
-                    <label class="fs-5 fw-bold form-label mb-2">Description</label>
+                    <label class="fs-5 fw-bold form-label mb-2">Description du Role</label>
                     <input class="form-control form-control-solid"
                            formControlName="description"
                            placeholder="Enter role description" />
                   </div>
 
-                  <!-- Permissions -->
+                  <!-- Permissions avec Accordion -->
                   <div class="fv-row">
-                    <label class="fs-5 fw-bold form-label mb-2">Role Permissions</label>
-                    <div class="table-responsive">
-                      <table class="table align-middle table-row-dashed fs-6 gy-5">
-                        <tbody class="text-gray-600 fw-semibold">
-                        <!-- Select All Row -->
-                        <tr>
-                          <td class="text-gray-800">
-                            Administrator Access
-                          </td>
-                          <td>
-                            <label class="form-check form-check-sm form-check-custom form-check-solid me-9">
+                    <label class="fs-5 fw-bold form-label mb-2 d-flex justify-content-between align-items-center">
+                      <span>Les Permissions</span>
+                      <div class="form-check form-check-custom form-check-solid">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               (change)="selectAllPermissions($event)"
+                               [checked]="isAllPermissionsSelected()" />
+                        <span class="form-check-label ms-2">Tout sélectionner</span>
+                      </div>
+                    </label>
+
+                    <!-- Permission Groups Accordion -->
+                    <div class="accordion mt-5" id="permissionsAccordion" [formGroupName]="'permissions'">
+                      <div class="accordion-item mb-3" *ngFor="let group of permissionGroups | keyvalue">
+                        <div class="accordion-header" [id]="'heading' + group.key">
+                          <div class="accordion-button collapsed py-3"
+                               data-bs-toggle="collapse"
+                               [attr.data-bs-target]="'#collapse' + group.key"
+                               [attr.aria-expanded]="false"
+                               [attr.aria-controls]="'collapse' + group.key">
+                            <div class="form-check form-check-custom form-check-solid me-3">
                               <input class="form-check-input"
                                      type="checkbox"
-                                     (change)="selectAllPermissions($event)"
-                                     [checked]="isAllPermissionsSelected()" />
-                              <span class="form-check-label">Select all</span>
-                            </label>
-                          </td>
-                        </tr>
-
-                        <!-- Permission Groups -->
-                        <tr *ngFor="let group of permissionGroups | keyvalue">
-                          <td class="text-gray-800">
-                            {{group.key}}
-                          </td>
-                          <td>
-                            <div class="d-flex" [formGroupName]="'permissions'" >
-                              <ng-container [formGroupName]="group.key">
-                                <div formGroupName="permissions" class="d-flex">
-                                  <label *ngFor="let perm of group.value"
-                                         class="form-check form-check-custom form-check-solid me-5 me-lg-20">
-                                    <input class="form-check-input"
-                                           type="checkbox"
-                                           [formControlName]="perm.key"/>
-                                    <span class="form-check-label">{{perm.name}}</span>
-                                  </label>
-                                </div>
-                              </ng-container>
+                                     [checked]="isGroupFullySelected(group.key)"
+                                     (change)="updateChildControls(group.key, $event)"
+                                     (click)="$event.stopPropagation()" />
                             </div>
-                          </td>
-                        </tr>
-                        </tbody>
-                      </table>
+                            <span class="fw-bold">{{group.key}}</span>
+                          </div>
+                        </div>
+
+                        <div [id]="'collapse' + group.key"
+                             class="accordion-collapse collapse"
+                             [attr.aria-labelledby]="'heading' + group.key"
+                             data-bs-parent="#permissionsAccordion">
+                          <div class="accordion-body px-3" [formGroupName]="group.key">
+                            <div formGroupName="permissions" class="d-flex flex-column gap-3 ps-5">
+                              <label *ngFor="let perm of group.value"
+                                     class="form-check form-check-custom form-check-solid">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       [formControlName]="perm.key"/>
+                                <span class="form-check-label ms-2">{{perm.name}}</span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -357,16 +382,16 @@
                 <div class="text-center pt-15">
                   <button type="button"
                           class="btn btn-light me-3"
-                          (click)="discardForm()">
-                    Discard
+                          (click)="discardUpdateForm()">
+                    Retourner
                   </button>
 
                   <button type="submit"
                           class="btn btn-primary"
                           [disabled]="roleForm.invalid || submitting">
-                    <span class="indicator-label">Submit</span>
+                    <span class="indicator-label">Envoyer</span>
                     <span class="indicator-progress" *ngIf="submitting">
-                Please wait...
+                Veuillez patienter...
                 <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
               </span>
                   </button>
@@ -376,7 +401,6 @@
           </div>
         </div>
       </div>
-
       <!-- Les cartes de rôle existantes... -->
 
       <!-- Modal de suppression -->
@@ -401,7 +425,7 @@
                 </div>
                 <div class="d-flex flex-column text-gray-600">
                   <div class="d-flex align-items-center py-2" *ngFor="let permission of selectedRole?.permissions">
-                    <span class="bullet bg-primary me-3"></span> {{ permission }}
+                    <span class="bullet bg-primary me-3"></span> {{ getPermissionName(permission) }}
                   </div>
                 </div>
               </div>
@@ -456,8 +480,7 @@
                   <h3 class="mb-3">Permissions</h3>
                   <div class="d-flex flex-column text-gray-600">
                     <div class="d-flex align-items-center py-2" *ngFor="let permission of selectedRole?.permissions">
-                      <span class="bullet bg-primary me-3"></span>
-                      {{ permission }}
+                      <span class="bullet bg-primary me-3"></span> {{ getPermissionName(permission) }}
                     </div>
                   </div>
                 </div>

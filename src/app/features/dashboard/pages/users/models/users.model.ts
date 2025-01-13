@@ -20,18 +20,4 @@ export interface User {
   two_step_enabled?: boolean;
   last_login?: string;
   balance?: number;
-  transactions?: Array<{
-    date: string;
-    type: 'credit' | 'debit';
-    amount: number;
-    status: string;
-  }>;
-  courses?: Array<{
-    id: string;
-    date: string;
-    departure: string;
-    arrival: string;
-    price: number;
-    status: string;
-  }>;
 }
