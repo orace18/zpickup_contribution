@@ -36,20 +36,20 @@ export class SidebarComponent implements OnInit{
     this.authService.currentUser$.pipe(
       filter(user => !!user),
       map(auth => {
-        console.log('Current auth in sidebar:', auth);
+       // console.log('Current auth in sidebar:', auth);
         const userPermissions = auth.user?.role?.permissions || [];
-        console.log('User permissions:', userPermissions);
+        //console.log('User permissions:', userPermissions);
 
         const filteredItems = MENU_CONFIG.menuItems.filter(item => {
           const hasPermission = !item.permission || userPermissions.includes(item.permission);
-          console.log(`Menu item ${item.title}: permission=${item.permission}, has permission=${hasPermission}`);
+          //console.log(`Menu item ${item.title}: permission=${item.permission}, has permission=${hasPermission}`);
           return hasPermission;
         });
 
         return filteredItems;
       })
     ).subscribe(filteredItems => {
-      console.log('Final filtered items:', filteredItems);
+      //console.log('Final filtered items:', filteredItems);
       this.menuItems = filteredItems;
     });
   }

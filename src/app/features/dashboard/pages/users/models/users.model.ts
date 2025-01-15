@@ -16,6 +16,7 @@ export interface User {
   sponsorship_code: string;
   race: string | null;
   zem?: string;
+  role: string;
   profile_picture?: string | null;
   two_step_enabled?: boolean;
   last_login?: string;

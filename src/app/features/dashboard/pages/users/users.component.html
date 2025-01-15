@@ -45,8 +45,8 @@
         <!-- Toolbar -->
         <div class="card-toolbar" *ngIf="activeTab === 'admin'">
 
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user">
-            Ajouter un utilisateur
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user" (click)="showAddUserModal()">
+            <i class="ki-duotone ki-plus fs-2"></i> Nouveau
           </button>
         </div>
       </div>
@@ -60,7 +60,7 @@
           <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_users">
             <thead>
             <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-              <th>User</th>
+              <th>Utilisateurs</th>
               <th>Role</th>
               <th>Date d'ajout</th>
               <th class="text-end">Actions</th>
@@ -101,12 +101,12 @@
                   <ul class="dropdown-menu" [attr.aria-labelledby]="'dropdownMenu' + user._id">
                     <li>
                       <a class="dropdown-item" (click)="editUser(user); $event.preventDefault()">
-                        Edit
+                        Editer
                       </a>
                     </li>
                     <li>
                       <a class="dropdown-item text-danger" (click)="deleteUser(user._id); $event.preventDefault()">
-                        Delete
+                        Supprimer
                       </a>
                     </li>
                   </ul>
@@ -420,43 +420,317 @@
   </div>
   <!-- Modal d'édition -->
   <div class="modal fade" id="kt_modal_edit_user" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
+        <!-- Modal Header -->
         <div class="modal-header">
           <h5 class="modal-title">Modifier l'utilisateur</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+
+        <!-- Modal Body -->
         <div class="modal-body">
           <form *ngIf="selectedUser" #editForm="ngForm">
+            <!-- Prénom -->
             <div class="mb-3">
-              <label class="form-label">Prénom</label>
-              <input type="text" class="form-control" [(ngModel)]="selectedUser.firstname" name="firstname" required>
+              <label for="firstname" class="form-label">Prénom</label>
+              <input
+                type="text"
+                id="firstname"
+                class="form-control"
+                [(ngModel)]="selectedUser.firstname"
+                name="firstname"
+                required>
+              <div *ngIf="editForm.form.controls['firstname']?.invalid && editForm.form.controls['firstname']?.touched" class="text-danger">
+                Le prénom est requis.
+              </div>
             </div>
+
+            <!-- Nom -->
             <div class="mb-3">
-              <label class="form-label">Nom</label>
-              <input type="text" class="form-control" [(ngModel)]="selectedUser.lastname" name="lastname" required>
+              <label for="lastname" class="form-label">Nom</label>
+              <input
+                type="text"
+                id="lastname"
+                class="form-control"
+                [(ngModel)]="selectedUser.lastname"
+                name="lastname"
+                required>
+              <div *ngIf="editForm.form.controls['lastname']?.invalid && editForm.form.controls['lastname']?.touched" class="text-danger">
+                Le nom est requis.
+              </div>
             </div>
+
+            <!-- Email -->
             <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" [(ngModel)]="selectedUser.email_address" name="email" required>
+              <label for="email" class="form-label">Email</label>
+              <input
+                type="email"
+                id="email"
+                class="form-control"
+                [(ngModel)]="selectedUser.email_address"
+                name="email"
+                required>
+              <div *ngIf="editForm.form.controls['email']?.invalid && editForm.form.controls['email']?.touched" class="text-danger">
+                Un email valide est requis.
+              </div>
             </div>
+
+            <!-- Téléphone -->
             <div class="mb-3">
-              <label class="form-label">Type d'utilisateur</label>
-              <select class="form-control" [(ngModel)]="selectedUser.user_type" name="userType" required>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
-                <!-- Ajoutez d'autres types selon vos besoins -->
+              <label for="phone" class="form-label">Téléphone</label>
+              <input
+                type="tel"
+                id="phone"
+                class="form-control"
+                [(ngModel)]="selectedUser.phone_number"
+                name="phone"
+                required>
+              <div *ngIf="editForm.form.controls['phone']?.invalid && editForm.form.controls['phone']?.touched" class="text-danger">
+                Le numéro de téléphone est requis.
+              </div>
+            </div>
+
+            <!-- Date de naissance -->
+            <div class="mb-3">
+              <label for="birthday" class="form-label">Date de naissance</label>
+              <input
+                type="date"
+                id="birthday"
+                class="form-control"
+                [(ngModel)]="selectedUser.birthday"
+                name="birthday"
+                required>
+              <div *ngIf="editForm.form.controls['birthday']?.invalid && editForm.form.controls['birthday']?.touched" class="text-danger">
+                La date de naissance est requise.
+              </div>
+            </div>
+
+            <!-- Adresse -->
+            <div class="mb-3">
+              <label for="address" class="form-label">Adresse</label>
+              <textarea
+                id="address"
+                class="form-control"
+                [(ngModel)]="selectedUser.address"
+                name="address"
+                required
+                rows="3"></textarea>
+              <div *ngIf="editForm.form.controls['address']?.invalid && editForm.form.controls['address']?.touched" class="text-danger">
+                L'adresse est requise.
+              </div>
+            </div>
+
+            <!-- Rôle -->
+            <div class="mb-3">
+              <label for="role" class="form-label">Rôle</label>
+              <select
+                id="role"
+                class="form-control"
+                [(ngModel)]="selectedUser.role"
+                name="role"
+                required>
+                <option [ngValue]="null">Sélectionnez un rôle</option>
+                <option *ngFor="let role of roles" [value]="role._id">
+                  {{role.name}}
+                </option>
               </select>
+              <div *ngIf="editForm.form.controls['role']?.invalid && editForm.form.controls['role']?.touched" class="text-danger">
+                Le rôle est requis.
+              </div>
             </div>
+
+            <!-- Mot de passe (facultatif) -->
+           <!-- <div class="mb-3">
+              <label for="password" class="form-label">Mot de passe</label>
+              <input
+                type="password"
+                id="password"
+                class="form-control"
+                [(ngModel)]="selectedUser.password"
+                name="password"
+                placeholder="Laisser vide pour conserver l'ancien mot de passe">
+            </div>-->
           </form>
         </div>
+
+        <!-- Modal Footer -->
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-          <button type="button" class="btn btn-primary" (click)="updateUser()" [disabled]="editForm?.form?.valid === false">
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="updateUser()"
+            [disabled]="editForm?.form?.invalid">
             Enregistrer
           </button>
         </div>
       </div>
     </div>
   </div>
+
+
+  <div class="modal fade" id="kt_modal_add_user" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+      <div class="modal-content">
+        <div class="modal-header" id="kt_modal_add_user_header">
+          <h2 class="fw-bold">Nouvel Utilisateur</h2>
+          <div class="btn btn-icon btn-sm btn-active-icon-primary" data-kt-users-modal-action="close">
+            <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+          </div>
+        </div>
+
+        <div class="modal-body px-5 my-7">
+          <form id="kt_modal_add_user_form" class="form" #addUserForm="ngForm" (ngSubmit)="createUser()">
+            <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_user_scroll" data-kt-scroll="true">
+              <!-- Firstname -->
+              <div class="fv-row mb-7">
+                <label class="fw-semibold fs-6 mb-2">Prénom</label>
+                <input
+                  type="text"
+                  name="firstname"
+                  [(ngModel)]="newUser.firstname"
+                  class="form-control form-control-solid mb-3 mb-lg-0"
+                  placeholder="First name" />
+              </div>
+
+              <!-- Lastname -->
+              <div class="fv-row mb-7">
+                <label class="required fw-semibold fs-6 mb-2">Nom</label>
+                <input
+                  type="text"
+                  name="lastname"
+                  [(ngModel)]="newUser.lastname"
+                  required
+                  #lastname="ngModel"
+                  class="form-control form-control-solid mb-3 mb-lg-0"
+                  placeholder="Last name" />
+                <div *ngIf="lastname.invalid && (lastname.dirty || lastname.touched)" class="alert alert-danger">
+                  Le nom est requis
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="fv-row mb-7">
+                <label class="fw-semibold fs-6 mb-2">Email</label>
+                <input
+                  type="email"
+                  name="email_address"
+                  [(ngModel)]="newUser.email_address"
+                  class="form-control form-control-solid mb-3 mb-lg-0"
+                  placeholder="example@domain.com" />
+              </div>
+
+              <!-- Phone Number -->
+              <div class="fv-row mb-7">
+                <label class="required fw-semibold fs-6 mb-2">Téléphone</label>
+                <input
+                  type="tel"
+                  name="phone_number"
+                  [(ngModel)]="newUser.phone_number"
+                  required
+                  #phone="ngModel"
+                  class="form-control form-control-solid mb-3 mb-lg-0"
+                  placeholder="+229XXXXXXXXX" />
+                <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="alert alert-danger">
+                  Le numéro de téléphone est requis
+                </div>
+              </div>
+
+              <!-- Address -->
+              <div class="fv-row mb-7">
+                <label class="required fw-semibold fs-6 mb-2">Adresse</label>
+                <textarea
+                  name="address"
+                  [(ngModel)]="newUser.address"
+                  required
+                  #address="ngModel"
+                  class="form-control form-control-solid mb-3 mb-lg-0"
+                  placeholder="Votre adresse complète"
+                  rows="3"></textarea>
+                <div *ngIf="address.invalid && (address.dirty || address.touched)" class="alert alert-danger">
+                  L'adresse est requise
+                </div>
+              </div>
+
+              <!-- Birthday -->
+              <div class="fv-row mb-7">
+                <label class="required fw-semibold fs-6 mb-2">Date de naissance</label>
+                <input
+                  type="date"
+                  name="birthday"
+                  [(ngModel)]="newUser.birthday"
+                  required
+                  #birthday="ngModel"
+                  class="form-control form-control-solid mb-3 mb-lg-0" />
+                <div *ngIf="birthday.invalid && (birthday.dirty || birthday.touched)" class="alert alert-danger">
+                  La date de naissance est requise
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="fv-row mb-7">
+                <label class="required fw-semibold fs-6 mb-2">Mot de passe</label>
+                <input
+                  type="password"
+                  name="password"
+                  [(ngModel)]="newUser.password"
+                  required
+                  #password="ngModel"
+                  class="form-control form-control-solid mb-3 mb-lg-0"
+                  placeholder="Enter password" />
+                <div *ngIf="password.invalid && (password.dirty || password.touched)" class="alert alert-danger">
+                  Le mot de passe est requis
+                </div>
+              </div>
+
+              <!-- Role Section -->
+              <div class="fv-row mb-7">
+                <label class="required fw-semibold fs-6 mb-2">Role</label>
+                <div class="form-control form-control-solid">
+                  <div class="d-flex flex-column gap-3">
+                    <div *ngIf="roles.length === 0" class="text-muted">
+                      Aucun rôle disponible
+                    </div>
+                    <div class="form-check" *ngFor="let role of roles">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="role"
+                        [(ngModel)]="newUser.role"
+                        [value]="role._id"
+                        required
+                        [id]="'role_' + role._id" />
+                      <label class="form-check-label" [for]="'role_' + role._id">
+                        <div class="fw-bold">{{role.name}}</div>
+                        <div class="text-muted">{{role.description}}</div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center pt-10">
+              <button type="reset" class="btn btn-light me-3" data-kt-users-modal-action="cancel">
+                Quitter
+              </button>
+
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="!addUserForm.valid"
+                data-kt-users-modal-action="submit">
+                <span class="indicator-label">Envoyer</span>
+                <span class="indicator-progress">
+                Veuillez patienter... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+              </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

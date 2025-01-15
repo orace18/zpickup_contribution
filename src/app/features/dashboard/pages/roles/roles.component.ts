@@ -596,7 +596,7 @@ export class RolesComponent implements OnInit, AfterViewInit {
         },
         error: (error) => {
           console.error('Error deleting role:', error);
-          this.toastr.error(`Erreur lors de la suppression du rôle:${error.error.message}`);
+          this.toastr.error(`${error.error.message}`);
         }
       });
   }

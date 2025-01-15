@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Observable, tap} from 'rxjs';
+import {Observable, tap, throwError} from 'rxjs';
 import { User } from '../models/users.model';
 import {environment} from '../../../../../../environments/environment';
 import {ZemUser} from '../models/race.model';
+import {catchError} from 'rxjs/operators';
+import {AuthService} from '../../../../../../core/services/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,26 +14,18 @@ export class UsersService {
    apiUrl = environment.apiUrl + "/users";
    sndapiUrl = environment.apiUrl+ "/admin/users";
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
 
-  validateAccount(userId: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users/${userId}/validate`, {});
-  }
 
-  rejectAccount(userId: string, motif: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users/${userId}/reject`, { motif });
-  }
 
-  resetPassword(userId: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users/${userId}/reset-password`, {});
-  }
+
+
 
   getUserById(userId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/${userId}`, {});
-  }
-
-  deactivateAccount(userId: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users/${userId}/deactivate`, {});
   }
 
   getUsers(): Observable<User[]> {
@@ -47,7 +41,41 @@ export class UsersService {
 
     return this.http.delete(`${this.sndapiUrl}/${userId}`, {headers});
   }
-  updateUser(userId: string, userData: Partial<User>): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${userId}`, userData);
+
+  updateUser(userId: string, userData: any): Observable<User> {
+    const token = this.authService.getToken();
+    console.log("Headers avant envoi:", {
+      token,
+      authorization: `Bearer ${token}`,
+      userId,
+      userData
+    });
+
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');  // Ajoutez ceci aussi
+
+    return this.http.patch<User>(`${this.sndapiUrl}/${userId}`, userData, {headers})
+      .pipe(
+        catchError(error => {
+          console.log("Erreur détaillée:", {
+            status: error.status,
+            message: error.error?.message,
+            token: token // Pour voir si le token était présent
+          });
+          return throwError(() => error);
+        })
+      );
+  }
+
+  createUser(userData: any): Observable<User> {
+    console.log("Service - Données reçues pour création:", userData);
+    return this.http.post<User>(`${environment.apiUrl}/admin/create-admin`, userData).pipe(
+      tap(response => console.log("Service - Réponse reçue:", response)),
+      catchError(error => {
+        console.error("Service - Erreur lors de la création:", error);
+        return throwError(() => error);
+      })
+    );
   }
 }

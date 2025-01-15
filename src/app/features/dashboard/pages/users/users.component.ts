@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit, Pipe, PipeTransform, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, HostListener, OnInit, Pipe, PipeTransform, ViewChild} from '@angular/core';
 import { User,} from './models/users.model';
 import {UsersService} from './services/users.services';
 import {CurrencyPipe, DatePipe, DecimalPipe, NgClass, NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
@@ -9,6 +9,9 @@ import {WalletBalance, WalletHistory} from './models/wallet.model';
 import {WalletService} from './services/wallet.service';
 import {Race, ZemUser} from './models/race.model';
 import {RaceService} from './services/race.service';
+import {Role} from './models/role.model';
+import {RoleService} from './services/role.service';
+import {ToastrService} from 'ngx-toastr';
 declare var bootstrap: any;
 
 @Pipe({
@@ -22,14 +25,6 @@ export class FilterByTypePipe implements PipeTransform {
       type === 'admin' ? user.user_type === 'admin' : user.user_type !== 'admin'
     );
   }
-}
-
-type SectionId = 'informations' | 'portefeuille' | 'courses';
-interface Section {
-  id: SectionId;
-  icon: string;
-  title: string;
-  subtitle: string;
 }
 
 @Component({
@@ -51,13 +46,16 @@ export class UsersComponent implements OnInit, AfterViewInit {
   constructor(
     private usersService: UsersService,
     private walletService: WalletService,
-    private raceService: RaceService
+    private raceService: RaceService,
+    private roleService: RoleService,
+    private toastr: ToastrService
   ) {}
 
   users: User[] = [];
   filteredUsers: User[] = [];
   currentUser: User[] = [];
   userRaces: Race[] = [];
+  roles: Role[] = [];
   selectedUser: User | null = null;
   walletBalance: WalletBalance | null = null;
   walletHistory: WalletHistory | null = null;
@@ -66,6 +64,22 @@ export class UsersComponent implements OnInit, AfterViewInit {
     pays:'',
   };
 
+  newUser = {
+    phone_number: '',
+    password: '',
+    email_address: '',
+    firstname: '',
+    lastname: '',
+    birthday: '',
+    address: '',
+    user_type: 'admin',
+    role: '',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  addModal: any;
+  @ViewChild('addUserForm') addUserForm!: NgForm;
   detailsModal: any;
   editModal: any;
   @ViewChild('editForm') editForm!: NgForm;
@@ -88,6 +102,70 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.detailsModal.show();
   }
 
+  showAddUserModal(): void {
+    this.resetNewUser();
+    this.addModal.show();
+  }
+
+  resetNewUser(): void {
+    this.newUser = {
+      phone_number: '',
+      password: '',
+      email_address: '',
+      firstname: '',
+      lastname: '',
+      birthday: '',
+      address: '',
+      user_type: 'admin',
+      role: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+  }
+
+  createUser(): void {
+    console.log("Début de createUser");
+    if (!this.addUserForm?.valid) {
+      console.log("Formulaire invalide :", this.addUserForm);
+      return;
+    }
+
+    console.log("Valeurs du formulaire avant envoi:", this.newUser);
+
+    const userData = {
+      phone_number: this.newUser.phone_number,
+      password: this.newUser.password,
+      email_address: this.newUser.email_address || undefined,
+      firstname: this.newUser.firstname || undefined,
+      lastname: this.newUser.lastname || undefined,
+      birthday: this.newUser.birthday ? new Date(this.newUser.birthday).toISOString() : undefined,
+      address: this.newUser.address || undefined,
+      user_type: 'admin',
+      role: this.newUser.role,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    console.log("Données formatées à envoyer :", userData);
+
+    this.usersService.createUser(userData).subscribe({
+      next: (createdUser) => {
+        console.log('Utilisateur créé avec succès:', createdUser);
+        this.users.unshift(createdUser);
+        this.applyFilters();
+        this.addModal.hide();
+        this.resetNewUser();
+      },
+      error: (error) => {
+        console.error('Erreur détaillée:', {
+          status: error.status,
+          message: error.message,
+          error: error
+        });
+      }
+    });
+  }
+
   viewCourseDetails(race: any) {
     // Ouvrir le modal
     const modalId = `mapModal_${race.reference}`;
@@ -99,108 +177,10 @@ export class UsersComponent implements OnInit, AfterViewInit {
       this.initMap(race);
     }, 500);
   }
-
-
-  /*initMap(race: Race) {
-    const mapElement = document.getElementById(`map_${race.reference}`);
-    if (!mapElement) return;
-
-    // Vérification des coordonnées requises
-    if (!race.latitude_start || !race.longitude_start || !race.latitude_end || !race.longitude_end) {
-      console.error('Coordonnées manquantes', race);
-      return;
-    }
-
-    const startLocation = {
-      lat: parseFloat(String(race.latitude_start)),
-      lng: parseFloat(String(race.longitude_start))
-    };
-
-    const endLocation = {
-      lat: race.latitude_end,
-      lng: race.longitude_end
-    };
-
-    console.log('Coordonnées de départ:', startLocation);
-    console.log('Coordonnées d\'arrivée:', endLocation);
-
-    // Créer les bounds pour centrer la carte sur les deux points
-    const bounds = new google.maps.LatLngBounds();
-    bounds.extend(startLocation);
-    bounds.extend(endLocation);
-
-    const map = new google.maps.Map(mapElement, {
-      zoom: 12
-    });
-
-    // Ajuster la vue pour montrer les deux points
-    map.fitBounds(bounds);
-
-    // Ajouter un petit padding aux bounds
-    map.fitBounds(bounds);
-
-    // Marqueur de départ
-    new google.maps.Marker({
-      position: startLocation,
-      map: map,
-      title: 'Point de départ',
-      icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-    });
-
-    // Marqueur d'arrivée
-    new google.maps.Marker({
-      position: endLocation,
-      map: map,
-      title: 'Point d\'arrivée',
-      icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
-    });
-
-    // On essaie quand même de tracer l'itinéraire
-    const directionsService = new google.maps.DirectionsService();
-    const directionsRenderer = new google.maps.DirectionsRenderer({
-      map: map,
-      suppressMarkers: true // Pour garder nos marqueurs personnalisés
-    });
-
-    directionsService.route({
-      origin: startLocation,
-      destination: endLocation,
-      travelMode: google.maps.TravelMode.DRIVING
-    }, (response: google.maps.DirectionsResult | null, status: google.maps.DirectionsStatus) => {
-      if (status === google.maps.DirectionsStatus.OK && response) {
-        directionsRenderer.setDirections(response);
-      } else {
-        // Si pas de route trouvée, on trace une ligne droite entre les points
-        const lineSymbol = {
-          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-        };
-
-        new google.maps.Polyline({
-          path: [startLocation, endLocation],
-          map: map,
-          strokeColor: "#FF0000",
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          icons: [{
-            icon: lineSymbol,
-            offset: '100%'
-          }],
-        });
-      }
-    });
-  }*/
   findZemUser(zemId: string): any {
     return this.users.find(user => user._id === zemId);
   }
-  getZemInitials(zemId: string): string {
-    const zemUser = this.findZemUser(zemId);
-    if (zemUser) {
-      const firstInitial = zemUser.firstname ? zemUser.firstname.charAt(0).toUpperCase() : '';
-      const lastInitial = zemUser.lastname ? zemUser.lastname.charAt(0).toUpperCase() : '';
-      return `${firstInitial}${lastInitial}`;
-    }
-    return 'NA';
-  }
+
   getZemFullName(zemId: string): string {
     const zemUser = this.findZemUser(zemId);
     if (zemUser) {
@@ -285,40 +265,6 @@ export class UsersComponent implements OnInit, AfterViewInit {
      }
 
   activeSection: 'informations' | 'portefeuille' | 'courses' | null = null;
-
-  get isUserAdmin(): boolean {
-    return this.selectedUser?.user_type === 'admin';
-  }
-
-  get availableSections(): Section[] {
-    const allSections: Section[] = [
-      {
-        id: 'informations',
-        icon: 'bi bi-person',
-        title: 'Mes informations',
-        subtitle: 'Informations personnelles'
-      },
-      {
-        id: 'portefeuille',
-        icon: 'bi bi-wallet2',
-        title: 'Mon portefeuille',
-        subtitle: 'Gestion financière'
-      },
-      {
-        id: 'courses',
-        icon: 'bi bi-car-front',
-        title: 'Courses',
-        subtitle: 'Historique des courses'
-      }
-    ];
-
-    // Ne retourner que les informations pour les administrateurs
-    if (this.isUserAdmin) {
-      return allSections.filter(section => section.id === 'informations');
-    }
-
-    return allSections;
-  }
 
   showUserSection(section: 'informations' | 'portefeuille' | 'courses'): void {
     this.activeSection = section;
@@ -405,8 +351,25 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadUsers();
+    this.loadRoles();
     this.editModal = new Modal(document.getElementById('kt_modal_edit_user')!);
     this.detailsModal = new Modal(document.getElementById('kt_modal_user_details')!);
+    this.addModal = new Modal(document.getElementById('kt_modal_add_user')!);
+
+  }
+
+  private loadRoles(): void {
+    console.log("Début du chargement des rôles");
+    this.roleService.getRoles().subscribe({
+      next: (roles) => {
+        console.log("Réponse reçue du service:", roles);
+        this.roles = roles;
+        console.log("Rôles stockés dans le composant:", this.roles);
+      },
+      error: (error) => {
+        console.error("Erreur lors du chargement des rôles:", error);
+      }
+    });
   }
 
   closeModal() {
@@ -433,7 +396,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.editModal.show();
   }
 
-  updateUser(): void {
+ /* updateUser(): void {
     if (this.selectedUser && this.selectedUser._id) {
       this.usersService.updateUser(this.selectedUser._id, this.selectedUser).subscribe({
         next: (updatedUser) => {
@@ -452,42 +415,57 @@ export class UsersComponent implements OnInit, AfterViewInit {
         }
       });
     }
-  }
+  }*/
 
+  updateUser(): void {
+    if (this.selectedUser && this.selectedUser._id) {
+      const updateData = {
+        firstname: this.selectedUser.firstname,
+        lastname: this.selectedUser.lastname,
+        email_address: this.selectedUser.email_address,
+        phone_number: this.selectedUser.phone_number,
+        birthday: this.selectedUser.birthday,
+        address: this.selectedUser.address,
+        role: this.selectedUser.role
+      };
+
+      this.usersService.updateUser(this.selectedUser._id, updateData).subscribe({
+        next: (updatedUser) => {
+          const index = this.users.findIndex(u => u._id === updatedUser._id);
+          if (index !== -1) {
+            this.users[index] = updatedUser;
+            this.applyFilters();
+          }
+          this.editModal.hide();
+          this.selectedUser = null;
+          this.toastr.success('Utilisateur mis à jour avec succès');
+        },
+        error: (error) => {
+          console.error('Erreur détaillée :', {
+            status: error.status,
+            message: error.error?.message,
+            fullError: error
+          });
+
+          if (error.status === 403) {
+            this.toastr.error('Session expirée. Veuillez vous reconnecter.');
+           /* this.authService.logout().subscribe(() => {
+              this.router.navigate(['/login']);
+            });*/
+          } else {
+            this.toastr.error(error.error?.message || 'Erreur lors de la mise à jour de l\'utilisateur');
+          }
+        }
+      });
+    }
+  }
 
   viewUserDetails(user: User): void {
     this.selectedUser = user;
   }
-  validateAccount(user: User): void {
-    this.usersService.validateAccount(user._id).subscribe(() => {
-      user.validated_at = 'Validé';
-    });
-  }
+
   activeTab: 'admin' | 'mobile' = 'admin';
   searchQuery: any;
-
-  /*applyFilters(): void {
-    let filtered = [...this.users];
-
-    // Appliquer la recherche si searchQuery existe
-    if (this.searchQuery) {
-      const query = this.searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(user =>
-        user.firstname?.toLowerCase().includes(query) ||
-        user.lastname?.toLowerCase().includes(query) ||
-        user.email_address?.toLowerCase().includes(query) ||
-        user.user_type?.toLowerCase().includes(query)
-      );
-    }
-
-    // Appliquer les autres filtres existants
-    this.filteredUsers = filtered.filter(user => {
-      return (!this.filters.typeUtilisateur || user.user_type === this.filters.typeUtilisateur) &&
-        (!this.filters.pays);
-    });
-  }
-*/
-
   applyFilters(): void {
     let filtered = [...this.users];
 
@@ -522,31 +500,6 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.activeTab = event.target.id === 'admin-tab' ? 'admin' : 'mobile';
     this.applyFilters();
   }
-
-
-  rejectAccount(user: User): void {
-    const motifRejet = prompt('Veuillez entrer le motif du rejet:');
-    if (motifRejet) {
-      this.usersService.rejectAccount(user._id, motifRejet).subscribe(() => {
-        user.validated_at = 'Rejeté';
-      });
-    }
-  }
-
-  resetPassword(user: User): void {
-    this.usersService.resetPassword(user._id).subscribe(() => {
-      // Afficher confirmation
-    });
-  }
-
-  deactivateAccount(user: User): void {
-    if (confirm('Êtes-vous sûr de vouloir désactiver ce compte ?')) {
-      this.usersService.deactivateAccount(user._id).subscribe(() => {
-        // Mettre à jour l'interface
-      });
-    }
-  }
-
   deleteUser(userId: string) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
       this.usersService.deleteUser(userId).subscribe({
@@ -575,4 +528,26 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
   protected readonly Number = Number;
+
+  @HostListener('document:click', ['$event'])
+  handleCloseClick(event: MouseEvent) {
+    const closeButton = document.querySelector('[data-kt-users-modal-action="close"]');
+    const cancelButton = document.querySelector('[data-kt-users-modal-action="cancel"]');
+
+    if (event.target === closeButton || event.target === cancelButton) {
+      this.hideOverlay();
+      this.addModal.hide();
+    }
+  }
+
+  ngOnDestroy() {
+    this.hideOverlay();
+  }
+  private hideOverlay() {
+    const overlay = document.querySelector('.modal-backdrop');
+    if (overlay) {
+      document.body.removeChild(overlay);
+      document.body.classList.remove('modal-open');
+    }
+  }
 }

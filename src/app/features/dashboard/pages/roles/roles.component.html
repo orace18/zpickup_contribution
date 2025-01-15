@@ -28,7 +28,7 @@
           Export
         </button>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_role">
-          <i class="ki-duotone ki-plus fs-2"></i> Ajouter un nouveau Role
+          <i class="ki-duotone ki-plus fs-2"></i> Nouveau
         </button>
       </div>
       <!--end::Actions-->
@@ -54,10 +54,10 @@
             <!--end::Card header-->
 
             <!--begin::Card body-->
-            <div class="card-body pt-1">
+            <div class="card-body pt-1"><!--
               <div class="fw-bold text-gray-600 mb-5">
                 Total users with this role: {{ role.totalUsers }}
-              </div>
+              </div>-->
               <div class="d-flex flex-column text-gray-600">
                 <div class="d-flex align-items-center py-2" *ngFor="let permission of role.permissions | slice:0:5">
                   <span class="bullet bg-primary me-3"></span> {{ getPermissionName(permission) }}
@@ -83,17 +83,17 @@
                 <ul class="dropdown-menu">
                   <li>
                     <a class="dropdown-item" (click)="openViewModal(role)">
-                      Voir le Role
+                      Consulter
                     </a>
                   </li>
                   <li>
                     <a class="dropdown-item" (click)="editRole(role)">
-                      Modifier le Role
+                      Modifier
                     </a>
                   </li>
                   <li>
                     <a class="dropdown-item text-danger" (click)="openDeleteModal(role)">
-                      Supprimer le Role
+                      Supprimer
                     </a>
                   </li>
                 </ul>

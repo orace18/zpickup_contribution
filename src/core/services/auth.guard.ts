@@ -23,16 +23,16 @@ export const authGuard: CanActivateFn = (route, state) => {
   const requiredPermission = route.data['permission'];
   if (requiredPermission) {
 
-    console.log('Guard checking permission:', {
+    /*console.log('Guard checking permission:', {
       requiredPermission,
       user: authService.getCurrentUser(),
       userPermissions: authService.getCurrentUser()?.user?.role?.permissions
-    });
+    });*/
     const hasPermission = authService.hasPermission(requiredPermission);
 
 
     //const hasPermission = authService.getCurrentUser()?.user?.role?.permissions?.includes(requiredPermission);
-    console.log(`Checking permission: ${requiredPermission}, Has permission: ${hasPermission}`);
+    //console.log(`Checking permission: ${requiredPermission}, Has permission: ${hasPermission}`);
 
     if (!hasPermission) {
       console.log('Permission denied');
