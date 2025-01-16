@@ -28,4 +28,11 @@ export class RaceService {
 
     return this.http.get<Race[]>(`${this.apiUrl}/user/races/list/${id}`,{ headers});
   }
+
+  getZemRaces(userId: string) {
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
+
+    return this.http.get<Race[]>(`${this.apiUrl}/zem/races/${userId}`,{ headers});
+
+  }
 }

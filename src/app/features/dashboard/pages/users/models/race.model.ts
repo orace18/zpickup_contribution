@@ -1,3 +1,5 @@
+import {User} from './users.model';
+
 export interface Race {
   _id: string;
   user: {
@@ -25,23 +27,40 @@ export interface Race {
   qrcode_start: string;
   qrcode_end: string;
   distance_traveled: number | null;
-  status: 'pending' | 'accepted' | 'end';
-  pending_at: string;
+  status: RaceStatus;
   created_at: string;
   updated_at: string;
-  accepted_at?: string;
   service_duration?: number;
   service_km?: number;
   zem?: Zem;
-  latitude_start?: number;  // Changé de string à number
-  longitude_start?: number; // Changé de string à number
-  latitude_end?: number;
+  started_at?: string;
+  ended_at?: string;
+  start_datetime?: Date;
+  pending_at?: Date;
+  accepted_at?: Date;
+  longitude_start?: number;
+  latitude_start?: number;
+  country_start?: string;
+  street_start?: string;
+  locality_start?: string;
   longitude_end?: number;
-  started_at?: string;     // Ajouté
-  ended_at?: string;       // Ajouté
+  latitude_end?: number;
+  country_end?: string;
+  street_end?: string;
+  locality_end?: string;
+  admin_bonus?: number;
+  admin_percent?: number;
+  customer_bonus?: number;
+  customer_percent?: number;
+  zem_bonus?: number;
+  zem_percent?: number;
+  amount_total?: number;
+  amount_per_km?: number;
 }
 
-export interface Zem {
+export type RaceStatus = 'pending' | 'accepted' | 'end' | 'stop' | 'start';
+
+export interface Zem extends User{
   _id: string;
   card_type: string;
   card_number: string;
@@ -59,14 +78,15 @@ export interface Zem {
   updated_at: string;
   service_latitude: number | null;
   service_longitude: number | null;
+  ray?: string | null;
 }
 
-// Cette interface ZemUser n'apparaît pas directement dans la réponse API
-// Si vous en avez besoin, voici comment elle pourrait être définie :
+
 export interface ZemUser {
   _id: string;
   firstname: string;
   lastname: string;
   phone_number: string;
-  user_profile_image?: string;  // Renommé de profile_picture pour correspondre au format de l'API
+  user_profile_image?: string;
 }
+

@@ -3,16 +3,16 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from './auth.service';
 
 export const authGuard: CanActivateFn = (route, state) => {
-  console.log('AuthGuard checking authentication and permissions');
+  //console.log('AuthGuard checking authentication and permissions');
   const authService = inject(AuthService);
   const router = inject(Router);
 
   // Vérifier d'abord l'authentification
   const isAuth = authService.isAuthenticated();
-  console.log('Is authenticated?', isAuth);
+  //console.log('Is authenticated?', isAuth);
 
   if (!isAuth) {
-    console.log('Not authenticated, redirecting to login');
+    //console.log('Not authenticated, redirecting to login');
     router.navigate(['/login'], {
       queryParams: { returnUrl: state.url }
     });
@@ -35,7 +35,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     //console.log(`Checking permission: ${requiredPermission}, Has permission: ${hasPermission}`);
 
     if (!hasPermission) {
-      console.log('Permission denied');
+     // console.log('Permission denied');
       router.navigate(['/access-denied']); // ou une autre route de fallback
       return false;
     }

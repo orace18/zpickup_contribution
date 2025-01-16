@@ -37,7 +37,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) {
     const storedUser = localStorage.getItem('currentUser');
-    console.log('Constructor - stored user:', storedUser);
+   // console.log('Constructor - stored user:', storedUser);
     if (storedUser) {
       this.currentUserSubject.next(JSON.parse(storedUser));
     }
@@ -47,11 +47,11 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/admin/auth/login`, credentials)
       .pipe(
         tap(response => {
-          console.log('Login response:', response);
+         // console.log('Login response:', response);
           localStorage.setItem('currentUser', JSON.stringify(response));
-          console.log('Stored in localStorage:', localStorage.getItem('currentUser'));
+         // console.log('Stored in localStorage:', localStorage.getItem('currentUser'));
           this.currentUserSubject.next(response);
-          console.log('Current user subject value:', this.currentUserSubject.value);
+         // console.log('Current user subject value:', this.currentUserSubject.value);
         }),
         catchError(this.handleError)
       );
@@ -59,10 +59,10 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     const hasToken = !!this.currentUserSubject.value?.access_token;
-    console.log('isAuthenticated check:', {
+   /* console.log('isAuthenticated check:', {
       currentUserValue: this.currentUserSubject.value,
       hasToken: hasToken
-    });
+    });*/
     return hasToken;
   }
 

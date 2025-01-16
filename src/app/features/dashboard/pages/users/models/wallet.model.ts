@@ -11,7 +11,7 @@ export interface WalletTransaction {
   transaction_type?: string;
   phone_number?: string;
   created_at: string;
-  type: 'credit' | 'withdrawal';
+  type: 'credit' | 'withdrawal' | 'bonus';
 }
 
 export interface WalletHistory {
