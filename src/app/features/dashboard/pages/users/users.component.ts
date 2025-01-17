@@ -8,7 +8,7 @@ import {
   PipeTransform,
   ViewChild
 } from '@angular/core';
-import { User,} from './models/users.model';
+import {User, ZemValidationRequest,} from './models/users.model';
 import {UsersService} from './services/users.services';
 import {
   CurrencyPipe,
@@ -19,7 +19,7 @@ import {
   NgClass,
   NgForOf,
   NgIf,
-  NgOptimizedImage
+  NgOptimizedImage, NgSwitch, NgSwitchCase
 } from '@angular/common';
 import {FormsModule, NgForm} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
@@ -28,7 +28,7 @@ import {WalletBalance, WalletHistory} from './models/wallet.model';
 import {WalletService} from './services/wallet.service';
 import {Race, Zem, ZemUser} from './models/race.model';
 import {RaceService} from './services/race.service';
-import {Role} from './models/role.model';
+import {CardType, CardTypeLabels, Role} from './models/role.model';
 import {RoleService} from './services/role.service';
 import {ToastrService} from 'ngx-toastr';
 import {CounterData} from './models/counter.model';
@@ -62,6 +62,8 @@ export class FilterByTypePipe implements PipeTransform {
     DecimalPipe,
     NgClass,
     JsonPipe,
+    NgSwitch,
+    NgSwitchCase,
   ],
   styleUrls: ['./users.component.css']
 })
@@ -480,6 +482,16 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.activeSection = null;
   }
 
+  getCardTypeLabel(cardType: string): string {
+    const cardTypes: CardTypeLabels = {
+      'identity_card': 'Carte d\'identité',
+      'cip_card': 'Carte CIP',
+      'passport_card': 'Passeport'
+    };
+
+    return cardTypes[cardType as CardType] || cardType;
+  }
+
   getStatusLabel(status: string): string {
     switch (status.toLowerCase()) {
       case 'start':
@@ -692,6 +704,27 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
   protected readonly Number = Number;
+
+
+// Puis dans votre méthode
+  validZem(zemId: string) {
+  const validationData: ZemValidationRequest = {
+    profile_validation_status: 'validated', // Maintenant TypeScript sait que c'est littéralement 'validated'
+    type_action: 'validated_zem'
+  };
+
+  this.usersService.validateZemProfile(zemId, validationData)
+    .subscribe({
+      next: (response) => {
+        console.log('Validation réussie', response);
+        this.toastr.success('Compte validé!');
+        this.loadUsers();
+      },
+      error: (error) => {
+        this.toastr.error("Echec de validation de compte");
+      }
+    });
+}
 
   @HostListener('document:click', ['$event'])
   handleCloseClick(event: MouseEvent) {

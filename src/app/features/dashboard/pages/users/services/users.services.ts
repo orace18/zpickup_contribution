@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable, tap, throwError} from 'rxjs';
-import { User } from '../models/users.model';
+import {User, ZemValidationRequest} from '../models/users.model';
 import {environment} from '../../../../../../environments/environment';
 import {Zem, ZemUser} from '../models/race.model';
 import {catchError} from 'rxjs/operators';
@@ -20,10 +20,14 @@ export class UsersService {
     private authService: AuthService
   ) {}
 
-
-
-
-
+  validateZemProfile(zemId: string, validationData: ZemValidationRequest): Observable<any> {
+    const url = `${this.zemUrl}/${zemId}`;
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
+    return this.http.patch(url, validationData, { headers });
+  }
 
   getUserById(userId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/${userId}`, {});

@@ -5,6 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 
 import { finalize } from 'rxjs/operators';
 import {AuthService} from '../../../../../core/services/auth.service';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +24,8 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    protected toast: ToastrService,
   ) {}
 
   ngOnInit() {
@@ -65,6 +67,7 @@ export class LoginComponent implements OnInit {
         next: (response) => {
           console.log('Login successful, about to navigate to:', this.returnUrl);
           this.router.navigate([this.returnUrl]);
+          this.toast.success('Utilisateur connecté!')
         },
         error: (error) => {
           console.log('Login failed with error:', error);

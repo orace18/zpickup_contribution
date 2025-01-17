@@ -54,11 +54,12 @@ export interface Race {
   customer_percent?: number;
   zem_bonus?: number;
   zem_percent?: number;
-  amount_total?: number;
+  amount_total_bonus?: number;
   amount_per_km?: number;
+  stopped_at?: Date;
 }
 
-export type RaceStatus = 'pending' | 'accepted' | 'end' | 'stop' | 'start';
+export type RaceStatus = 'pending' | 'accepted' | 'end' | 'stopped' | 'start';
 
 export interface Zem extends User{
   _id: string;

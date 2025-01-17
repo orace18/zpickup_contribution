@@ -7,6 +7,7 @@ import {AuthResponse} from '../../models/datatype.model';
 import {filter} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {CommonModule} from '@angular/common';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-sidebar',
@@ -24,10 +25,12 @@ export class SidebarComponent implements OnInit{
   isCollapsed = false;
   isDashboardExpanded = true;
   menuItems: any[] = [];
+  userId = "";
 
   constructor(
     private router: Router,
-    protected authService: AuthService
+    protected authService: AuthService,
+    protected toast : ToastrService
   ) {}
 
 
@@ -39,6 +42,7 @@ export class SidebarComponent implements OnInit{
        // console.log('Current auth in sidebar:', auth);
         const userPermissions = auth.user?.role?.permissions || [];
         //console.log('User permissions:', userPermissions);
+        this.userId = auth.user?._id;
 
         const filteredItems = MENU_CONFIG.menuItems.filter(item => {
           const hasPermission = !item.permission || userPermissions.includes(item.permission);
@@ -61,11 +65,20 @@ export class SidebarComponent implements OnInit{
   }
 
   deconnexion(): void {
-    this.authService.logout().subscribe({
+    this.authService.logout(this.userId).subscribe({
+      next: () => {
+        // Nettoyage du localStorage
+        localStorage.clear();
+
+        // Redirection vers la page de login
+        this.router.navigate(['/login']);
+        this.toast.success('Déconnexion avec succès!');
+      },
       error: (err) => {
         console.error('Échec de la déconnexion:', err);
         localStorage.clear();
-        this.router.navigate(['/login']);
+        this.toast.error('Échec de la déconnexion');
+       // this.router.navigate(['/login']);
       }
     });
   }

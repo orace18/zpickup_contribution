@@ -180,21 +180,6 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body" *ngIf="selectedUser">
-          <!-- Section profil -->
-          <!--<div class="d-flex align-items-center mb-7">
-            <div class="symbol symbol-100px symbol-circle me-5">
-              <img *ngIf="selectedUser.profile_picture" [src]="selectedUser.profile_picture" [alt]="selectedUser.firstname"/>
-              <span *ngIf="!selectedUser.profile_picture" class="fs-2 bg-light-primary text-primary p-5 rounded-circle">
-              {{ getInitials(selectedUser) }}
-            </span>
-            </div>
-
-            <div class="d-flex flex-column">
-              <h3 class="mb-1">{{ selectedUser.firstname }} {{ selectedUser.lastname }}</h3>
-              <div class="text-muted">{{ selectedUser.email_address }}</div>
-              <span class="badge badge-light-primary mt-2">{{ selectedUser.user_type === 'zem' ? 'Conducteur' : (selectedUser.user_type === 'customer' ? 'Client' : (selectedUser.user_type === 'admin' ? 'Administrateur' : 'N/A')) }}</span>
-            </div>
-          </div>-->
           <div class="d-flex align-items-center justify-content-between mb-7">
             <div class="d-flex align-items-center">
               <div class="symbol symbol-100px symbol-circle me-5">
@@ -218,7 +203,7 @@
 
               <button *ngIf="(selectedUser?.user_type === 'zem')  && selectedUser?.validated_at === null "
                       class="btn btn-sm btn-primary mt-2"
-                      >
+                     (click)="validZem(selectedUser?.zem!)" >
                 Valider
               </button>
             </div>
@@ -427,103 +412,10 @@
               </div>
             </div>
 
-            <!-- Insérez ce bloc juste avant votre liste de courses existante -->
-
             <div class="border rounded p-4">
               <div *ngIf="userRaces.length === 0" class="text-center p-4">
                 <p>Aucune course trouvée pour cet utilisateur</p>
               </div>
-
-
-
-              <!--<div *ngFor="let race of userRaces" class="border-bottom p-3">
-                &lt;!&ndash; En-tête de la course &ndash;&gt;
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                  <div>
-                    <h5 class="mb-1">Course #{{ race.reference }}</h5>
-                    <div class="text-muted">{{ race.initial_datetime | date:'medium' }}</div>
-                  </div>
-                  <span [class]="'badge badge-light-' + getCourseStatusClass(race.status)">
-          {{ getStatusLabel(race.status) }}
-        </span>
-                </div>
-
-                &lt;!&ndash; Affichage spécifique pour les Zem &ndash;&gt;
-                <div *ngIf="selectedUser?.user_type === 'zem'" class="col-md-12 mb-3">
-                  <div class="card bg-light">
-                    <div class="card-body">
-                      <h6 class="card-title">Informations Client</h6>
-                      <div class="d-flex align-items-center">
-                        <div class="ms-3">
-                          <div class="text-muted">Client : {{ race.user.firstname }} {{ race.user.lastname }}</div>
-                          <div class="text-muted">Téléphone : {{ race.user.phone_number }}</div>
-                          &lt;!&ndash;<div class="mt-2">
-                            <span class="badge badge-success">Gains: {{ calculateEarnings(race.service_km || 0, race.service_duration || 0) }} XOF</span>
-                          </div>&ndash;&gt;
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                &lt;!&ndash; Affichage spécifique pour les Clients &ndash;&gt;
-                <div *ngIf="selectedUser?.user_type !== 'zem'" class="col-md-12 mb-3">
-                  <div class="card bg-light">
-                    <div class="card-body">
-                      <h6 class="card-title">Informations Conducteur</h6>
-                      <div class="d-flex align-items-center">
-                        <div class="symbol symbol-45px me-3" *ngIf="race.zem?.zem_profile_image">
-                          <img [src]="race.zem?.zem_profile_image"
-                               alt="Photo du conducteur"
-                               class="rounded-circle"
-                               style="width: 45px; height: 45px; object-fit: cover;">
-                        </div>
-                        <div class="ms-3">
-                          <div class="text-muted">Conducteur : {{ getZemFullName(race.zem?._id || '') }}</div>
-                          <div class="text-muted">Plaque : {{ race.zem?.number_plate }}</div>
-                          <div class="text-muted">Numéro CNI : {{ race.zem?.card_number }}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                &lt;!&ndash; Informations communes &ndash;&gt;
-                <div class="row mb-3">
-                  <div class="col-md-4">
-                    <div class="text-muted">Distance</div>
-                    <strong>{{ race.service_km ? (race.service_km | number:'1.2-2') + ' km' : 'Non disponible' }}</strong>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="text-muted">Durée</div>
-                    <strong>{{ race.service_duration ? race.service_duration + ' min' : 'Non disponible' }}</strong>
-                  </div>
-
-                </div>
-
-                &lt;!&ndash; Bouton carte et modal &ndash;&gt;
-                <div class="d-flex justify-content-end">
-                  <button *ngIf="race.status === 'end'"
-                          class="btn btn-sm btn-light-primary"
-                          (click)="viewCourseDetails(race)">
-                    <i class="bi bi-map me-2"></i>Voir l'itinéraire
-                  </button>
-                </div>
-
-                <div class="modal fade" id="mapModal_{{race.reference}}" tabindex="-1">
-                  <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">Itinéraire de la course #{{race.reference}}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                      </div>
-                      <div class="modal-body">
-                        <div id="map_{{race.reference}}" style="height: 400px;"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>-->
               <div *ngFor="let race of userRaces" class="border-bottom p-3">
                 <!-- En-tête de la course -->
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -532,10 +424,17 @@
                   </div>
                   <span [class]="'badge badge-light-' + getCourseStatusClass(race.status)">
       {{ getStatusLabel(race.status) }}
+
     </span>
+                  <div class="d-flex justify-content-end">
+                    <button *ngIf="race.status === 'end'"
+                            class="btn btn-sm btn-light-primary"
+                            (click)="viewCourseDetails(race)">
+                      <i class="bi bi-map me-2"></i>Détails
+                    </button>
+                  </div>
                 </div>
 
-                <!-- Informations spécifiques au statut -->
                 <div class="card bg-light mb-3">
                   <div class="card-body">
                     <!-- Status: START -->
@@ -554,7 +453,6 @@
                         </div>
                       </div>
                     </div>
-
                     <!-- Status: PENDING -->
                     <div *ngIf="race.status === 'pending'">
                       <h6 class="card-subtitle mb-3">En attente de confirmation</h6>
@@ -571,7 +469,6 @@
                         </div>
                       </div>
                     </div>
-
                     <!-- Status: ACCEPTED -->
                     <div *ngIf="race.status === 'accepted'">
                       <h6 class="card-subtitle mb-3">Course acceptée</h6>
@@ -588,7 +485,6 @@
                         </div>
                       </div>
                     </div>
-
                     <!-- Status: END -->
                     <div *ngIf="race.status === 'end'">
                       <h6 class="card-subtitle mb-3">Course terminée</h6>
@@ -644,7 +540,7 @@
                             <div class="card-body">
                               <div class="d-flex justify-content-between">
                                 <div>
-                                  <strong>Montant total:</strong> {{ race.amount_total }} XOF
+                                  <strong>Montant total:</strong> {{ race.amount_total_bonus }} XOF
                                 </div>
                                 <div>
                                   <strong>Montant par km:</strong> {{ race.amount_per_km }} XOF/km
@@ -655,104 +551,112 @@
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+                    <!-- Status: STOPPED -->
+                    <div *ngIf="race.status === 'stopped'">
+                      <h6 class="card-subtitle mb-3">Course arrêtée</h6>
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="card bg-light-warning border-0 mb-3">
+                            <div class="card-body">
+                              <h6 class="text-warning mb-3">Informations d'arrêt</h6>
+                              <p class="mb-2">
+                                <i class="bi bi-clock me-2"></i>
+                                <strong>Date et heure d'arrêt:</strong> {{ race.stopped_at | date:'medium' }}
+                              </p>
+                           <!--   <p class="mb-2">
+                                <i class="bi bi-geo-alt me-2"></i>
+                                <strong>Localisation:</strong>
+                              </p>
+                              <div class="ms-4">
+                                <p class="mb-1">{{ race.street_stopped }}</p>
+                                <p class="mb-1">{{ race.locality_stopped }}</p>
+                              </div>-->
+                            </div>
+                          </div>
+                        </div>
 
-                <!-- Bouton carte et modal (conservé de votre code original) -->
-                <div class="d-flex justify-content-end">
-                  <button *ngIf="race.status === 'end'"
-                          class="btn btn-sm btn-light-primary"
-                          (click)="viewCourseDetails(race)">
-                    <i class="bi bi-map me-2"></i>Voir l'itinéraire
-                  </button>
+                        <!--<div class="col-md-6">
+                          <div class="card bg-light-warning border-0">
+                            <div class="card-body">
+                              <h6 class="text-warning mb-3">Coordonnées GPS</h6>
+                              <p class="mb-2">
+                                <i class="bi bi-geo me-2"></i>
+                                <strong>Longitude:</strong> {{ race.longitude_stopped }}
+                              </p>
+                              <p class="mb-2">
+                                <i class="bi bi-geo me-2"></i>
+                                <strong>Latitude:</strong> {{ race.latitude_stopped }}
+                              </p>
+                            </div>
+                          </div>
+                        </div>-->
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="selectedUser?.user_type === 'zem'" class="col-md-12 mb-3">
+                    <div class="card bg-light">
+                      <div class="card-body">
+                        <h6 class="card-title">Informations Client</h6>
+                        <div class="d-flex align-items-center">
+                          <div class="ms-3">
+                            <div class="text-muted">Client : {{ race.user.firstname }} {{ race.user.lastname }}</div>
+                            <div class="text-muted">Téléphone : {{ race.user.phone_number }}</div>
+                            <div class="mt-2">
+                            <!--<span class="badge badge-success">Gains: {{ calculateEarnings(race.service_km || 0, race.service_duration || 0) }} XOF</span>-->
+                          </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6" *ngIf="race.zem && selectedUser.user_type === 'customer'">
+                    <div class="d-flex align-items-center">
+                      <div class="symbol symbol-45px me-3" *ngIf="race.zem.zem_profile_image">
+                        <img [src]="race.zem.zem_profile_image"
+                             alt="Photo du conducteur"
+                             class="rounded-circle"
+                             style="width: 45px; height: 45px; object-fit: cover;">
+                      </div>
+                      <div>
+                        <div class="fw-bold">Conducteur</div>
+                        <div class="text-muted">
+                          <div>Nom et prénom: {{ getZemFullName(race.zem._id) }}</div>
+                          <div>Plaque: {{ race.zem.number_plate }}</div>
+                          <div>Numéro CNI: {{ race.zem.card_number }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mb-3" *ngIf="race.zem">
+                    <div class="col-md-4">
+                      <div class="text-muted">Distance</div>
+                      <strong>{{ race.service_km ? (race.service_km | number:'1.2-2') + ' km' : 'Non disponible' }}</strong>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="text-muted">Durée</div>
+                      <strong>{{ race.service_duration ? race.service_duration + ' min' : 'Non disponible' }}</strong>
+                    </div>
+
+                  </div>
+                  <div class="modal fade" id="mapModal_{{race.reference}}" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Itinéraire de la course #{{race.reference}}</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                          <div id="map_{{race.reference}}" style="height: 400px;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-         <!-- <div *ngIf="activeSection === 'courses'" class="mt-5">
-            <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
-              <h3 class="mb-0">Courses</h3>
-            </div>
-
-            <div class="border rounded p-4">
-              <div *ngIf="userRaces.length === 0" class="text-center p-4">
-                <p>Aucune course trouvée pour cet utilisateur</p>
-              </div>
-
-              <div *ngFor="let race of userRaces" class="border-bottom p-3">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                  <div>
-                    <h5 class="mb-1">Course #{{ race.reference }}</h5>
-                    <div class="text-muted">{{ race.initial_datetime | date:'medium' }}</div>
-                  </div>
-                  <span [class]="'badge badge-light-' + getCourseStatusClass(race.status)">
-                    {{ getStatusLabel(race.status) }}
-                </span>
-                </div>
-
-                &lt;!&ndash; Informations du Zem &ndash;&gt;
-                <div class="col-md-6" *ngIf="race.zem">
-                  <div class="d-flex align-items-center">
-                    <div class="symbol symbol-45px me-3" *ngIf="race.zem.zem_profile_image">
-                      <img [src]="race.zem.zem_profile_image"
-                           alt="Photo du conducteur"
-                           class="rounded-circle"
-                           style="width: 45px; height: 45px; object-fit: cover;">
-                    </div>
-                    <div>
-                      <div class="fw-bold">Conducteur</div>
-                      <div class="text-muted">
-                        <div>Nom et prénom: {{ getZemFullName(race.zem._id) }}</div>
-                        <div>Plaque: {{ race.zem.number_plate }}</div>
-                        <div>Numéro CNI: {{ race.zem.card_number }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-
-                <div class="row mb-2">
-                  <div class="col-md-6">
-                    <div class="text-muted mb-1">Coordonnées de départ</div>
-                    <div>Lat: {{ race.initial_latitude }}, Long: {{ race.initial_longitude }}</div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="text-muted mb-1">Distance parcourue</div>
-                    <div>{{ race.service_km ? (race.service_km | number:'1.2-2') + ' km' : 'Non disponible' }}</div>
-                  </div>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <span class="text-muted me-2">Durée:</span>
-                    <span>{{ race.service_duration ? race.service_duration + ' min' : 'Non disponible' }}</span>
-                  </div>
-                  <button *ngIf="race.status === 'end'"
-                          class="btn btn-sm btn-light-primary"
-                          (click)="viewCourseDetails(race)">
-                    <i class="bi bi-map me-2"></i>Voir l'itinéraire
-                  </button>
-                </div>
-
-                &lt;!&ndash; Modal pour la carte &ndash;&gt;
-                <div class="modal fade" id="mapModal_{{race.reference}}" tabindex="-1">
-                  <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">Itinéraire de la course #{{race.reference}}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                      </div>
-                      <div class="modal-body">
-                        <div id="map_{{race.reference}}" style="height: 400px;"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>-->
           <div *ngIf="activeSection === 'compteur'" class="mt-5">
             <!-- Header -->
             <div class="d-flex align-items-center mb-3">
@@ -778,27 +682,30 @@
               <!-- Statistiques générales -->
               <div class="row g-4 mb-5">
                 <!-- Solde actuel -->
-                <div class="col-md-4">
-                  <div class="d-flex justify-content-between gap-4">
-                    <!-- Solde actuel -->
-                    <div class="border rounded p-4 text-center flex-grow-1">
-                      <i class="bi bi-currency-exchange fs-1 text-primary mb-2"></i>
-                      <div class="text-muted mb-1">Solde actuel</div>
-                      <div class="fs-2 fw-bold"
-                           [class.text-danger]="counterData.currentBalance < 0"
-                           [class.text-success]="counterData.currentBalance >= 0">
-                        {{ counterData.currentBalance | number:'1.2-2' }} XOF
+                <!-- Statistiques générales -->
+                <div class="row g-4 mb-5">
+                  <div class="col-12">
+                    <div class="d-flex gap-4">
+                      <!-- Solde actuel -->
+                      <div class="border rounded p-4 text-center w-50">
+                        <i class="bi bi-currency-exchange fs-1 text-primary mb-2"></i>
+                        <div class="text-muted mb-1">Solde actuel</div>
+                        <div class="fs-2 fw-bold"
+                             [class.text-danger]="counterData.currentBalance < 0"
+                             [class.text-success]="counterData.currentBalance >= 0">
+                          {{ counterData.currentBalance | number:'1.2-2' }} XOF
+                        </div>
                       </div>
-                    </div>
 
-                    <!-- Distance parcourue -->
-                    <div class="border rounded p-4 text-center flex-grow-1">
-                      <i class="bi bi-speedometer2 fs-1 text-primary mb-2"></i>
-                      <div class="text-muted mb-1">Distance parcouru</div>
-                      <div class="fs-2 fw-bold"
-                           [class.text-danger]="counterData.totalKmTraveled < 0"
-                           [class.text-success]="counterData.totalKmTraveled >= 0">
-                        {{ counterData.totalKmTraveled | number:'1.2-2' }} Km
+                      <!-- Distance parcourue -->
+                      <div class="border rounded p-4 text-center w-50">
+                        <i class="bi bi-speedometer2 fs-1 text-primary mb-2"></i>
+                        <div class="text-muted mb-1">Distance parcourue</div>
+                        <div class="fs-2 fw-bold"
+                             [class.text-danger]="counterData.totalKmTraveled < 0"
+                             [class.text-success]="counterData.totalKmTraveled >= 0">
+                          {{ counterData.totalKmTraveled | number:'1.2-2' }} Km
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -852,191 +759,6 @@
               </div>
             </div>
           </div>
-
-          <!--<div *ngIf="activeSection === 'infoszem'" class="mt-5">
-            &lt;!&ndash; Header &ndash;&gt;
-            <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
-              <h3 class="mb-0">Information compte Zem</h3>
-            </div>
-
-            <div class="container mt-4">
-              &lt;!&ndash; Loading spinner &ndash;&gt;
-              <div *ngIf="loading" class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Chargement...</span>
-                </div>
-              </div>
-
-              &lt;!&ndash; Zem details &ndash;&gt;
-              <div *ngIf="!loading && zem" class="card">
-                <div class="card-body">
-                  <table class="table table-hover">
-                    <tbody>
-                    <tr>
-                      <th scope="row" style="width: 30%">Type de carte</th>
-                      <td>{{zem.card_type}}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Numéro de carte</th>
-                      <td>{{zem.card_number}}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Image de profil</th>
-                      <td>
-                        <div class="d-flex align-items-center">
-                          <img [src]="zem.zem_profile_image"
-                               class="rounded-circle cursor-pointer"
-                               alt="Photo de profil"
-                               style="width: 100px; height: 100px; object-fit: cover;"
-                               data-bs-toggle="modal"
-                               data-bs-target="#profileImageModal">
-                          <button class="btn btn-outline-primary ms-3"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#locationModal"
-                                  *ngIf="zem.service_latitude && zem.service_longitude">
-                            <i class="bi bi-geo-alt-fill me-2"></i>
-                            Voir la position
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Numéro de plaque</th>
-                      <td>{{zem.number_plate}}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Date de validation</th>
-                      <td>{{zem.validated_at | date:'dd/MM/yyyy HH:mm'}}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Statut de validation</th>
-                      <td>
-                <span class="badge" [ngClass]="{'bg-success': zem.profile_validation_status === 'validated',
-                                             'bg-warning': zem.profile_validation_status === 'pending',
-                                             'bg-danger': zem.profile_validation_status === 'rejected'}">
-                  {{zem.profile_validation_status === 'validated' ? 'Validé' :
-                  zem.profile_validation_status === 'pending' ? 'En attente' :
-                    zem.profile_validation_status === 'rejected' ? 'Rejeté' :
-                      zem.profile_validation_status}}
-                </span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Statut du service</th>
-                      <td>
-                <span class="badge" [ngClass]="{'bg-success': zem.service, 'bg-danger': !zem.service}">
-                  {{zem.service ? 'En service' : 'Hors service'}}
-                </span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Rayon</th>
-                      <td>{{zem.ray || 'Non défini'}}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Coordonnées en service</th>
-                      <td>
-                        <ng-container *ngIf="zem.service_latitude && zem.service_longitude; else noCoords">
-                          Latitude: {{zem.service_latitude}}<br>
-                          Longitude: {{zem.service_longitude}}
-                        </ng-container>
-                        <ng-template #noCoords>
-                          Coordonnées non disponibles
-                        </ng-template>
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              &lt;!&ndash; Error message &ndash;&gt;
-              <div *ngIf="!loading && !zem" class="alert alert-danger">
-                Impossible de charger les détails du Zem.
-              </div>
-
-              &lt;!&ndash; Statistiques section &ndash;&gt;
-              <div *ngIf="counterData" class="border rounded p-4 mt-4">
-                &lt;!&ndash; Statistiques générales &ndash;&gt;
-                <div class="row g-4 mb-5">
-                  &lt;!&ndash; Section du solde &ndash;&gt;
-                  <div class="col-md-4">
-                    <div class="d-flex justify-content-between gap-4">
-                      &lt;!&ndash; Solde actuel &ndash;&gt;
-                      <div class="border rounded p-4 text-center flex-grow-1">
-                        <i class="bi bi-currency-exchange fs-1 text-primary mb-2"></i>
-                        <div class="text-muted mb-1">Solde actuel</div>
-                        <div class="fs-2 fw-bold"
-                             [class.text-danger]="counterData.currentBalance < 0"
-                             [class.text-success]="counterData.currentBalance >= 0">
-                          {{ counterData.currentBalance | number:'1.2-2' }} XOF
-                        </div>
-                      </div>
-
-                      &lt;!&ndash; Distance parcourue &ndash;&gt;
-                      <div class="border rounded p-4 text-center flex-grow-1">
-                        <i class="bi bi-speedometer2 fs-1 text-primary mb-2"></i>
-                        <div class="text-muted mb-1">Distance parcouru</div>
-                        <div class="fs-2 fw-bold"
-                             [class.text-danger]="counterData.totalKmTraveled < 0"
-                             [class.text-success]="counterData.totalKmTraveled >= 0">
-                          {{ counterData.totalKmTraveled | number:'1.2-2' }} Km
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  &lt;!&ndash; Historique des recharges &ndash;&gt;
-                  <div class="mt-5">
-                    <h4 class="mb-4">Historique des recharges</h4>
-                    <div class="table-responsive">
-                      <table class="table">
-                        <thead>
-                        <tr>
-                          <th>Date</th>
-                          <th>Kilométres</th>
-                          <th>Prix/km</th>
-                          <th>Total</th>
-                          <th>Méthode</th>
-                          <th>Transaction</th>
-                          <th>Statut</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr *ngFor="let recharge of counterData.rechargeHistory">
-                          <td>{{ recharge.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
-                          <td>{{ recharge.km_amount }} km</td>
-                          <td>{{ recharge.price_per_km }} XOF</td>
-                          <td>{{ recharge.km_amount * recharge.price_per_km | number:'1.0-0' }} XOF</td>
-                          <td>
-                    <span class="badge badge-light-primary">
-                      {{ recharge.payment_method === 'mobile_money' ? 'Mobile Money' : recharge.payment_method }}
-                    </span>
-                          </td>
-                          <td>
-                            <span class="text-gray-600">{{ recharge.transaction_id }}</span>
-                          </td>
-                          <td>
-                    <span class="badge"
-                          [ngClass]="{
-                            'badge-light-success': recharge.status === 'completed',
-                            'badge-light-warning': recharge.status === 'pending',
-                            'badge-light-danger': recharge.status === 'failed'
-                          }">
-                      {{ recharge.status }}
-                    </span>
-                          </td>
-                        </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>-->
-
           <div *ngIf="activeSection === 'infoszem'" class="mt-5">
             <!-- Header -->
             <div class="d-flex align-items-center mb-3">
@@ -1086,7 +808,16 @@
                     <tbody>
                     <tr>
                       <th scope="row" style="width: 30%">Type de carte</th>
-                      <td>{{zem.card_type}}</td>
+                      <td>
+    <span [ngClass]="'badge badge-light-' + (
+      zem.card_type === 'identity_card' ? 'primary' :
+      zem.card_type === 'cip_card' ? 'success' :
+      zem.card_type === 'passport_card' ? 'info' :
+      'secondary'
+    )">
+      {{ getCardTypeLabel(zem.card_type) }}
+    </span>
+                      </td>
                     </tr>
                     <tr>
                       <th scope="row">Numéro de carte</th>
@@ -1148,56 +879,7 @@
               </div>
 
               <!-- Statistiques section reste inchangé -->
-              <!-- ... Le reste du code pour les statistiques et l'historique ... -->
-            </div>
-          </div>
 
-          <!-- Modal pour l'image de profil -->
-          <div class="modal fade" id="profileImageModal" tabindex="-1" aria-labelledby="profileImageModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="profileImageModalLabel">Photo de profil</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                  <img [src]="zem?.zem_profile_image"
-                       class="img-fluid"
-                       alt="Photo de profil">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Modal pour la carte d'identité -->
-     <!--     <div class="modal fade" id="idCardModal" tabindex="-1" aria-labelledby="idCardModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="idCardModalLabel">Carte d'identité</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                  <img [src]="zem?.card_image"
-                       class="img-fluid"
-                       alt="Carte d'identité">
-                </div>
-              </div>
-            </div>
-          </div>
--->
-          <!-- Modal pour la carte de localisation -->
-          <div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="locationModalLabel">Position du Zem</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <div id="map" style="height: 400px;"></div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -1205,6 +887,37 @@
       </div>
     </div>
   </div>
+
+  <div class="modal fade" id="profileImageModal" tabindex="-1" aria-labelledby="profileImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="profileImageModalLabel">Photo de profil</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img [src]="zem?.zem_profile_image"
+               class="img-fluid"
+               alt="Photo de profil">
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal pour la carte de localisation -->
+  <div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="locationModalLabel">Position du Zem</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="map" style="height: 400px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <div class="modal fade" id="kt_modal_edit_user" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered">

@@ -22,3 +22,8 @@ export interface User {
   last_login?: string;
   balance?: number;
 }
+
+export interface ZemValidationRequest {
+  profile_validation_status: 'validated' | 'rejected';
+  type_action: string;
+}
