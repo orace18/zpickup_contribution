@@ -138,6 +138,13 @@ export class UsersComponent implements OnInit, AfterViewInit {
       });
     }
 
+    this.userRaces.forEach(race => {
+      const modalElement = document.getElementById(`detailsModal_${race.reference}`);
+      if (modalElement) {
+        new Modal(modalElement);
+      }
+    });
+
     this.cdr.detectChanges();
   }
 
@@ -154,6 +161,14 @@ export class UsersComponent implements OnInit, AfterViewInit {
   showUserDetails(user: User): void {
     this.selectedUser = user;
     this.detailsModal.show();
+  }
+
+  showDetails(race: any) {
+    const modalElement = document.getElementById(`detailsModal_${race.reference}`);
+    if (modalElement) {
+      const modal = Modal.getInstance(modalElement) || new Modal(modalElement);
+      modal.show();
+    }
   }
 
   showAddUserModal(): void {
@@ -226,12 +241,11 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
   viewCourseDetails(race: any) {
-    // Ouvrir le modal
-    const modalId = `mapModal_${race.reference}`;
+
+    const modalId = `detailsModal_${race.reference}`;
     const modal = new bootstrap.Modal(document.getElementById(modalId));
     modal.show();
 
-    // Initialiser la carte après l'ouverture du modal
     setTimeout(() => {
       this.initMap(race);
     }, 500);
@@ -705,11 +719,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
   protected readonly Number = Number;
 
-
-// Puis dans votre méthode
   validZem(zemId: string) {
   const validationData: ZemValidationRequest = {
-    profile_validation_status: 'validated', // Maintenant TypeScript sait que c'est littéralement 'validated'
+    profile_validation_status: 'validated',
     type_action: 'validated_zem'
   };
 
