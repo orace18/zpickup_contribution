@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import {WalletBalance, WalletHistory} from '../models/wallet.model';
+import { Observable, map } from 'rxjs';
+import { WalletBalance, WalletHistory, WalletTransaction } from '../models/wallet.model';
 import {environment} from '../../../../../../environments/environment';
 
 
@@ -13,13 +13,54 @@ export class WalletService {
 
   constructor(private http: HttpClient) {}
 
-  getWalletBalance(userId: string): Observable<WalletBalance> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
-    return this.http.get<WalletBalance>(`${this.apiUrl}/wallet/balance/${userId}`, { headers });
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders().set(
+      'Authorization',
+      `Bearer ${localStorage.getItem('access_token')}`
+    );
   }
 
+  getWalletBalance(userId: string): Observable<WalletBalance> {
+    return this.http.get<WalletBalance>(
+      `${this.apiUrl}/wallet/balance/${userId}`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+
   getWalletHistory(userId: string): Observable<WalletHistory> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
-    return this.http.get<WalletHistory>(`${this.apiUrl}/wallet-history/${userId}`, { headers });
+    return this.http.get<WalletTransaction[]>(
+      `${this.apiUrl}/wallet-history/${userId}`,
+      { headers: this.getHeaders() }
+    ).pipe(
+      map(transactions => this.calculateWalletHistory(transactions))
+    );
+  }
+
+  private calculateWalletHistory(transactions: WalletTransaction[]): WalletHistory {
+    const totals = transactions.reduce((acc, transaction) => {
+      acc.total_transactions++;
+
+      if (transaction.type === 'withdrawal') {
+        acc.total_withdrawals++;
+        acc.total_withdrawal_amount += transaction.amount;
+      } else if (transaction.type === 'credit' || transaction.type === 'bonus') {
+        acc.total_credits++;
+        acc.total_credit_amount += transaction.amount;
+      }
+
+      return acc;
+    }, {
+      total_transactions: 0,
+      total_withdrawals: 0,
+      total_credits: 0,
+      total_withdrawal_amount: 0,
+      total_credit_amount: 0
+    });
+
+    return {
+      ...totals,
+      transactions
+    };
   }
 }

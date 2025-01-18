@@ -61,7 +61,7 @@
             <thead>
             <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
               <th>Utilisateurs</th>
-              <th>Role</th>
+              <th>Type</th>
               <th>Date d'ajout</th>
               <th class="text-end">Actions</th>
             </tr>
@@ -131,7 +131,7 @@
             <thead>
             <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
               <th>Utilisateurs</th>
-              <th>Role</th>
+              <th>Type</th>
               <th>Date d'ajout</th>
               <th class="text-end">Détails</th>
             </tr>
@@ -272,7 +272,6 @@
           </div>
 
 
-          <!-- Contenu des sections -->
           <div *ngIf="activeSection === 'informations'" class="mt-5">
             <div class="d-flex align-items-center mb-3">
               <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
@@ -303,35 +302,38 @@
               <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
               <h3 class="mb-0">Mon portefeuille</h3>
             </div>
+
             <div class="border rounded p-4">
               <!-- Solde -->
               <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="mb-0">Solde actuel</h4>
-                <h2 class="text-primary mb-0">{{ walletBalance?.wallet_amount | number:'1.0-0' }} XOF</h2>
+                <h2 class="text-primary mb-0">
+                  {{ walletBalance?.wallet_amount | number:'1.0-0' }} XOF
+                </h2>
               </div>
 
               <!-- Résumé -->
               <div class="row mb-4" *ngIf="walletHistory">
                 <div class="col-md-3">
-                  <div class="border rounded p-3">
+                  <div class="border rounded p-3 h-100">
                     <div class="text-muted">Total Transactions</div>
                     <div class="fw-bold fs-4">{{ walletHistory.total_transactions }}</div>
                   </div>
                 </div>
                 <div class="col-md-3">
-                  <div class="border rounded p-3">
+                  <div class="border rounded p-3 h-100">
                     <div class="text-muted">Total Crédits</div>
                     <div class="fw-bold fs-4 text-success">{{ walletHistory.total_credits }}</div>
                   </div>
                 </div>
                 <div class="col-md-3">
-                  <div class="border rounded p-3">
+                  <div class="border rounded p-3 h-100">
                     <div class="text-muted">Total Retraits</div>
                     <div class="fw-bold fs-4 text-danger">{{ walletHistory.total_withdrawals }}</div>
                   </div>
                 </div>
                 <div class="col-md-3">
-                  <div class="border rounded p-3">
+                  <div class="border rounded p-3 h-100">
                     <div class="text-muted">Montant Total Crédité</div>
                     <div class="fw-bold fs-4">{{ walletHistory.total_credit_amount | number:'1.0-0' }} XOF</div>
                   </div>
@@ -339,36 +341,41 @@
               </div>
 
               <!-- Historique des transactions -->
-              <h5 class="mb-3">Historique des transactions</h5>
-              <div class="table-responsive">
-                <table class="table">
-                  <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Montant</th>
-                    <th>Détails</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr *ngFor="let transaction of walletHistory?.transactions">
-                    <td>{{ transaction.created_at | date:'medium' }}</td>
-                    <td>
-    <span [class]="'badge badge-light-' + getTransactionClass(transaction.type)">
-  {{ getTransactionLabel(transaction.type) }}
-</span>
-
-                    </td>
-                    <td [class]="transaction.type === 'credit' ? 'text-success' : 'text-danger'">
-                      {{ transaction.amount | number:'1.0-0' }} XOF
-                    </td>
-                    <td>
-                      <span *ngIf="transaction.transaction_type">{{ transaction.transaction_type }}</span>
-                      <span *ngIf="transaction.phone_number">{{ transaction.phone_number }}</span>
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
+              <div>
+                <h5 class="mb-3">Historique des transactions</h5>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th>Montant</th>
+                      <th>Détails</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let transaction of walletHistory?.transactions">
+                      <td>{{ transaction.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                      <td>
+                <span [class]="'badge bg-' + getTransactionClass(transaction.type)">
+                  {{ getTransactionLabel(transaction.type) }}
+                </span>
+                      </td>
+                      <td [class]="getTransactionTextClass(transaction.type)">
+                        {{ transaction.amount | number:'1.0-0' }} XOF
+                      </td>
+                      <td>
+                        <ng-container *ngIf="transaction.transaction_type">
+                          <span class="text-muted">{{ transaction.transaction_type }}</span>
+                        </ng-container>
+                        <ng-container *ngIf="transaction.phone_number">
+                          <span class="text-muted">{{ transaction.phone_number }}</span>
+                        </ng-container>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -659,7 +666,7 @@
 
           <div *ngIf="activeSection === 'compteur'" class="mt-5">
             <!-- Header -->
-            <div class="d-flex align-items-center mb-3">
+            <div class="d-flex align-items-center mb-4">
               <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
               <h3 class="mb-0">Compteur</h3>
             </div>
@@ -678,87 +685,66 @@
 
             <!-- Main Content -->
             <div *ngIf="counterData" class="border rounded p-4">
-
               <!-- Statistiques générales -->
               <div class="row g-4 mb-5">
-                <!-- Solde actuel -->
-                <!-- Statistiques générales -->
-                <div class="row g-4 mb-5">
-                  <div class="col-12">
-                    <div class="d-flex gap-4">
-                      <!-- Solde actuel -->
-                      <div class="border rounded p-4 text-center w-50">
-                        <i class="bi bi-currency-exchange fs-1 text-primary mb-2"></i>
-                        <div class="text-muted mb-1">Solde actuel</div>
-                        <div class="fs-2 fw-bold"
-                             [class.text-danger]="counterData.currentBalance < 0"
-                             [class.text-success]="counterData.currentBalance >= 0">
-                          {{ counterData.currentBalance | number:'1.2-2' }} XOF
-                        </div>
+                <div class="col-12">
+                  <div class="d-flex gap-4">
+                    <!-- Solde actuel -->
+                    <div class="border rounded p-4 text-center w-50">
+                      <i class="bi bi-currency-exchange fs-1 text-primary mb-2"></i>
+                      <div class="text-muted mb-1">Solde actuel</div>
+                      <div class="fs-2 fw-bold"
+                           [class.text-danger]="counterData.currentBalance < 0"
+                           [class.text-success]="counterData.currentBalance >= 0">
+                        {{ counterData.currentBalance | number:'1.2-2' }} XOF
                       </div>
+                    </div>
 
-                      <!-- Distance parcourue -->
-                      <div class="border rounded p-4 text-center w-50">
-                        <i class="bi bi-speedometer2 fs-1 text-primary mb-2"></i>
-                        <div class="text-muted mb-1">Distance parcourue</div>
-                        <div class="fs-2 fw-bold"
-                             [class.text-danger]="counterData.totalKmTraveled < 0"
-                             [class.text-success]="counterData.totalKmTraveled >= 0">
-                          {{ counterData.totalKmTraveled | number:'1.2-2' }} Km
-                        </div>
+                    <!-- Distance parcourue -->
+                    <div class="border rounded p-4 text-center w-50">
+                      <i class="bi bi-speedometer2 fs-1 text-primary mb-2"></i>
+                      <div class="text-muted mb-1">Distance parcourue</div>
+                      <div class="fs-2 fw-bold text-gray-800">
+                        {{ counterData.totalKmTraveled | number:'1.2-2' }} Km
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <!-- Historique des recharges -->
-                <div class="mt-5">
-                  <h4 class="mb-4">Historique des recharges</h4>
-                  <div class="table-responsive">
-                    <table class="table">
-                      <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Kilométres</th>
-                        <th>Prix/km</th>
-                        <th>Total</th>
-                        <th>Méthode</th>
-                        <th>Transaction</th>
-                        <th>Statut</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      <tr *ngFor="let recharge of counterData.rechargeHistory">
-                        <td>{{ recharge.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
-                        <td>{{ recharge.km_amount }} km</td>
-                        <td>{{ recharge.price_per_km }} XOF</td>
-                        <td>{{ recharge.km_amount * recharge.price_per_km | number:'1.0-0' }} XOF</td>
-                        <td>
-                <span class="badge badge-light-primary">
-                  {{ recharge.payment_method === 'mobile_money' ? 'Mobile Money' : recharge.payment_method }}
+              <!-- Historique des opérations -->
+              <div class="mt-5">
+                <h4 class="mb-4">Historique des opérations</h4>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Référence</th>
+                      <th>Type</th>
+                      <th>Montant</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let history of counterData.histories">
+                      <td>{{ history.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                      <td>{{ history.reference }}</td>
+                      <td>
+                <span class="badge" [ngClass]="getTypeClass(history.counter_type)">
+                  {{ getTypeLabel(history.counter_type) }}
                 </span>
-                        </td>
-                        <td>
-                          <span class="text-gray-600">{{ recharge.transaction_id }}</span>
-                        </td>
-                        <td>
-                <span class="badge"
-                      [ngClass]="{
-                        'badge-light-success': recharge.status === 'completed',
-                        'badge-light-warning': recharge.status === 'pending',
-                        'badge-light-danger': recharge.status === 'failed'
-                      }">
-                  {{ recharge.status }}
-                </span>
-                        </td>
-                      </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                      </td>
+                      <td [ngClass]="{'text-success': history.counter_type === 'input', 'text-danger': history.counter_type === 'output'}">
+                        {{ history.counter_type === 'input' ? '+' : '-' }}{{ history.value | number:'1.2-2' }} XOF
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
           </div>
+
           <div *ngIf="activeSection === 'infoszem'" class="mt-5">
             <!-- Header -->
             <div class="d-flex align-items-center mb-3">

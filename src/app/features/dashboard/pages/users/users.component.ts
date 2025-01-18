@@ -89,8 +89,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
   userRaces: Race[] = [];
   roles: Role[] = [];
   selectedUser: User | null = null;
-  walletBalance: WalletBalance | null = null;
-  walletHistory: WalletHistory | null = null;
+  walletBalance?: WalletBalance;
+  walletHistory?: WalletHistory;
   filters = {
     typeUtilisateur: '',
     pays:'',
@@ -868,5 +868,39 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.applyDateFilters();
   }
 
+  getTypeClass(type: string): string {
+    switch (type.toLowerCase()) {
+      case 'input':
+        return 'badge-light-success';
+      case 'output':
+        return 'badge-light-warning';
+      default:
+        return 'badge-light-primary';
+    }
+  }
 
+  getTypeLabel(type: string): string {
+    switch (type.toLowerCase()) {
+      case 'input':
+        return 'Recharge';
+      case 'output':
+        return 'Utilisation';
+      default:
+        return type;
+    }
+  }
+
+
+  getTransactionTextClass(type: "credit" | "withdrawal" | "bonus") {
+    switch (type.toLowerCase()) {
+      case 'credit':
+        return 'badge-light-success';
+      case 'bonus':
+        return 'badge-light-warning';
+      case 'withdrawal':
+        return 'badge-light-danger';
+      default:
+        return 'badge-light-primary';
+    }
+  }
 }

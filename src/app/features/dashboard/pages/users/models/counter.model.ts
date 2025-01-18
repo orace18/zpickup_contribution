@@ -1,17 +1,19 @@
+export interface CounterHistory {
+  _id: string;
+  counter: string;
+  value: number;
+  counter_type: 'input' | 'output';
+  reference: string;
+  created_at: string;
+  updated_at: string;
+  __v: number;
+}
+
 export interface CounterData {
   currentBalance: number;
   totalKmTraveled: number;
-  rechargeHistory: {
-    _id: string;
-    km_amount: number;
-    price_per_km: number;
-    payment_method: string;
-    transaction_id: string;
-    status: string;
-    created_at: string;
-  }[];
+  histories: CounterHistory[];
   statistics: {
     total_recharges: number;
-    total_races: number;
   };
 }
