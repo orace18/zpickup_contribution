@@ -34,6 +34,7 @@ import {ToastrService} from 'ngx-toastr';
 import {CounterData} from './models/counter.model';
 import {CounterService} from './services/counter.service';
 import {tap} from 'rxjs';
+import {Router} from '@angular/router';
 declare var bootstrap: any;
 
 @Pipe({
@@ -70,6 +71,7 @@ export class FilterByTypePipe implements PipeTransform {
 export class UsersComponent implements OnInit, AfterViewInit {
 
   constructor(
+    private router: Router,
     private usersService: UsersService,
     private walletService: WalletService,
     private raceService: RaceService,
@@ -673,7 +675,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
       if (this.activeTab === 'admin') {
         return user.user_type === 'admin';
       } else if (this.activeTab === 'mobile') {
-        return user.user_type !== 'admin'; // Exclut les administrateurs
+        return user.user_type !== 'admin';
       }
       return true;
     });
@@ -699,7 +701,10 @@ export class UsersComponent implements OnInit, AfterViewInit {
           this.applyFilters();
         },
         error: (error) => {
-          this.toastr.error('Erreur:', error.error.message);
+          if(error.error.status === 401){
+            this.router.navigate(["/login"])
+          }
+          this.toastr.error( error.error.message);
 
         }
       });
@@ -712,6 +717,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
         this.currentUser = user;
       },
       error: (error) => {
+        if(error.error.status === 401){
+          this.router.navigate(["/login"])
+        }
         console.error('Erreur lors du chargement de l\'utilisateur:', error);
       }
     });
@@ -733,6 +741,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
         this.loadUsers();
       },
       error: (error) => {
+        if(error.error.status === 401){
+          this.router.navigate(["/login"])
+        }
         this.toastr.error("Echec de validation de compte");
       }
     });
@@ -784,6 +795,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
       },
       error: (error) => {
         console.error('Erreur détaillée:', error);
+        if(error.error.status === 401){
+          this.router.navigate(["/login"])
+        }
         this.error = 'Erreur lors du chargement des données';
         this.loading = false;
         this.cdr.detectChanges();

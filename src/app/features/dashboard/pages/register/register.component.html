@@ -218,7 +218,7 @@
             &lt;!&ndash;end::Actions&ndash;&gt;
           </form>-->
           <!--begin::Form-->
-          <form class="form w-100" novalidate="novalidate" id="kt_sign_up_form">
+          <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="form w-100" novalidate="novalidate">
             <!--begin::Heading-->
             <div class="mb-10 text-center">
               <h1 class="text-dark mb-3">Create an Account</h1>
@@ -234,16 +234,26 @@
               <!--begin::Col-->
               <div class="col-xl-6">
                 <label class="form-label fw-bold text-dark fs-6">First Name</label>
-                <input class="form-control form-control-lg form-control-solid" type="text"
-                       placeholder="" name="firstname" autocomplete="off" />
+                <input formControlName="firstname"
+                       class="form-control form-control-lg form-control-solid"
+                       [ngClass]="{'is-invalid': firstNameControl?.invalid && firstNameControl?.touched}"
+                       type="text" placeholder="" />
+                <div *ngIf="firstNameControl?.invalid && firstNameControl?.touched" class="invalid-feedback">
+                  <div *ngIf="firstNameControl?.errors?.['required']">First name is required</div>
+                </div>
               </div>
               <!--end::Col-->
 
               <!--begin::Col-->
               <div class="col-xl-6">
                 <label class="form-label fw-bold text-dark fs-6">Last Name</label>
-                <input class="form-control form-control-lg form-control-solid" type="text"
-                       placeholder="" name="lastname" autocomplete="off" />
+                <input formControlName="lastname"
+                       class="form-control form-control-lg form-control-solid"
+                       [ngClass]="{'is-invalid': lastNameControl?.invalid && lastNameControl?.touched}"
+                       type="text" placeholder="" />
+                <div *ngIf="lastNameControl?.invalid && lastNameControl?.touched" class="invalid-feedback">
+                  <div *ngIf="lastNameControl?.errors?.['required']">Last name is required</div>
+                </div>
               </div>
               <!--end::Col-->
             </div>
@@ -252,24 +262,54 @@
             <!--begin::Input group-->
             <div class="fv-row mb-7">
               <label class="form-label fw-bold text-dark fs-6">Email</label>
-              <input class="form-control form-control-lg form-control-solid" type="email"
-                     placeholder="" name="email_address" autocomplete="off" />
+              <input formControlName="email_address"
+                     class="form-control form-control-lg form-control-solid"
+                     [ngClass]="{'is-invalid': emailControl?.invalid && emailControl?.touched}"
+                     type="email" placeholder="" />
+              <div *ngIf="emailControl?.invalid && emailControl?.touched" class="invalid-feedback">
+                <div *ngIf="emailControl?.errors?.['required']">Email is required</div>
+                <div *ngIf="emailControl?.errors?.['email']">Please enter a valid email address</div>
+              </div>
             </div>
             <!--end::Input group-->
 
             <!--begin::Input group-->
             <div class="fv-row mb-7">
               <label class="form-label fw-bold text-dark fs-6">Phone Number</label>
-              <input class="form-control form-control-lg form-control-solid" type="tel"
-                     placeholder="+229XXXXXXXXX" name="phone_number" autocomplete="off" />
+              <input formControlName="phone_number"
+                     class="form-control form-control-lg form-control-solid"
+                     [ngClass]="{'is-invalid': phoneNumberControl?.invalid && phoneNumberControl?.touched}"
+                     type="tel" placeholder="+229XXXXXXXXX" />
+              <div *ngIf="phoneNumberControl?.invalid && phoneNumberControl?.touched" class="invalid-feedback">
+                <div *ngIf="phoneNumberControl?.errors?.['required']">Phone number is required</div>
+                <div *ngIf="phoneNumberControl?.errors?.['pattern']">Phone number must start with +229 followed by 9 digits</div>
+              </div>
+            </div>
+            <!--end::Input group-->
+
+            <!--begin::Input group-->
+            <div class="fv-row mb-7">
+              <label class="form-label fw-bold text-dark fs-6">Address</label>
+              <input formControlName="address"
+                        class="form-control form-control-lg form-control-solid"
+                        [ngClass]="{'is-invalid': addressControl?.invalid && addressControl?.touched}"
+                        rows="3" placeholder="Enter your address">
+              <div *ngIf="addressControl?.invalid && addressControl?.touched" class="invalid-feedback">
+                <div *ngIf="addressControl?.errors?.['required']">Address is required</div>
+              </div>
             </div>
             <!--end::Input group-->
 
             <!--begin::Input group-->
             <div class="fv-row mb-7">
               <label class="form-label fw-bold text-dark fs-6">Date de naissance</label>
-              <input class="form-control form-control-lg form-control-solid" type="date"
-                     name="birthday" autocomplete="off" />
+              <input formControlName="birthday"
+                     class="form-control form-control-lg form-control-solid"
+                     [ngClass]="{'is-invalid': birthdayControl?.invalid && birthdayControl?.touched}"
+                     type="date" />
+              <div *ngIf="birthdayControl?.invalid && birthdayControl?.touched" class="invalid-feedback">
+                <div *ngIf="birthdayControl?.errors?.['required']">Birth date is required</div>
+              </div>
             </div>
             <!--end::Input group-->
 
@@ -277,12 +317,27 @@
             <div class="fv-row mb-7">
               <label class="form-label fw-bold text-dark fs-6">Rôle</label>
               <div class="position-relative">
-                <select class="form-select form-select-lg form-select-solid" name="role">
+                <select formControlName="role"
+                        class="form-select form-select-lg form-select-solid"
+                        [ngClass]="{'is-invalid': roleControl?.invalid && roleControl?.touched}"
+                        (mouseenter)="onRoleHover($event)"
+                        (change)="onRoleSelect($event)">
                   <option value="" disabled>Choisissez votre rôle</option>
-                  <option *ngFor="let role of roles" [value]="role._id">
+                  <option *ngFor="let role of roles" [value]="role._id" [attr.data-description]="role.description">
                     {{ role.name }}
                   </option>
                 </select>
+                <div *ngIf="roleControl?.invalid && roleControl?.touched" class="invalid-feedback">
+                  <div *ngIf="roleControl?.errors?.['required']">Role selection is required</div>
+                </div>
+
+                <div *ngIf="selectedRoleDescription"
+                     class="position-absolute start-0 mt-2 p-3 bg-white shadow rounded border border-gray-200 w-100 z-1">
+                  <div class="d-flex align-items-center">
+                    <i class="ki-duotone ki-information-5 fs-2 text-primary me-2"></i>
+                    <span class="text-gray-600 fs-7">{{ selectedRoleDescription }}</span>
+                  </div>
+                </div>
               </div>
             </div>
             <!--end::Input group-->
@@ -292,30 +347,94 @@
               <div class="mb-1">
                 <label class="form-label fw-bold text-dark fs-6">Password</label>
                 <div class="position-relative mb-3">
-                  <input class="form-control form-control-lg form-control-solid" type="password"
-                         placeholder="" name="password" autocomplete="off" />
+                  <input formControlName="password"
+                         class="form-control form-control-lg form-control-solid"
+                         [ngClass]="{'is-invalid': (passwordControl?.invalid && passwordControl?.touched) || passwordMismatch}"
+                         type="password" />
                   <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2"
                         data-kt-password-meter-control="visibility">
           <i class="ki-duotone ki-eye-slash fs-2"></i>
           <i class="ki-duotone ki-eye fs-2 d-none"></i>
         </span>
                 </div>
+                <div *ngIf="passwordControl?.invalid && passwordControl?.touched" class="invalid-feedback">
+                  <div *ngIf="passwordControl?.errors?.['required']">Password is required</div>
+                </div>
+              </div>
+            </div>
+            <!--end::Input group-->
+
+            <!--begin::Input group-->
+            <div class="fv-row mb-5">
+              <label class="form-label fw-bold text-dark fs-6">Confirm Password</label>
+              <div class="position-relative">
+                <input formControlName="password_confirmation"
+                       class="form-control form-control-lg form-control-solid"
+                       [ngClass]="{'is-invalid': (passwordConfirmationControl?.invalid && passwordConfirmationControl?.touched) || passwordMismatch}"
+                       type="password" />
+                <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2"
+                      data-kt-password-meter-control="visibility">
+        <i class="ki-duotone ki-eye-slash fs-2"></i>
+        <i class="ki-duotone ki-eye fs-2 d-none"></i>
+      </span>
+              </div>
+              <div *ngIf="(passwordConfirmationControl?.invalid && passwordConfirmationControl?.touched) || passwordMismatch"
+                   class="invalid-feedback">
+                <div *ngIf="passwordConfirmationControl?.errors?.['required']">Password confirmation is required</div>
+                <div *ngIf="passwordMismatch">Passwords do not match</div>
+              </div>
+            </div>
+            <!--end::Input group-->
+
+            <!--begin::Input group-->
+            <div class="fv-row mb-10">
+              <label class="form-check form-check-custom form-check-solid form-check-inline">
+                <input formControlName="toc"
+                       class="form-check-input"
+                       [ngClass]="{'is-invalid': tocControl?.invalid && tocControl?.touched}"
+                       type="checkbox" />
+                <span class="form-check-label fw-semibold text-gray-700 fs-6">
+        I Agree <a href="#" class="ms-1 link-primary">Terms and conditions</a>.
+      </span>
+              </label>
+              <div *ngIf="tocControl?.invalid && tocControl?.touched" class="invalid-feedback">
+                <div *ngIf="tocControl?.errors?.['required']">You must accept the terms and conditions</div>
               </div>
             </div>
             <!--end::Input group-->
 
             <!--begin::Actions-->
             <div class="text-center">
-              <button type="button" id="kt_sign_up_submit" class="btn btn-lg btn-primary">
-                <span class="indicator-label">Submit</span>
-                <span class="indicator-progress">
-        Please wait...
-        <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+              <button type="submit"
+                      [disabled]="signupForm.invalid || isLoading"
+                      class="btn btn-lg btn-primary">
+                <span class="indicator-label" *ngIf="!isLoading">Submit</span>
+                <span class="indicator-progress" *ngIf="isLoading">
+        Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
       </span>
               </button>
             </div>
             <!--end::Actions-->
           </form>
+          <!--end::Form-->
+
+          <script>
+            function togglePasswordVisibility(element) {
+              const input = element.parentElement.querySelector('input');
+              const eyeIcon = element.querySelector('.ki-eye');
+              const eyeSlashIcon = element.querySelector('.ki-eye-slash');
+
+              if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.classList.remove('d-none');
+                eyeSlashIcon.classList.add('d-none');
+              } else {
+                input.type = 'password';
+                eyeIcon.classList.add('d-none');
+                eyeSlashIcon.classList.remove('d-none');
+              }
+            }
+          </script>
           <!--end::Form-->
           <!--end::Form-->
         </div>

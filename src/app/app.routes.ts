@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import {MainLayoutComponent} from '../core/layouts/main-layout/main-layout.component';
 import {authGuard} from '../core/services/auth.guard';
+import {PermissionDeniedComponent} from './permission-denied/permission-denied.component';
 
 export const routes: Routes = [
   {
@@ -80,6 +81,7 @@ export const routes: Routes = [
           .then(m => m.RolesComponent),
         data: { permission: 'manage_roles' }
       },
+      { path: 'access-denied', component: PermissionDeniedComponent },
 
 
     ]
@@ -87,5 +89,5 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: ''
-  }
+  },
 ];

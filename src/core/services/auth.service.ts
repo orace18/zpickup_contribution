@@ -128,11 +128,11 @@ export class AuthService {
 
 
   hasPermission(permission: string): boolean {
-   /* console.log('Checking permission:', {
+    console.log('Checking permission:', {
       permission,
       currentUser: this.currentUserSubject.value,
       userPermissions: this.currentUserSubject.value?.user?.role?.permissions
-    });*/
+    });
     return this.currentUserSubject.value?.user?.role?.permissions?.includes(permission) || false;
   }
 
