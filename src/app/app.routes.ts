@@ -81,6 +81,12 @@ export const routes: Routes = [
           .then(m => m.RolesComponent),
         data: { permission: 'manage_roles' }
       },
+      {
+        path: 'faqs',
+        loadComponent: () => import('./features/dashboard/pages/faqs/faqs.component')
+          .then(m => m.FaqsComponent),
+        //data: { permission: 'manage_roles' }
+      },
       { path: 'access-denied', component: PermissionDeniedComponent },
 
 

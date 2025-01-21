@@ -104,6 +104,8 @@
         </div>
 
         <!-- Paramètres -->
+       
+
         <div class="menu-item" *ngIf="authService.hasPermission('manage_settings')">
           <a class="menu-link" routerLink="/settings" routerLinkActive="active">
             <span class="menu-bullet">
@@ -112,6 +114,15 @@
             <span class="menu-title">Paramètres</span>
           </a>
         </div>
+          <!-- *ngIf="authService.hasPermission('manage_settings')" -->
+          <div class="menu-item" >
+            <a class="menu-link" routerLink="/faqs" routerLinkActive="active">
+              <span class="menu-bullet">
+                <span class="bullet bullet-dot"></span>
+              </span>
+              <span class="menu-title">FAQs</span>
+            </a>
+          </div>
 
         <!-- Separator -->
         <div class="menu-item">

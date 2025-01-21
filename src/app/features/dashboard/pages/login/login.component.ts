@@ -71,6 +71,7 @@ export class LoginComponent implements OnInit {
         },
         error: (error) => {
           console.log('Login failed with error:', error);
+          this.toast.error('Utilisateur non trouvé!');
           this.formError = error.error?.message || 'Login failed';
         }
       });

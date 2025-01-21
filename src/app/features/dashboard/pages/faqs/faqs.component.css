@@ -1,0 +1,32 @@
+
+.faq-section {
+  margin-bottom: 2rem;
+
+  .faq-item {
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+  }
+
+  .search-box {
+    max-width: 400px;
+    margin-bottom: 2rem;
+  }
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.error-message {
+  color: #dc3545;
+  padding: 1rem;
+  border-radius: 4px;
+  background-color: #f8d7da;
+  margin-bottom: 1rem;
+}

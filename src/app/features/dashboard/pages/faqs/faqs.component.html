@@ -1,0 +1,251 @@
+<div class="content fs-6 d-flex flex-column flex-column-fluid" id="kt_content">
+  <!--begin::Toolbar-->
+  <div class="toolbar" id="kt_toolbar">
+    <div class="container-fluid d-flex flex-stack flex-wrap flex-sm-nowrap">
+      <!--begin::Info-->
+      <div class="d-flex flex-column align-items-start justify-content-center flex-wrap me-2">
+        <h1 class="text-dark fw-bold my-1 fs-2">FAQ
+          <small class="text-muted fs-6 fw-normal ms-1">Foire aux questions</small>
+        </h1>
+      </div>
+      <!--end::Info-->
+
+      <!--begin::Actions-->
+      <div class="d-flex align-items-center flex-nowrap text-nowrap py-1">
+        <div class="d-flex align-items-center position-relative my-1 ms-2 me-2">
+          <span class="svg-icon svg-icon-3 position-absolute ms-3">
+            <i class="ki-duotone ki-magnifier fs-3"></i>
+          </span>
+          <input
+            type="text"
+            name="searchQuery"
+            class="form-control form-control-solid w-250px ps-13"
+            placeholder="Rechercher une question"
+            [(ngModel)]="searchQuery"
+            (keyup)="applyFilters()" />
+          <!-- Add Button -->
+          <button class="btn btn-primary ms-3" (click)="openAddModal()">
+            <i class="ki-duotone ki-plus fs-2"></i>
+            Ajouter
+          </button>
+        </div>
+      </div>
+      <!--end::Actions-->
+    </div>
+  </div>
+  <!--end::Toolbar-->
+
+  <!--begin::Post-->
+  <div class="post fs-6 d-flex flex-column-fluid" id="kt_post">
+    <!--begin::Container-->
+    <div class="container-xxl">
+      <!--begin::FAQ card-->
+      <div class="card">
+        <!--begin::Body-->
+        <div class="card-body p-lg-15">
+          <!--begin::Classic content-->
+          <div class="mb-13">
+            <!-- Error Message -->
+            <div *ngIf="error" class="alert alert-danger">
+              {{error}}
+              <button type="button" class="btn btn-sm btn-light-primary ms-3" (click)="loadFaqs()">
+                Réessayer
+              </button>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div *ngIf="loading" class="d-flex justify-content-center py-10">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
+              </div>
+            </div>
+
+            <!-- FAQ Content -->
+            <div *ngIf="!loading && !error">
+              <!-- No Results Message -->
+              <div *ngIf="filteredFaqs.length === 0" class="alert alert-info">
+                Aucune FAQ ne correspond à votre recherche.
+              </div>
+
+              <!-- FAQ Items -->
+              <div class="mb-15">
+                <div *ngFor="let faq of filteredFaqs; let i = index" class="mb-0">
+                  <div class="d-flex align-items-center collapsible py-3 toggle mb-0"
+                       (click)="toggleFaq(i)"
+                       [class.collapsed]="!faq.isExpanded">
+                    <!-- Toggle Icon -->
+                    <div class="btn btn-sm btn-icon mw-20px btn-active-color-primary me-5">
+                      <i class="ki-duotone" [class.ki-minus-square]="faq.isExpanded" [class.ki-plus-square]="!faq.isExpanded">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                        <span class="path3" *ngIf="!faq.isExpanded"></span>
+                      </i>
+                    </div>
+
+                    <!-- Question -->
+                    <h4 class="text-gray-700 fw-bold cursor-pointer mb-0">
+                      {{faq.title}}
+                    </h4>
+                  </div>
+
+                  <!-- Answer -->
+                  <div [id]="'faq_' + i" class="collapse" [class.show]="faq.isExpanded">
+                    <div class="mb-4 text-gray-600 fw-semibold fs-6 ps-10">
+                      {{faq.description}}
+                    </div>
+
+                    <!-- Video Link -->
+
+                    <!-- Remplacer la section Video Link par ceci -->
+                    <div *ngIf="faq.youtube_video_link" class="ps-10 mb-4">
+                      <div class="ratio ratio-16x9">
+                        <iframe
+                          [src]="getSafeVideoUrl(faq.youtube_video_link)"
+                          title="YouTube video"
+                          frameborder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowfullscreen>
+                        </iframe>
+                      </div>
+                    </div>
+
+                    <!--<div *ngIf="faq.youtube_video_link" class="ps-10 mb-4">
+                      <a [href]="faq.youtube_video_link"
+                         target="_blank"
+                         class="btn btn-sm btn-light-primary">
+                        <i class="ki-duotone ki-youtube fs-2 me-2"></i>
+                        Voir la vidéo explicative
+                      </a>
+                    </div>
+-->
+                    <!-- Metadata -->
+                    <div class="ps-10 text-muted fs-7">
+                      Dernière mise à jour : {{formatDate(faq.updated_at)}}
+                    </div>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-light-primary d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+                        Actions
+                        <i class="ki-duotone ki-down fs-2 ms-2">
+                          <span class="path1"></span>
+                          <span class="path2"></span>
+                        </i>
+                      </button>
+                      <div class="dropdown-menu dropdown-menu-end">
+                        <button class="dropdown-item" (click)="editFaq(faq)">
+                          <i class="ki-duotone ki-pencil fs-5 me-2">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                          </i>
+                          Éditer
+                        </button>
+                        <button class="dropdown-item text-danger" (click)="deleteFaq(faq)">
+                          <i class="ki-duotone ki-trash fs-5 me-2">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                            <span class="path3"></span>
+                          </i>
+                          Supprimer
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <!-- Separator -->
+                  <div *ngIf="i !== filteredFaqs.length - 1" class="separator separator-dashed my-3"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--end::Classic content-->
+        </div>
+        <!--end::Body-->
+      </div>
+      <!--end::FAQ card-->
+    </div>
+    <!--end::Container-->
+  </div>
+  <!--end::Post-->
+
+  <!-- Ajouter à la fin de votre template, juste après le modal d'ajout -->
+  <div class="modal fade" tabindex="-1" id="editFaqModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form [formGroup]="faqForm" (ngSubmit)="onEditSubmit()">
+          <div class="modal-header">
+            <h5 class="modal-title">Modifier la FAQ</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label required">Question</label>
+              <input type="text" class="form-control" formControlName="title" />
+              <div *ngIf="faqForm.get('title')?.invalid && faqForm.get('title')?.touched" class="text-danger">
+                La question est requise
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">Réponse</label>
+              <textarea class="form-control" rows="4" formControlName="description"></textarea>
+              <div *ngIf="faqForm.get('description')?.invalid && faqForm.get('description')?.touched" class="text-danger">
+                La réponse est requise
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Lien vidéo YouTube</label>
+              <input type="text" class="form-control" formControlName="youtube_video_link" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="faqForm.invalid || submitting">
+              <span *ngIf="!submitting">Sauvegarder</span>
+              <span *ngIf="submitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add FAQ Modal -->
+  <div class="modal fade" tabindex="-1" id="addFaqModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form [formGroup]="faqForm" (ngSubmit)="onSubmit()">
+          <div class="modal-header">
+            <h5 class="modal-title">Ajouter une FAQ</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label required">Question</label>
+              <input type="text" class="form-control" formControlName="title" />
+              <div *ngIf="faqForm.get('title')?.invalid && faqForm.get('title')?.touched" class="text-danger">
+                La question est requise
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">Réponse</label>
+              <textarea class="form-control" rows="4" formControlName="description"></textarea>
+              <div *ngIf="faqForm.get('description')?.invalid && faqForm.get('description')?.touched" class="text-danger">
+                La réponse est requise
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Lien vidéo YouTube</label>
+              <input type="text" class="form-control" formControlName="youtube_video_link" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="faqForm.invalid || submitting">
+              <span *ngIf="!submitting">Sauvegarder</span>
+              <span *ngIf="submitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
