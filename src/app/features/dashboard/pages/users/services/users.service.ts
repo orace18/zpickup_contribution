@@ -57,7 +57,7 @@ export class UsersService {
 
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json');  // Ajoutez ceci aussi
+      .set('Content-Type', 'application/json');
 
     return this.http.patch<User>(`${this.sndapiUrl}/${userId}`, userData, {headers})
       .pipe(

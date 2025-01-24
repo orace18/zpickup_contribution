@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { colorSets } from '@swimlane/ngx-charts';
+import { curveCardinal } from 'd3-shape';
 
 interface DataPoint {
   name: string;
@@ -18,18 +19,23 @@ export class GraphiquesComponent implements OnInit {
  
 
   
-  customColorScheme = {
-    domain: ['#FF0000', '#00FF00', '#0000FF'] 
-  };
+  curve = curveCardinal;
 
   @Input() data: any[] = [];
   @Input() xLabel = 'Période';
   @Input() yLabel = 'Valeur';
 
   chartData: any[] = [];
-customColors: { domain: string[
-  ] } = { domain: ['#796CE7', '#00FF00', '#0000FF'
-] };
+  customColors = [
+    {
+      name: 'Courses',
+      value: '#FF6B6B'
+    },
+    {
+      name: 'Inscriptions',
+      value: '#796CE7'
+    }
+  ];
 
   ngOnInit() {
     

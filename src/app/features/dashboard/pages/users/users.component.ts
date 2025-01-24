@@ -9,7 +9,7 @@ import {
   ViewChild
 } from '@angular/core';
 import {User, ZemValidationRequest,} from './models/users.model';
-import {UsersService} from './services/users.services';
+import {UsersService} from './services/users.service';
 import {
   DatePipe,
   DecimalPipe,

@@ -18,10 +18,10 @@ export class AutoLogoutService implements OnDestroy {
 
   constructor(
     private router: Router,
-    // Ajoutez ici vos services nécessaires, par exemple:
+  
      private authService: AuthService,
     private sidService: SidebarComponent
-    // private localStorageService: LocalStorageService
+    
   ) {}
 
   initializeAutoLogout(): void {

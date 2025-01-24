@@ -68,17 +68,28 @@
   }
 }
 
-/*
-.menu-link.active {
-  color: #ffffff !important; !* Texte en blanc *!
-  background-color: #796ce7 ; !* Couleur de fond pour l'élément actif *!
+.layout-container {
+  display: flex;
 }
 
-.menu-link.active .bullet-dot {
-  background-color: #796ce7 !important; !* Point en blanc pour l'élément actif *!
+.sidebar {
+  transition: width 0.3s ease, transform 0.3s ease;
 }
 
-!* Pour éviter que le hover ne change la couleur quand l'élément est actif *!
-.menu-link.active:hover {
-  color: #ffffff !important;
-}*/
+.sidebar.collapsed {
+  width: 60px; /* Reduced width when collapsed */
+  overflow: hidden;
+}
+
+.sidebar.collapsed .sidebar-content {
+  display: none; /* Hide sidebar content when collapsed */
+}
+
+.sidebar-toggle {
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 100;
+  font-size: 20px;
+}

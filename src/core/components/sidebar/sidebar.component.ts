@@ -58,6 +58,9 @@ export class SidebarComponent implements OnInit{
     });
   }
 
+  toggleSidebar() {
+    this.isCollapsed = !this.isCollapsed;
+  }
 
 
   isRouteActive(route: string): boolean {
