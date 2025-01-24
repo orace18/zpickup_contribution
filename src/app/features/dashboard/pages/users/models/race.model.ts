@@ -69,6 +69,7 @@ export interface Zem extends User{
   zem_profile_image: string;
   image_of_residence_certificate: string;
   ifu_number_image: string;
+  ifu_number: string;
   number_plate: string;
   plate_picture: string;
   profile_validation_status: string;

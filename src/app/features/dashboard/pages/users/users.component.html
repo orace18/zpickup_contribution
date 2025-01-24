@@ -183,16 +183,20 @@
           <div class="d-flex align-items-center justify-content-between mb-7">
             <div class="d-flex align-items-center">
               <div class="symbol symbol-100px symbol-circle me-5">
-                <img *ngIf="selectedUser?.profile_picture" [src]="selectedUser.profile_picture" [alt]="selectedUser.firstname"/>
+                <img *ngIf="selectedUser?.profile_picture" [src]="getProfileDisplay(selectedUser)" [alt]="selectedUser.firstname"/>
                 <span *ngIf="!selectedUser?.profile_picture" class="fs-2 bg-light-primary text-primary p-5 rounded-circle">
-                {{ getInitials(selectedUser) }}
-              </span>
+                  {{ getInitials(selectedUser) }}
+                </span>
               </div>
 
               <div class="d-flex flex-column">
-                <h3 class="mb-1">{{ selectedUser?.firstname }} {{ selectedUser?.lastname }}</h3>
-                <div class="text-muted">{{ selectedUser?.email_address }}</div>
-                <span class="badge badge-light-primary mt-2">{{ selectedUser?.user_type === 'zem' ? 'Conducteur' : (selectedUser?.user_type === 'customer' ? 'Client' : (selectedUser?.user_type === 'admin' ? 'Administrateur' : 'N/A')) }}</span>
+                <h3 class="mb-1">{{ selectedUser.firstname }} {{ selectedUser.lastname }}</h3>
+                <div class="text-muted">{{ selectedUser.email_address }}</div>
+                <div class="badge-light-primary mt-2">
+                  {{ selectedUser.user_type === 'zem' ? 'Conducteur' : 
+                     selectedUser.user_type === 'customer' ? 'Client' : 
+                     selectedUser.user_type === 'admin' ? 'Administrateur' : '' }}
+                </div>
               </div>
             </div>
 
@@ -201,11 +205,11 @@
                 {{ statusText }}
               </div>
 
-              <button *ngIf="(selectedUser?.user_type === 'zem')  && selectedUser?.validated_at === null "
+              <!-- <button *ngIf="canValidateZem()"
                       class="btn btn-sm btn-primary mt-2"
-                     (click)="validZem(selectedUser?.zem!)" >
+                    (click)="selectedUser && validZem(selectedUser.zem)" >
                 Valider
-              </button>
+              </button> -->
             </div>
           </div>
 
@@ -290,8 +294,8 @@
                 <div class="col-4 fw-bold">Téléphone</div>
                 <div class="col-8">{{ selectedUser.phone_number }}</div>
               </div>
-              <div class="row mb-3">
-                <div class="col-4 fw-bold">Code de Parrainage</div>
+              <div *ngIf="selectedUser.user_type === 'customer' || selectedUser.user_type === 'zem'" class="row mb-3">
+                <div  class="col-4 fw-bold">Code de Parrainage</div>
                 <div class="col-8">{{ selectedUser.sponsorship_code }}</div>
               </div>
             </div>
@@ -357,7 +361,7 @@
                     <tr *ngFor="let transaction of walletHistory?.transactions">
                       <td>{{ transaction.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
                       <td>
-                <span [class]="'badge bg-' + getTransactionClass(transaction.type)">
+                <span [class]="'badge badge-light-' + getTransactionClass(transaction.type)">
                   {{ getTransactionLabel(transaction.type) }}
                 </span>
                       </td>
@@ -1084,48 +1088,6 @@
                 </div>
               </div>
 
-              <!-- Zem profile section -->
-              <div *ngIf="!loading && zem" class="card mb-4">
-                <div class="card-body">
-                  <div class="row">
-                    <!-- Profile Image Section - Left Side -->
-                    <div class="col-md-6 border-end">
-                      <div class="text-center">
-                        <div class="position-relative d-inline-block mb-3">
-                          <img [src]="zem.zem_profile_image"
-                               class="rounded-circle cursor-pointer"
-                               alt="Photo de profil"
-                               style="width: 150px; height: 150px; object-fit: cover;"
-                               data-bs-toggle="modal"
-                               data-bs-target="#profileImageModal">
-                        </div>
-                        <button class="btn btn-outline-primary mt-2 d-block mx-auto"
-                                data-bs-toggle="modal"
-                                data-bs-target="#locationModal"
-                                *ngIf="zem.service_latitude && zem.service_longitude">
-                          <i class="bi bi-geo-alt-fill me-2"></i>
-                          Voir la position
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- ID Card Image Section - Right Side -->
-                    <div class="col-md-6">
-                      <div class="text-center">
-                        <div class="position-relative d-inline-block mb-3">
-                          <img [src]="zem.card_image"
-                               class="rounded-circle cursor-pointer"
-                               alt="Photo de la carte"
-                               style="width: 150px; height: 150px; object-fit: cover;"
-                               data-bs-toggle="modal"
-                               data-bs-target="#carteImageModal">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <!-- Zem details -->
               <div *ngIf="!loading && zem" class="card mb-4">
                 <div class="card-body">
@@ -1134,14 +1096,14 @@
                     <tr>
                       <th scope="row" style="width: 30%">Type de carte</th>
                       <td>
-    <span [ngClass]="'badge badge-light-' + (
-      zem.card_type === 'identity_card' ? 'primary' :
-      zem.card_type === 'cip_card' ? 'success' :
-      zem.card_type === 'passport_card' ? 'info' :
-      'secondary'
-    )">
-      {{ getCardTypeLabel(zem.card_type) }}
-    </span>
+                <span [ngClass]="'badge badge-light-' + (
+                  zem.card_type === 'identity_card' ? 'primary' :
+                  zem.card_type === 'cip_card' ? 'success' :
+                  zem.card_type === 'passport_card' ? 'info' :
+                  'secondary'
+                )">
+                  {{ getCardTypeLabel(zem.card_type) }}
+                </span>
                       </td>
                     </tr>
                     <tr>
@@ -1149,8 +1111,52 @@
                       <td><span [ngClass]="'badge badge-light-primary'">{{zem.card_number}}</span></td>
                     </tr>
                     <tr>
+                      <th scope="row">Photo de carte</th>
+                      <td>
+                <span
+                  [ngClass]="'badge badge-light-primary cursor-pointer'"
+                  (click)="openPhotoModal('card_photo')">
+                  Voir la photo
+                </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Photo de la plaque</th>
+                      <td>
+                <span
+                  [ngClass]="'badge badge-light-primary cursor-pointer'"
+                  (click)="openPhotoModal('plate_photo')">
+                  Voir la photo
+                </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Certificat de résidence</th>
+                      <td>
+                <span
+                  [ngClass]="'badge badge-light-primary cursor-pointer'"
+                  (click)="openPhotoModal('residence_photo')">
+                  Voir la photo
+                </span>
+                      </td>
+                    </tr>
+                    <tr>
                       <th scope="row">Numéro de plaque</th>
                       <td><span [ngClass]="'badge badge-light-primary'">{{zem.number_plate}}</span></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Numéro de IFU</th>
+                      <td><span [ngClass]="'badge badge-light-primary'">{{zem.ifu_number}}</span></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Photo d'IFU</th>
+                      <td>
+                <span
+                  [ngClass]="'badge badge-light-primary cursor-pointer'"
+                  (click)="openPhotoModal('ifu_photo')">
+                  Voir la photo
+                </span>
+                      </td>
                     </tr>
                     <tr>
                       <th scope="row">Date de validation</th>
@@ -1160,12 +1166,14 @@
                       <th scope="row">Statut de validation</th>
                       <td>
                 <span class="badge" [ngClass]="{'badge-light-success': zem.profile_validation_status === 'validated',
-                                             'badge-light-warning': zem.profile_validation_status === 'pending',
-                                             'badge-light-danger': zem.profile_validation_status === 'rejected'}">
+                                                 'badge-light-warning': zem.profile_validation_status === 'pending',
+                                                 'badge-light-danger': zem.profile_validation_status === 'rejected',
+                                                 'badge-light-primary': zem.profile_validation_status === 'in_progress'}">
                   {{zem.profile_validation_status === 'validated' ? 'Validé' :
                   zem.profile_validation_status === 'pending' ? 'En attente' :
                     zem.profile_validation_status === 'rejected' ? 'Rejeté' :
-                      zem.profile_validation_status}}
+                      zem.profile_validation_status === 'in_progress' ? 'En cours':
+                        zem.profile_validation_status}}
                 </span>
                       </td>
                     </tr>
@@ -1179,7 +1187,7 @@
                     </tr>
                     <tr>
                       <th scope="row">Rayon</th>
-                      <td>{{zem.ray || 'Non défini'}}</td>
+                      <td>{{zem.ray || 'Non renseigné'}}</td>
                     </tr>
                     <tr>
                       <th scope="row">Coordonnées en service</th>
@@ -1187,6 +1195,11 @@
                         <ng-container *ngIf="zem.service_latitude && zem.service_longitude; else noCoords">
                           Latitude: {{zem.service_latitude}}<br>
                           Longitude: {{zem.service_longitude}}
+                          <button class="btn btn-primary btn-sm ms-2"
+                                  (click)="openLocationModal()">
+                            <i class="bi bi-geo-alt-fill me-1"></i>
+                            Voir la position
+                          </button>
                         </ng-container>
                         <ng-template #noCoords>
                           Non renseignée
@@ -1202,7 +1215,39 @@
               <div *ngIf="!loading && !zem" class="alert alert-danger">
                 Impossible de charger les détails du Zem.
               </div>
+            </div>
 
+            <!-- Photo Modal -->
+            <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="photoModalLabel">Photo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body text-center">
+                    <img [src]="currentPhoto" class="img-fluid" alt="Photo">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Location Modal -->
+            <div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-fullscreen">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="locationModalLabel">Position du Zem</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body p-0">
+                    <div id="zemLocationMap" style="height: calc(100vh - 100px); width: 100%;"></div>
+                  </div>
+                  <div class="modal-footer">
+                    <p class="mb-0">Latitude: {{zem?.service_latitude}} | Longitude: {{zem?.service_longitude}}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1242,7 +1287,8 @@
       </div>
     </div>
   </div>
-  <!-- Modal pour la carte de localisation -->
+
+  <!-- Modal pour la carte de localisation
   <div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -1256,7 +1302,7 @@
       </div>
     </div>
   </div>
-
+-->
 
   <div class="modal fade" id="kt_modal_edit_user" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
@@ -1392,7 +1438,7 @@
             [attr.disabled]="!addUserForm.valid"
             data-kt-users-modal-action="submit"
             (click)="updateUser()"
-            [disabled]="editForm?.form?.invalid">
+            >
             Enregistrer
           </button>
         </div>

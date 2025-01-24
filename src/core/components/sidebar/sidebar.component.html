@@ -33,9 +33,12 @@
         <!-- Cartes -->
         <div class="menu-item" *ngIf="authService.hasPermission('view_cartes')">
           <a class="menu-link" routerLink="/cartes" routerLinkActive="active">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
-            </span>
+    <span class="menu-icon">
+      <i class="ki-duotone ki-map fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i>
+    </span>
             <span class="menu-title">Cartes en temps réel</span>
           </a>
         </div>
@@ -43,19 +46,38 @@
         <!-- Utilisateurs -->
         <div class="menu-item" *ngIf="authService.hasPermission('view_users')">
           <a class="menu-link" routerLink="/users" routerLinkActive="active">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
-            </span>
+    <span class="menu-icon">
+      <i class="ki-duotone ki-user fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+        <span class="path3"></span>
+      </i>
+    </span>
             <span class="menu-title">Utilisateurs</span>
+          </a>
+        </div>
+        <!-- Rôles -->
+        <div class="menu-item" *ngIf="authService.hasPermission('manage_roles')">
+          <a class="menu-link" routerLink="/roles" routerLinkActive="active">
+    <span class="menu-icon">
+      <i class="ki-duotone ki-shield-tick fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i>
+    </span>
+            <span class="menu-title">Rôles</span>
           </a>
         </div>
 
         <!-- Tickets -->
         <div class="menu-item" *ngIf="authService.hasPermission('view_tickets')">
           <a class="menu-link" routerLink="/tickets" routerLinkActive="active">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
-            </span>
+    <span class="menu-icon">
+      <i class="ki-duotone ki-ticket fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i>
+    </span>
             <span class="menu-title">Tickets</span>
           </a>
         </div>
@@ -63,9 +85,12 @@
         <!-- Chats -->
         <div class="menu-item" *ngIf="authService.hasPermission('view_chat')">
           <a class="menu-link" routerLink="/chats" routerLinkActive="active">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
-            </span>
+    <span class="menu-icon">
+      <i class="ki-duotone ki-message-text fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i>
+    </span>
             <span class="menu-title">Chats</span>
           </a>
         </div>
@@ -73,9 +98,12 @@
         <!-- Assureurs -->
         <div class="menu-item" *ngIf="authService.hasPermission('view_assureurs')">
           <a class="menu-link" routerLink="/assureurs" routerLinkActive="active">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
-            </span>
+    <span class="menu-icon">
+      <i class="ki-duotone ki-shield-security fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i>
+    </span>
             <span class="menu-title">Assureurs</span>
           </a>
         </div>
@@ -83,46 +111,41 @@
         <!-- Statistiques -->
         <div class="menu-item" *ngIf="authService.hasPermission('view_statistics')">
           <a class="menu-link" routerLink="/statistiques" routerLinkActive="active">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
-            </span>
+    <span class="menu-icon">
+      <i class="ki-duotone ki-chart-line fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i>
+    </span>
             <span class="menu-title">Statistiques</span>
           </a>
         </div>
 
-        <!-- Rôles -->
-        <div class="menu-item" *ngIf="authService.hasPermission('manage_roles')">
-          <a class="menu-link" routerLink="/roles" routerLinkActive="active">
-            <span class="menu-icon">
-              <i class="ki-duotone ki-shield-tick fs-2">
-                <span class="path1"></span>
-                <span class="path2"></span>
-              </i>
-            </span>
-            <span class="menu-title">Rôles</span>
-          </a>
-        </div>
-
         <!-- Paramètres -->
-       
-
         <div class="menu-item" *ngIf="authService.hasPermission('manage_settings')">
           <a class="menu-link" routerLink="/settings" routerLinkActive="active">
-            <span class="menu-bullet">
-              <span class="bullet bullet-dot"></span>
-            </span>
+    <span class="menu-icon">
+      <i class="ki-duotone ki-setting-2 fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i>
+    </span>
             <span class="menu-title">Paramètres</span>
           </a>
         </div>
-          <!-- *ngIf="authService.hasPermission('manage_settings')" -->
-          <div class="menu-item" >
-            <a class="menu-link" routerLink="/faqs" routerLinkActive="active">
-              <span class="menu-bullet">
-                <span class="bullet bullet-dot"></span>
-              </span>
-              <span class="menu-title">FAQs</span>
-            </a>
-          </div>
+
+        <!-- FAQs -->
+        <div class="menu-item">
+          <a class="menu-link" routerLink="/faqs" routerLinkActive="active">
+    <span class="menu-icon">
+      <i class="ki-duotone ki-information fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i>
+    </span>
+            <span class="menu-title">FAQs</span>
+          </a>
+        </div>
 
         <!-- Separator -->
         <div class="menu-item">
@@ -134,12 +157,12 @@
         <!-- Déconnexion -->
         <div class="menu-item">
           <a class="menu-link" (click)="deconnexion()" style="cursor: pointer;">
-            <span class="menu-icon">
-              <i class="ki-duotone ki-logout fs-2">
-                <span class="path1"></span>
-                <span class="path2"></span>
-              </i>
-            </span>
+    <span class="menu-icon">
+      <i class="ki-duotone ki-exit-right fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i>
+    </span>
             <span class="menu-title">Déconnexion</span>
           </a>
         </div>

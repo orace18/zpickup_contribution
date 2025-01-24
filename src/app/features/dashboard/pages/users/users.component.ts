@@ -11,15 +11,12 @@ import {
 import {User, ZemValidationRequest,} from './models/users.model';
 import {UsersService} from './services/users.services';
 import {
-  CurrencyPipe,
   DatePipe,
   DecimalPipe,
   formatDate,
-  JsonPipe,
   NgClass,
   NgForOf,
-  NgIf,
-  NgOptimizedImage, NgSwitch, NgSwitchCase
+  NgIf
 } from '@angular/common';
 import {FormsModule, NgForm} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
@@ -33,8 +30,9 @@ import {RoleService} from './services/role.service';
 import {ToastrService} from 'ngx-toastr';
 import {CounterData} from './models/counter.model';
 import {CounterService} from './services/counter.service';
-import {tap} from 'rxjs';
+import {BehaviorSubject, Observable, shareReplay, take, tap} from 'rxjs';
 import {Router} from '@angular/router';
+import {map} from 'rxjs/operators';
 declare var bootstrap: any;
 
 @Pipe({
@@ -62,9 +60,6 @@ export class FilterByTypePipe implements PipeTransform {
     DatePipe,
     DecimalPipe,
     NgClass,
-    JsonPipe,
-    NgSwitch,
-    NgSwitchCase,
   ],
   styleUrls: ['./users.component.css']
 })
@@ -79,8 +74,10 @@ export class UsersComponent implements OnInit, AfterViewInit {
     private counterService: CounterService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+  }
 
+  activeSection: 'informations' | 'portefeuille' | 'courses' | 'compteur' | 'infoszem' | null = null;
   counterData: CounterData | null = null;
   loading: boolean = false;
   error: string | null = null;
@@ -95,7 +92,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   walletHistory?: WalletHistory;
   filters = {
     typeUtilisateur: '',
-    pays:'',
+    pays: '',
   };
   startDate: string = '';
   endDate: string = '';
@@ -129,7 +126,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     });
 
     const triggerTabList = [].slice.call(document.querySelectorAll('a[data-bs-toggle="tab"]'));
-    triggerTabList.forEach(function(triggerEl) {
+    triggerTabList.forEach(function (triggerEl) {
       new bootstrap.Tab(triggerEl);
     });
 
@@ -252,89 +249,89 @@ export class UsersComponent implements OnInit, AfterViewInit {
       this.initMap(race);
     }, 500);
   }
+
   findZemUser(zemId: string): any {
     return this.users.find(user => user._id === zemId);
   }
 
-     initMap(race: Race) {
-       const mapElement = document.getElementById(`map_${race.reference}`);
-       if (!mapElement) return;
+  initMap(race: Race) {
+    const mapElement = document.getElementById(`map_${race.reference}`);
+    if (!mapElement) return;
 
-       // Vérification des coordonnées requises
-       if (!race.latitude_start || !race.longitude_start || !race.latitude_end || !race.longitude_end) {
-         console.error('Coordonnées manquantes', race);
-         return;
-       }
+    // Vérification des coordonnées requises
+    if (!race.latitude_start || !race.longitude_start || !race.latitude_end || !race.longitude_end) {
+      console.error('Coordonnées manquantes', race);
+      return;
+    }
 
-       const startLocation = {
-         lat: parseFloat(String(race.latitude_start)),
-         lng: parseFloat(String(race.longitude_start))
-       };
+    const startLocation = {
+      lat: parseFloat(String(race.latitude_start)),
+      lng: parseFloat(String(race.longitude_start))
+    };
 
-       const endLocation = {
-         lat: race.latitude_end,
-         lng: race.longitude_end
-       };
+    const endLocation = {
+      lat: race.latitude_end,
+      lng: race.longitude_end
+    };
 
-       console.log('Coordonnées de départ:', startLocation);
-       console.log('Coordonnées d\'arrivée:', endLocation);
+    console.log('Coordonnées de départ:', startLocation);
+    console.log('Coordonnées d\'arrivée:', endLocation);
 
-       // Ajustons le zoom et le centre pour voir les deux points
-       const bounds = new google.maps.LatLngBounds();
-       bounds.extend(startLocation);
-       bounds.extend(endLocation);
+    // Ajustons le zoom et le centre pour voir les deux points
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend(startLocation);
+    bounds.extend(endLocation);
 
-       const map = new google.maps.Map(mapElement, {
-         zoom: 12, // Zoom plus large
-         center: startLocation
-       });
+    const map = new google.maps.Map(mapElement, {
+      zoom: 12, // Zoom plus large
+      center: startLocation
+    });
 
-       map.fitBounds(bounds); // Ajuste la vue pour montrer les deux points
+    map.fitBounds(bounds); // Ajuste la vue pour montrer les deux points
 
-       // Marqueur de départ
-       const startMarker = new google.maps.Marker({
-         position: startLocation,
-         map: map,
-         title: 'Point de départ',
-         icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-       });
-       console.log('Marqueur de départ créé:', startMarker);
+    // Marqueur de départ
+    const startMarker = new google.maps.Marker({
+      position: startLocation,
+      map: map,
+      title: 'Point de départ',
+      icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+    });
+    console.log('Marqueur de départ créé:', startMarker);
 
-       // Marqueur d'arrivée
-       const endMarker = new google.maps.Marker({
-         position: endLocation,
-         map: map,
-         title: 'Point d\'arrivée',
-         icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
-       });
-       console.log('Marqueur d\'arrivée créé:', endMarker);
+    // Marqueur d'arrivée
+    const endMarker = new google.maps.Marker({
+      position: endLocation,
+      map: map,
+      title: 'Point d\'arrivée',
+      icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+    });
+    console.log('Marqueur d\'arrivée créé:', endMarker);
 
-       // Tracer l'itinéraire
-       const directionsService = new google.maps.DirectionsService();
-       const directionsRenderer = new google.maps.DirectionsRenderer({
-         map: map,
-         suppressMarkers: true // Pour garder nos marqueurs personnalisés
-       });
+    // Tracer l'itinéraire
+    const directionsService = new google.maps.DirectionsService();
+    const directionsRenderer = new google.maps.DirectionsRenderer({
+      map: map,
+      suppressMarkers: true // Pour garder nos marqueurs personnalisés
+    });
 
-       directionsService.route({
-         origin: startLocation,
-         destination: endLocation,
-         travelMode: google.maps.TravelMode.DRIVING
-       }, (response: google.maps.DirectionsResult | null, status: google.maps.DirectionsStatus) => {
-         console.log('Statut de la direction:', status);
-         console.log('Réponse de la direction:', response);
+    directionsService.route({
+      origin: startLocation,
+      destination: endLocation,
+      travelMode: google.maps.TravelMode.DRIVING
+    }, (response: google.maps.DirectionsResult | null, status: google.maps.DirectionsStatus) => {
+      console.log('Statut de la direction:', status);
+      console.log('Réponse de la direction:', response);
 
-         if (status === google.maps.DirectionsStatus.OK && response) {
-           directionsRenderer.setDirections(response);
-         } else {
-           console.error('Erreur de direction:', status);
-         }
-       });
+      if (status === google.maps.DirectionsStatus.OK && response) {
+        directionsRenderer.setDirections(response);
+      } else {
+        console.error('Erreur de direction:', status);
+      }
+    });
 
 
-     }
+  }
 
-  activeSection: 'informations' | 'portefeuille' | 'courses' | 'compteur' | 'infoszem' |null = null;
 
   showUserSection(section: 'informations' | 'portefeuille' | 'courses' | 'compteur' | 'infoszem'): void {
     console.log("Section changée vers:", section);
@@ -343,13 +340,13 @@ export class UsersComponent implements OnInit, AfterViewInit {
       this.loadWalletData(this.selectedUser._id);
     }
     if (section === 'courses' && this.selectedUser) {
-      if (this.selectedUser.user_type === 'zem'){
-        console.log("Le zem",this.selectedUser)
+      if (this.selectedUser.user_type === 'zem') {
+        console.log("Le zem", this.selectedUser)
         const z = this.selectedUser.zem;
         if (typeof z === "string") {
           this.loadUserRaces(z);
         }
-      }else {
+      } else {
         this.loadUserRaces(this.selectedUser._id);
       }
     }
@@ -362,7 +359,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
         this.loadCounterData(z);
       }
     }
-    if (section === 'infoszem' /*&& this.selectedUser?.user_type === 'zem'*/) {
+    if (section === 'infoszem' && this.selectedUser?.user_type === 'zem') {
       const z = this.selectedUser?.zem;
       if (typeof z === "string") {
         this.loadZemDetails(z);
@@ -370,6 +367,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     }
 
   }
+
 
   loadZemDetails(zemId: string): void {
     this.loading = true;
@@ -381,7 +379,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
         const locationModal = document.getElementById('locationModal');
         if (locationModal) {
           locationModal.addEventListener('shown.bs.modal', () => {
-          //  this.initServiceMap();
+            //  this.initServiceMap();
           });
         }
       },
@@ -433,7 +431,6 @@ export class UsersComponent implements OnInit, AfterViewInit {
         return `${race.user.firstname} ${race.user.lastname}`;
       }
     } else {
-      // Garder le comportement existant pour les clients
       const zemUser = this.users.find(user => user.zem === zemId);
       if (zemUser) {
         return `${zemUser.firstname} ${zemUser.lastname}`;
@@ -545,6 +542,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.loadUsers();
     this.loadRoles();
+    //this.getProfileDisplay(this.selectedUser);
 
     this.editModal = new Modal(document.getElementById('kt_modal_edit_user')!);
     this.detailsModal = new Modal(document.getElementById('kt_modal_user_details')!);
@@ -586,7 +584,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
 
   editUser(user: User): void {
-    this.selectedUser = { ...user };
+    this.selectedUser = {...user};
 
     // Extraire l'ID du rôle
     const roleId = (this.selectedUser.role as any)?._id;
@@ -638,9 +636,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
           if (error.status === 403) {
             this.toastr.error('Session expirée. Veuillez vous reconnecter.');
-           /* this.authService.logout().subscribe(() => {
-              this.router.navigate(['/login']);
-            });*/
+            /* this.authService.logout().subscribe(() => {
+               this.router.navigate(['/login']);
+             });*/
           } else {
             this.toastr.error(error.error?.message || 'Erreur lors de la mise à jour de l\'utilisateur');
           }
@@ -659,18 +657,18 @@ export class UsersComponent implements OnInit, AfterViewInit {
   applyFilters(): void {
     let filtered = [...this.users];
 
-    // Appliquer la recherche si `searchQuery` existe
     if (this.searchQuery) {
       const query = this.searchQuery.toLowerCase().trim();
       filtered = filtered.filter(user =>
         user.firstname?.toLowerCase().includes(query) ||
         user.lastname?.toLowerCase().includes(query) ||
         user.email_address?.toLowerCase().includes(query) ||
-        user.user_type?.toLowerCase().includes(query)
+        user.user_type?.toLowerCase().includes(query) ||
+        user.validated_at?.toLowerCase().includes(query)
       );
     }
 
-    // Filtrer par type d'utilisateur selon l'onglet actif
+
     filtered = filtered.filter(user => {
       if (this.activeTab === 'admin') {
         return user.user_type === 'admin';
@@ -680,7 +678,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
       return true;
     });
 
-    // Appliquer les autres filtres existants
+
     this.filteredUsers = filtered.filter(user => {
       return (!this.filters.typeUtilisateur || user.user_type === this.filters.typeUtilisateur) &&
         (!this.filters.pays);
@@ -692,6 +690,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.activeTab = event.target.id === 'admin-tab' ? 'admin' : 'mobile';
     this.applyFilters();
   }
+
   deleteUser(userId: string) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
       this.usersService.deleteUser(userId).subscribe({
@@ -701,10 +700,10 @@ export class UsersComponent implements OnInit, AfterViewInit {
           this.applyFilters();
         },
         error: (error) => {
-          if(error.error.status === 401){
+          if (error.error.status === 401) {
             this.router.navigate(["/login"])
           }
-          this.toastr.error( error.error.message);
+          this.toastr.error(error.error.message);
 
         }
       });
@@ -717,7 +716,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
         this.currentUser = user;
       },
       error: (error) => {
-        if(error.error.status === 401){
+        if (error.error.status === 401) {
           this.router.navigate(["/login"])
         }
         console.error('Erreur lors du chargement de l\'utilisateur:', error);
@@ -728,26 +727,26 @@ export class UsersComponent implements OnInit, AfterViewInit {
   protected readonly Number = Number;
 
   validZem(zemId: string) {
-  const validationData: ZemValidationRequest = {
-    profile_validation_status: 'validated',
-    type_action: 'validated_zem'
-  };
+    const validationData: ZemValidationRequest = {
+      profile_validation_status: 'validated',
+      type_action: 'validated_zem'
+    };
 
-  this.usersService.validateZemProfile(zemId, validationData)
-    .subscribe({
-      next: (response) => {
-        console.log('Validation réussie', response);
-        this.toastr.success('Compte validé!');
-        this.loadUsers();
-      },
-      error: (error) => {
-        if(error.error.status === 401){
-          this.router.navigate(["/login"])
+    this.usersService.validateZemProfile(zemId, validationData)
+      .subscribe({
+        next: (response) => {
+          console.log('Validation réussie', response);
+          this.toastr.success('Compte validé!');
+          this.loadUsers();
+        },
+        error: (error) => {
+          if (error.error.status === 401) {
+            this.router.navigate(["/login"])
+          }
+          this.toastr.error("Echec de validation de compte");
         }
-        this.toastr.error("Echec de validation de compte");
-      }
-    });
-}
+      });
+  }
 
   @HostListener('document:click', ['$event'])
   handleCloseClick(event: MouseEvent) {
@@ -767,7 +766,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
   loadCounterData(zemId: string): void {
-    console.log('1. Début loadCounterData avec zemId:', zemId);
+
     this.loading = true;
     this.error = null;
     this.cdr.detectChanges();
@@ -776,26 +775,17 @@ export class UsersComponent implements OnInit, AfterViewInit {
       tap(data => console.log('2. Données brutes reçues du service:', data))
     ).subscribe({
       next: (data) => {
-        console.log('3. Dans le next, avant affectation:', {
-          activeSection: this.activeSection,
-          loading: this.loading,
-          counterData: this.counterData
-        });
+
 
         this.counterData = data;
         this.loading = false;
 
-        console.log('4. Après affectation:', {
-          activeSection: this.activeSection,
-          loading: this.loading,
-          counterData: this.counterData
-        });
 
         this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Erreur détaillée:', error);
-        if(error.error.status === 401){
+        if (error.error.status === 401) {
           this.router.navigate(["/login"])
         }
         this.error = 'Erreur lors du chargement des données';
@@ -805,27 +795,79 @@ export class UsersComponent implements OnInit, AfterViewInit {
     });
   }
 
+  private zemValidationInfo = new BehaviorSubject<{ validated: boolean, validatedAt?: string }>(
+    {validated: false}
+  );
+
+  canValidateZem(): boolean {
+    if (this.selectedUser?.user_type === 'zem') {
+      const zem = this.selectedUser?.zem;
+
+      if (this.zemValidationCache[zem!]) {
+        this.zemValidationCache[zem!].pipe(take(1)).subscribe(
+          info => {
+            this.zemValidationInfo.next({
+              validated: !info.validated_at,
+              validatedAt: info.validated_at
+            });
+          }
+        );
+
+        this.loadUsers();
+        this.cdr.detectChanges();
+        return this.zemValidationInfo.value.validated;
+      }
+    }
+    return false;
+  }
+
   get statusClass() {
     if (this.selectedUser?.user_type === 'zem') {
-      return this.selectedUser?.validated_at ? 'badge-light-success' : 'badge-light-danger';
+      const validInfo = this.zemValidationInfo.value;
+      return validInfo.validatedAt ? 'badge-light-success' : 'badge-light-danger';
     } else if (this.selectedUser?.user_type === 'customer') {
       return this.selectedUser?.validated_at ? 'badge-light-success' : 'badge-light-warning';
     }
     return 'badge-light-primary';
   }
 
+
+  private zemValidationCache: { [key: string]: Observable<Zem> } = {};
+  private zemValidationStatus = new BehaviorSubject<string>('Non validé');
+
+  private zemValidationStatus$ = new BehaviorSubject<string>('Non validé');
+
   get statusText() {
-    if (this.selectedUser?.user_type === 'zem' || this.selectedUser?.user_type === 'customer') {
-      if (this.selectedUser?.validated_at) {
-        // Formater la date validated_at
-        return `Validé le ${formatDate(this.selectedUser.validated_at, 'dd/MM/yyyy HH:mm',"en-US")}`;
-      } else {
-        return 'Non validé';
-      }
+    if (this.selectedUser?.user_type === 'customer') {
+      return this.selectedUser?.validated_at
+        ? `Validé le ${formatDate(this.selectedUser.validated_at, 'dd/MM/yyyy HH:mm', "en-US")}`
+        : '';
     }
+
+    if (this.selectedUser?.user_type === 'zem') {
+      const zem = this.selectedUser?.zem;
+
+      if (!this.zemValidationCache[zem!]) {
+        this.zemValidationCache[zem!] = this.usersService.getZemInfoById(zem!).pipe(
+          map(info => {
+            const status = info.validated_at
+              ? `Validé le ${formatDate(info.validated_at, 'dd/MM/yyyy HH:mm', "en-US")}`
+              : 'Non validé';
+            this.zemValidationStatus$.next(status);
+            return info;
+          }),
+          shareReplay(1)
+        );
+      }
+
+      // Trigger the observable if not already done
+      this.zemValidationCache[zem!].pipe(take(1)).subscribe();
+
+      return this.zemValidationStatus$.getValue();
+    }
+
     return '';
   }
-
 
   async getZemDetails(zemId: string) {
     try {
@@ -846,12 +888,12 @@ export class UsersComponent implements OnInit, AfterViewInit {
     if (this.startDate || this.endDate) {
       filtered = filtered.filter(race => {
         const raceDate = new Date(race.initial_datetime);
-        raceDate.setHours(0, 0, 0, 0); // Normaliser l'heure à minuit
+        raceDate.setHours(0, 0, 0, 0);
 
         if (this.startDate && this.endDate) {
           const start = new Date(this.startDate);
           const end = new Date(this.endDate);
-          end.setHours(23, 59, 59, 999); // Inclure toute la journée de fin
+          end.setHours(23, 59, 59, 999);
           return raceDate >= start && raceDate <= end;
         } else if (this.startDate) {
           const start = new Date(this.startDate);
@@ -929,4 +971,78 @@ export class UsersComponent implements OnInit, AfterViewInit {
         return 'badge-light-primary';
     }
   }
+
+  getProfileDisplay(user: User): string {
+    if (user?.profile_picture) {
+      return user.profile_picture;
+    }
+
+    if (user?.user_type === 'zem' && user?.zem) {
+      const zemUser = this.findZemUser(user.zem);
+      if (zemUser?.profile_picture) {
+        return zemUser.profile_picture;
+      }
+    }
+    return this.getInitials(user);
+  }
+
+  currentPhoto: string = '';
+
+  openPhotoModal(photoType: string) {
+    switch (photoType) {
+      case 'card_photo':
+        this.currentPhoto = this.zem?.card_image || '';
+        break;
+      case 'plate_photo':
+        this.currentPhoto = this.zem?.plate_picture || '';
+        break;
+      case 'residence_photo':
+        this.currentPhoto = this.zem?.image_of_residence_certificate || '';
+        break;
+      case 'ifu_photo':
+        this.currentPhoto = this.zem?.ifu_number_image || '';
+        break;
+    }
+    const photoModal = new bootstrap.Modal(document.getElementById('photoModal')!);
+    photoModal.show();
+  }
+
+  openLocationModal() {
+    const locationModal = new bootstrap.Modal(document.getElementById('locationModal')!);
+    locationModal.show();
+
+    setTimeout(() => {
+      this.initGoogleMap();
+    }, 300);
+  }
+
+  initGoogleMap() {
+    
+    if (!(window as any).google || !(window as any).google.maps) {
+      console.error('Google Maps JavaScript API not loaded');
+      return;
+    }
+
+    if (this.zem?.service_latitude && this.zem?.service_longitude) {
+      const mapOptions = {
+        center: {
+          lat: this.zem.service_latitude,
+          lng: this.zem.service_longitude
+        },
+        zoom: 15
+      };
+
+      const map = new google.maps.Map(
+        document.getElementById('zemLocationMap') as HTMLElement,
+        mapOptions
+      );
+
+      new google.maps.Marker({
+        position: mapOptions.center,
+        map: map,
+        title: 'Position du Zem'
+      });
+    }
+  }
+
 }

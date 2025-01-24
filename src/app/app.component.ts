@@ -10,7 +10,7 @@ import {AutoLogoutService} from '../core/services/inspector.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   standalone: true,
-  imports: [RouterModule, NgIf]
+  imports: [RouterModule]
 })
 export class AppComponent{
   title = 'ZpickUp ';
