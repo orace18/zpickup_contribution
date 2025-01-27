@@ -1,8 +1,10 @@
 import {Injectable} from '@angular/core';
 import {environment} from '../../../../../../environments/environment';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
+import {catchError, Observable, throwError} from 'rxjs';
 import {FAQ} from '../models/faqs.model';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +12,13 @@ import {FAQ} from '../models/faqs.model';
 export class FaqService {
   private apiUrl = `${environment.apiUrl}/faq`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toast: ToastrService,
+  ) {
+   
+  }
 
   getFaqs(): Observable<FAQ[]> {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
@@ -29,9 +37,34 @@ export class FaqService {
     return this.http.patch<FAQ>(`${this.apiUrl}/update-faq/${id}`, faq, { headers });
   }
 
-  deleteFaq(id: string): Observable<any> {
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders().set(
+      'Authorization',
+      `Bearer ${localStorage.getItem('access_token')}`
+    );
+  }
 
-    return this.http.delete(`${this.apiUrl}/delete-faq/${id}`, { headers });
+  deleteFaq(id: string): Observable<any> {
+    return this.http
+      .delete(`${this.apiUrl}/delete-faq/${id}`, {
+        headers: this.getHeaders()
+      })
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 400) {
+            // Erreur de validation ou FAQ système
+           // return throwError(() => new Error(error.error.message || "Impossible de supprimer cette FAQ"));
+            this.toast.error("Impossible de supprimer cette FAQ");
+          }
+          if (error.status === 401) {
+            // Erreur d'authentification
+           // return throwError(() => new Error("Session expirée, veuillez vous reconnecter"));
+           this.router.navigate(['/login']);
+          }
+          // Autres erreurs
+          this.toast.error("Une erreur est survenue lors de la suppression");
+          return throwError(() => new Error("Une erreur est survenue lors de la suppression"));
+        })
+      );
   }
 }
