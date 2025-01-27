@@ -1,0 +1,23 @@
+<div *ngIf="isOpen" class="dialog-overlay">
+    <div class="dialog-container">
+      <div class="dialog-content">
+        <div class="icon-title">
+          <div class="warning-icon">
+            <i class="exclamation">!</i>
+          </div>
+          <h2>{{ title }}</h2>
+        </div>
+        
+        <p *ngIf="description">{{ description }}</p>
+        
+        <div class="dialog-actions">
+          <button class="cancel-btn" (click)="onCancelClick()">
+            {{ cancelText }}
+          </button>
+          <button class="confirm-btn" (click)="onConfirmClick()">
+            {{ confirmText }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

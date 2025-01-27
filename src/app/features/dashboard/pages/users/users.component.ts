@@ -33,6 +33,7 @@ import {CounterService} from './services/counter.service';
 import {BehaviorSubject, Observable, shareReplay, take, tap} from 'rxjs';
 import {Router} from '@angular/router';
 import {map} from 'rxjs/operators';
+import { ConfirmationDialogComponent } from "../../../../../shared/layouts/confirmation-dialog/confirmation-dialog.component";
 declare var bootstrap: any;
 
 @Pipe({
@@ -60,7 +61,8 @@ export class FilterByTypePipe implements PipeTransform {
     DatePipe,
     DecimalPipe,
     NgClass,
-  ],
+    ConfirmationDialogComponent
+],
   styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit, AfterViewInit {
@@ -77,6 +79,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
   ) {
   }
 
+
+  canValidate: boolean = false;
   activeSection: 'informations' | 'portefeuille' | 'courses' | 'compteur' | 'infoszem' | null = null;
   counterData: CounterData | null = null;
   loading: boolean = false;
@@ -97,7 +101,11 @@ export class UsersComponent implements OnInit, AfterViewInit {
   startDate: string = '';
   endDate: string = '';
   originalUserRaces: Race[] = [];
-
+  showDeleteDialog = false;
+  private userToDelete: string | null = null;
+  showValidationDialog = false;
+  private zemToValidate: string | null = null;
+  
   newUser = {
     phone_number: '',
     password: '',
@@ -157,9 +165,12 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
 
-  showUserDetails(user: User): void {
+  async showUserDetails(user: User): Promise<void> {
+    this.loadUsers();
     this.selectedUser = user;
     this.detailsModal.show();
+    this.canValidate = await this.canValidateZem();
+    this.getZemStatusText();
   }
 
   showDetails(race: any) {
@@ -167,6 +178,25 @@ export class UsersComponent implements OnInit, AfterViewInit {
     if (modalElement) {
       const modal = Modal.getInstance(modalElement) || new Modal(modalElement);
       modal.show();
+    }
+  }
+
+  openValidationDialog(): void {
+    if (this.selectedUser?.zem) {
+      this.zemToValidate = this.selectedUser.zem;
+      this.showValidationDialog = true;
+    }
+  }
+
+  closeValidationDialog(): void {
+    this.showValidationDialog = false;
+    this.zemToValidate = null;
+  }
+
+  confirmValidation(): void {
+    if (this.zemToValidate) {
+      this.validZem(this.zemToValidate);
+      this.closeValidationDialog();
     }
   }
 
@@ -543,6 +573,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.loadUsers();
     this.loadRoles();
     //this.getProfileDisplay(this.selectedUser);
+    //this.checkValidation();
 
     this.editModal = new Modal(document.getElementById('kt_modal_edit_user')!);
     this.detailsModal = new Modal(document.getElementById('kt_modal_user_details')!);
@@ -647,8 +678,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
     }
   }
 
-  viewUserDetails(user: User): void {
+ async viewUserDetails(user: User): Promise<void> {
     this.selectedUser = user;
+    //this.canValidate = await this.canValidateZem();
   }
 
   activeTab: 'admin' | 'mobile' = 'admin';
@@ -692,23 +724,29 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
   deleteUser(userId: string) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
-      this.usersService.deleteUser(userId).subscribe({
-        next: () => {
-
-          this.users = this.users.filter(user => user._id !== userId);
-          this.applyFilters();
-        },
-        error: (error) => {
-          if (error.error.status === 401) {
-            this.router.navigate(["/login"])
-          }
-          this.toastr.error(error.error.message);
-
-        }
-      });
-    }
+    this.userToDelete = userId;
+    this.showDeleteDialog = true;
   }
+
+  confirmDelete() {
+    if (!this.userToDelete) return;
+
+    this.usersService.deleteUser(this.userToDelete).subscribe({
+      next: () => {
+        this.users = this.users.filter(user => user._id !== this.userToDelete);
+        this.applyFilters();
+        this.userToDelete = null;
+        this.showDeleteDialog = false;
+      },
+      error: (error) => {
+        if (error.error.status === 401) {
+          this.router.navigate(["/login"]);
+        }
+        this.toastr.error(error.error.message);
+      }
+    });
+  }
+
 
   private loadUserInformations(_id: string) {
     this.usersService.getUserById(_id).subscribe({
@@ -738,6 +776,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
           console.log('Validation réussie', response);
           this.toastr.success('Compte validé!');
           this.loadUsers();
+          this.canValidate = false;
+          this.getZemStatusText();
         },
         error: (error) => {
           if (error.error.status === 401) {
@@ -795,90 +835,96 @@ export class UsersComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private zemValidationInfo = new BehaviorSubject<{ validated: boolean, validatedAt?: string }>(
-    {validated: false}
-  );
-
-  canValidateZem(): boolean {
-    if (this.selectedUser?.user_type === 'zem') {
-      const zem = this.selectedUser?.zem;
-
-      if (this.zemValidationCache[zem!]) {
-        this.zemValidationCache[zem!].pipe(take(1)).subscribe(
-          info => {
-            this.zemValidationInfo.next({
-              validated: !info.validated_at,
-              validatedAt: info.validated_at
-            });
+    async canValidateZem(): Promise<boolean> {
+      this.getZemStatusText();
+      try {
+        if (this.selectedUser?.user_type === 'zem' && this.selectedUser?.zem) {
+          const zem = this.selectedUser?.zem;
+          const data = await this.getZemDetails(zem!);
+          //console.log("La reponse de getZemDetails avant la date", data);
+          if (data && 'validated_at' in data) {
+            //console.log("La reponse de getZemDetails", data.validated_at);
+            return data.validated_at === null;
           }
-        );
-
-        this.loadUsers();
-        this.cdr.detectChanges();
-        return this.zemValidationInfo.value.validated;
+        }
+        return false;
+      } catch (error) {
+       // console.error('Erreur lors de la vérification de la validation du ZEM:', error);
+        return false;
       }
     }
-    return false;
+
+    private zemValidationCache: { [key: string]: Observable<Zem> } = {};
+    private zemValidationInfo = new BehaviorSubject<{ validated: boolean, validatedAt?: string }>({ validated: false });
+
+  get statusClass(): string {
+    if (!this.selectedUser) return 'badge-light-primary';
+
+    switch (this.selectedUser.user_type) {
+      case 'zem':
+        return this.zemValidationInfo.value.validatedAt 
+          ? 'badge-light-success' 
+          : 'badge-light-danger';
+      case 'customer':
+        return this.selectedUser.validated_at 
+          ? 'badge-light-success' 
+          : 'badge-light-warning';
+      default:
+        return 'badge-light-primary';
+    }
   }
 
-  get statusClass() {
-    if (this.selectedUser?.user_type === 'zem') {
-      const validInfo = this.zemValidationInfo.value;
-      return validInfo.validatedAt ? 'badge-light-success' : 'badge-light-danger';
-    } else if (this.selectedUser?.user_type === 'customer') {
-      return this.selectedUser?.validated_at ? 'badge-light-success' : 'badge-light-warning';
+  get statusText(): string {
+    if (!this.selectedUser) return '';
+
+    switch (this.selectedUser.user_type) {
+      case 'customer':
+        return this.selectedUser.validated_at
+          ? `Validé le ${formatDate(this.selectedUser.validated_at, 'dd/MM/yyyy HH:mm', 'en-US')}`
+          : 'Non validé';
+      
+      case 'zem':
+        return this.getZemStatusText();
+      
+      default:
+        return '';
     }
-    return 'badge-light-primary';
   }
 
+  private getZemStatusText(): string {
+    const zemId = this.selectedUser?.zem;
+    if (!zemId) return 'Non validé';
 
-  private zemValidationCache: { [key: string]: Observable<Zem> } = {};
-  private zemValidationStatus = new BehaviorSubject<string>('Non validé');
-
-  private zemValidationStatus$ = new BehaviorSubject<string>('Non validé');
-
-  get statusText() {
-    if (this.selectedUser?.user_type === 'customer') {
-      return this.selectedUser?.validated_at
-        ? `Validé le ${formatDate(this.selectedUser.validated_at, 'dd/MM/yyyy HH:mm', "en-US")}`
-        : '';
+    if (!this.zemValidationCache[zemId]) {
+      this.zemValidationCache[zemId] = this.usersService.getZemInfoById(zemId).pipe(
+        map(info => {
+          const validationInfo = {
+            validated: info.validated_at !== null,
+            validatedAt: info.validated_at
+          };
+          this.zemValidationInfo.next(validationInfo);
+          return info;
+        }),
+        shareReplay(1)
+      );
+      
+      // Déclencher la requête
+      this.zemValidationCache[zemId].pipe(take(1)).subscribe();
     }
 
-    if (this.selectedUser?.user_type === 'zem') {
-      const zem = this.selectedUser?.zem;
-
-      if (!this.zemValidationCache[zem!]) {
-        this.zemValidationCache[zem!] = this.usersService.getZemInfoById(zem!).pipe(
-          map(info => {
-            const status = info.validated_at
-              ? `Validé le ${formatDate(info.validated_at, 'dd/MM/yyyy HH:mm', "en-US")}`
-              : 'Non validé';
-            this.zemValidationStatus$.next(status);
-            return info;
-          }),
-          shareReplay(1)
-        );
-      }
-
-      // Trigger the observable if not already done
-      this.zemValidationCache[zem!].pipe(take(1)).subscribe();
-
-      return this.zemValidationStatus$.getValue();
-    }
-
-    return '';
+    return this.zemValidationInfo.value.validatedAt
+      ? `Validé le ${formatDate(this.zemValidationInfo.value.validatedAt, 'dd/MM/yyyy HH:mm', 'en-US')}`
+      : 'Non validé';
   }
+
 
   async getZemDetails(zemId: string) {
     try {
-      const response = await this.usersService.getZemById(zemId).toPromise();
-      /*this.selectedUser = {
-        ...this.selectedUser,
-        validated_at: response.validated_at
-      };*/
-      console.log('La réponse de zem!', response);
+      const response = await this.usersService.getZemInfoById(zemId).toPromise();
+      return response;
     } catch (error) {
-      console.error('Erreur lors de la récupération des détails du zem:', error);
+     // console.error('Erreur lors de la récupération des détails du zem:', error);
+      return null;
     }
   }
 
@@ -952,7 +998,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
       case 'input':
         return 'Recharge';
       case 'output':
-        return 'Utilisation';
+        return 'Retrait';
       default:
         return type;
     }

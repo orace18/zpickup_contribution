@@ -124,6 +124,16 @@
         </div>
       </div>
 
+          <app-confirmation-dialog
+            [isOpen]="showDeleteDialog"
+            [title]="'Êtes-vous sûr de vouloir supprimer cet utilisateur ?'"
+            [confirmText]="'Oui, supprimer'"
+            [cancelText]="'Non, annuler'"
+            (confirm)="confirmDelete()"
+            (cancel)="showDeleteDialog = false"
+            (closeDialog)="showDeleteDialog = false"
+        ></app-confirmation-dialog>
+
       <!-- Mobile Users Tab -->
       <div class="tab-pane fade" id="tab_mobile">
         <div class="card-body">
@@ -204,12 +214,22 @@
               <div class="badge" [ngClass]="statusClass">
                 {{ statusText }}
               </div>
-
-              <!-- <button *ngIf="canValidateZem()"
+            
+                            <button *ngIf="canValidate"
                       class="btn btn-sm btn-primary mt-2"
-                    (click)="selectedUser && validZem(selectedUser.zem)" >
+                      (click)="openValidationDialog()">
                 Valider
-              </button> -->
+              </button>
+
+              <app-confirmation-dialog
+                [isOpen]="showValidationDialog"
+                [title]="'Êtes-vous sûr de vouloir valider ce compte ?'"
+                [confirmText]="'Oui, valider'"
+                [cancelText]="'Non, annuler'"
+                (confirm)="confirmValidation()"
+                (cancel)="closeValidationDialog()"
+                (closeDialog)="closeValidationDialog()"
+              ></app-confirmation-dialog>
             </div>
           </div>
 

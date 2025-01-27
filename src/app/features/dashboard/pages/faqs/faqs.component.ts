@@ -7,6 +7,7 @@ import {FaqService} from './services/faqs.service';
 import {Modal} from 'bootstrap';
 import {ToastrService} from 'ngx-toastr';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
+import { ConfirmationDialogComponent } from "../../../../../shared/layouts/confirmation-dialog/confirmation-dialog.component";
 
 @Component({
   selector: 'app-faqs',
@@ -15,8 +16,9 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
     FormsModule,
     ReactiveFormsModule,
     NgIf,
-    NgForOf
-  ],
+    NgForOf,
+    ConfirmationDialogComponent
+],
   templateUrl: './faqs.component.html',
   styleUrl: './faqs.component.css'
 })
@@ -173,20 +175,39 @@ export class FaqsComponent implements OnInit {
     }
   }
 
-  deleteFaq(faq: FAQ) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette FAQ ?')) {
-      this.faqService.deleteFaq(faq._id).subscribe({
-        next: () => {
-          this.faqs = this.faqs.filter(f => f._id !== faq._id);
-          this.applyFilters();
-          this.toast.success("FAQ supprimée avec succès!");
-        },
-        error: (error) => {
-          console.error('Erreur lors de la suppression de la FAQ:', error);
-          this.toast.error("Erreur lors de la suppression de la FAQ");
-        }
-      });
-    }
+  showDeleteDialog = false;
+  private faqToDelete: FAQ | null = null;
+
+  openDeleteDialog(faq: FAQ): void {
+    this.faqToDelete = faq;
+    this.showDeleteDialog = true;
+  }
+
+  closeDeleteDialog(): void {
+    this.showDeleteDialog = false;
+    this.faqToDelete = null;
+  }
+
+  confirmDelete(): void {
+    if (!this.faqToDelete) return;
+
+    // Stocker l'ID dans une constante pour éviter les problèmes de référence
+    const faqIdToDelete = this.faqToDelete._id;
+
+    this.faqService.deleteFaq(faqIdToDelete).subscribe({
+      next: () => {
+        // Utiliser l'ID stocké au lieu de this.faqToDelete
+        this.faqs = this.faqs.filter(f => f._id !== faqIdToDelete);
+        this.applyFilters();
+        this.toast.success("FAQ supprimée avec succès!");
+        this.closeDeleteDialog();
+      },
+      error: (error) => {
+        console.error('Erreur lors de la suppression de la FAQ:', error);
+        this.toast.error("Erreur lors de la suppression de la FAQ");
+        this.closeDeleteDialog();
+      }
+    });
   }
 
 }
