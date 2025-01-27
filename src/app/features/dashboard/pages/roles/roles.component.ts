@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, Validators, AbstractControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { PermissionsResponse } from './models/permission.model';
 import { PermissionsService } from './services/permission.service';
@@ -7,6 +7,7 @@ import {ToastrModule, ToastrService} from 'ngx-toastr';
 import { finalize } from 'rxjs/operators';
 import {CommonModule} from '@angular/common';
 import {Role} from './models/role.model';
+import { Modal } from 'bootstrap';
 declare const bootstrap: any;
 
 @Component({
@@ -53,6 +54,8 @@ export class RolesComponent implements OnInit, AfterViewInit {
     });
   }
 
+  addModal: any;
+
   getPermissionName(permissionIdentifier: unknown): string {
     const identifier = permissionIdentifier as string;
 
@@ -91,36 +94,6 @@ export class RolesComponent implements OnInit, AfterViewInit {
       });
   }
 
-  /*ngOnInit(): void {
-    this.loading = true;
-
-    this.roleService.getAllRoles()
-      .pipe(finalize(() => (this.loading = false)))
-      .subscribe({
-        next: (roles) => {
-          this.roles = roles;
-          this.unfilteredRoles = [...roles]; // Garder une copie des rôles non filtrés
-        },
-        error: (error) => {
-          this.toastr.error('Erreur lors du chargement des rôles');
-          console.error('Role loading error:', error);
-        }
-      });
-
-    this.permissionsService.getAllPermissions()
-      .pipe(finalize(() => this.loading = false))
-      .subscribe({
-        next: (permissions) => {
-          this.permissionGroups = permissions;
-          this.setupPermissionControls();
-        },
-        error: (error) => {
-          this.toastr.error('Erreur lors du chargement des permissions');
-          console.error('Permission loading error:', error);
-        }
-      });
-  }
-*/
 
   ngOnInit(): void {
     this.loading = true;
@@ -163,6 +136,8 @@ export class RolesComponent implements OnInit, AfterViewInit {
         this.dropdowns.push(dropdown);
       });
     });
+
+    this.addModal = new Modal(document.getElementById('kt_modal_add_role')!);
   }
 
   toggleDropdown(event: Event) {
@@ -280,53 +255,7 @@ export class RolesComponent implements OnInit, AfterViewInit {
     }
   }
 
-  /*onSubmit(): void {
-    if (this.roleForm.invalid) {
-      this.toastr.warning('Veuillez remplir correctement tous les champs requis');
-      return;
-    }
 
-    const formValue = this.roleForm.value;
-    const selectedPermissions: string[] = [];
-
-    Object.values(formValue.permissions || {}).forEach((group: any) => {
-      if (group.permissions) {
-        Object.entries(group.permissions).forEach(([key, value]) => {
-          if (value === true) {
-            selectedPermissions.push(key);
-          }
-        });
-      }
-    });
-
-    if (selectedPermissions.length === 0) {
-      this.toastr.warning('Veuillez sélectionner au moins une permission');
-      return;
-    }
-
-    const roleData = {
-      key: formValue.name.toLowerCase().replace(/\s+/g, '_'),
-      name: formValue.name,
-      description: formValue.description || '',
-      permissions: selectedPermissions
-    };
-
-    this.submitting = true;
-    this.roleService.createRole(roleData)
-      .pipe(finalize(() => this.submitting = false))
-      .subscribe({
-        next: () => {
-          this.toastr.success('Rôle créé avec succès');
-          this.roleForm.reset();
-          this.discardForm();
-        },
-        error: (error) => {
-          this.toastr.error('Erreur lors de la création du rôle');
-          console.error('Role creation error:', error);
-        }
-      });
-  }
-*/
 
   @ViewChild('kt_modal_add_role') modal!: ElementRef;
 
@@ -437,6 +366,7 @@ export class RolesComponent implements OnInit, AfterViewInit {
             this.discardForm();
             this.discardUpdateForm();
             this.loadRoles();
+            this.addModal.hide();
           },
           error: (error) => {
             console.error('Error updating role:', error);
@@ -463,74 +393,6 @@ export class RolesComponent implements OnInit, AfterViewInit {
         });
     }
   }
-
-  /*onSubmit(): void {
-    if (this.roleForm.invalid) {
-      this.toastr.warning('Veuillez remplir correctement tous les champs requis');
-      return;
-    }
-
-    const formValue = this.roleForm.value;
-    const selectedPermissions: string[] = [];
-
-    // Collecter les permissions sélectionnées
-    Object.values(formValue.permissions || {}).forEach((group: any) => {
-      if (group.permissions) {
-        Object.entries(group.permissions).forEach(([key, value]) => {
-          if (value === true) {
-            selectedPermissions.push(key);
-          }
-        });
-      }
-    });
-
-    if (selectedPermissions.length === 0) {
-      this.toastr.warning('Veuillez sélectionner au moins une permission');
-      return;
-    }
-
-    const roleData: Role = {
-      key: formValue.name.toLowerCase().replace(/\s+/g, '_'),
-      name: formValue.name,
-      description: formValue.description || '',
-      permissions: selectedPermissions
-    };
-
-    console.log('Role data being sent:', roleData);
-
-    this.submitting = true;
-
-    // Si selectedRole existe, c'est une mise à jour
-    const operation = this.selectedRole?._id
-      ? this.roleService.updateRole(this.selectedRole._id, roleData)
-      : this.roleService.createRole(roleData);
-
-    operation
-      .pipe(finalize(() => this.submitting = false))
-      .subscribe({
-        next: () => {
-          this.toastr.success(
-            this.selectedRole
-              ? 'Rôle mis à jour avec succès'
-              : 'Rôle créé avec succès'
-          );
-          this.roleForm.reset();
-          this.selectedRole = null;
-          this.discardForm();
-
-          // Recharger la liste des rôles
-          this.loadRoles();
-        },
-        error: (error) => {
-          this.toastr.error(
-            this.selectedRole
-              ? 'Erreur lors de la mise à jour du rôle'
-              : 'Erreur lors de la création du rôle'
-          );
-          console.error('Role operation error:', error);
-        }
-      });
-  }*/
 
 
   private loadRoles(): void {
@@ -615,5 +477,27 @@ export class RolesComponent implements OnInit, AfterViewInit {
     );
   }
 
+  @HostListener('document:click', ['$event'])
+  handleCloseClick(event: MouseEvent) {
+    const closeButton = document.querySelector('[data-kt-users-modal-action="close"]');
+    const cancelButton = document.querySelector('[data-kt-users-modal-action="cancel"]');
+    const modal = document.querySelector('.modal');
+
+    if (event.target === closeButton || event.target === cancelButton || event.target === modal) {
+      this.hideOverlay();
+      this.addModal.hide();
+      document.body.classList.remove('modal-open');
+    }
+  }
+
+  ngOnDestroy() {
+    this.hideOverlay();
+  }
+
+  private hideOverlay(): void {
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(backdrop => backdrop.remove());
+    document.body.classList.remove('modal-open');
+  }
 
 }
