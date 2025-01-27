@@ -53,8 +53,8 @@ export class FaqService {
         catchError((error: HttpErrorResponse) => {
           if (error.status === 400) {
             // Erreur de validation ou FAQ système
-           // return throwError(() => new Error(error.error.message || "Impossible de supprimer cette FAQ"));
-            this.toast.error("Impossible de supprimer cette FAQ");
+            return throwError(() => new Error(error.error.message || "Impossible de supprimer cette FAQ"));
+           // this.toast.error("Impossible de supprimer cette FAQ");
           }
           if (error.status === 401) {
             // Erreur d'authentification
@@ -62,7 +62,7 @@ export class FaqService {
            this.router.navigate(['/login']);
           }
           // Autres erreurs
-          this.toast.error("Une erreur est survenue lors de la suppression");
+          //this.toast.error("Une erreur est survenue lors de la suppression");
           return throwError(() => new Error("Une erreur est survenue lors de la suppression"));
         })
       );
