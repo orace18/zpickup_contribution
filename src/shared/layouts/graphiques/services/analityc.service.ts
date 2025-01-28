@@ -25,18 +25,18 @@ export class AnalyticsService {
     });
   }
 
-  getDashboardData(): Observable<any> {
+  /* getDashboardData(): Observable<any> {
     return forkJoin({
       inscriptions: this.getUserInscriptions(),
       races: this.getRacePerformance()
     });
-  }
+  } */
 
-  private getUserInscriptions(): Observable<any[]> {
+ /*  private getUserInscriptions(): Observable<any[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users`, { headers: this.getHeaders() }).pipe(
       map(users => this.groupDataByMonth(users, 'created_at', 'Inscriptions'))
     );
-  }
+  } */
   
   private groupDataByMonth<T>(
     data: T[], 
@@ -60,13 +60,58 @@ export class AnalyticsService {
     }];
   }
 
-  private getRacePerformance(): Observable<any[]> {
+/*   private getRacePerformance(): Observable<any[]> {
     return this.http.get<Race[]>(`${this.apiUrl}/races`, { headers: this.getHeaders() }).pipe(
       tap(races => console.log('Courses récupérées:', races)),
       map(races => this.groupDataByMonth(races, 'created_at' as keyof Race, 'Courses')),
       tap(result => console.log('Données de courses groupées:', result))
     );
-  }
+  } */
 
- 
+
+  // Dans AnalyticsService
+getDashboardData(startDate?: string, endDate?: string): Observable<any> {
+  return forkJoin({
+    inscriptions: this.getUserInscriptions(startDate, endDate),
+    races: this.getRacePerformance(startDate, endDate)
+  });
+}
+
+private getUserInscriptions(startDate?: string, endDate?: string): Observable<any[]> {
+  return this.http.get<User[]>(`${this.apiUrl}/users`, { headers: this.getHeaders() }).pipe(
+    map(users => {
+      const filteredUsers = this.filterDataByDateRange(users, 'created_at', startDate, endDate);
+      return this.groupDataByMonth(filteredUsers, 'created_at', 'Inscriptions');
+    })
+  );
+}
+
+private getRacePerformance(startDate?: string, endDate?: string): Observable<any[]> {
+  return this.http.get<Race[]>(`${this.apiUrl}/races`, { headers: this.getHeaders() }).pipe(
+    map(races => {
+      const filteredRaces = this.filterDataByDateRange(races, 'created_at', startDate, endDate);
+      return this.groupDataByMonth(filteredRaces, 'created_at', 'Courses');
+    })
+  );
+}
+
+private filterDataByDateRange<T>(
+  data: T[],
+  dateField: string,
+  startDate?: string,
+  endDate?: string
+): T[] {
+  if (!startDate || !endDate) return data;
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  const filteredData = data.filter(item => {
+    const itemDate = new Date((item as any)[dateField]);
+    return itemDate >= start && itemDate <= end;
+  });
+
+  console.log('Données filtrées:', filteredData); // Ajoutez ce log
+  return filteredData;
+} 
 }

@@ -1,0 +1,47 @@
+<div class="modal fade" id="kt_modal_select_period" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Sélection de période</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <form [formGroup]="dateForm" (ngSubmit)="onSubmit()">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="startDate" class="form-label">Date de début</label>
+              <input
+                id="startDate"
+                type="date"
+                formControlName="startDate"
+                class="form-control"
+              >
+              <div class="invalid-feedback" *ngIf="dateForm.get('startDate')?.errors?.['required'] && dateForm.get('startDate')?.touched">
+                La date de début est requise
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="endDate" class="form-label">Date de fin</label>
+              <input
+                id="endDate"
+                type="date"
+                formControlName="endDate"
+                class="form-control"
+              >
+              <div class="invalid-feedback" *ngIf="dateForm.get('endDate')?.errors?.['required'] && dateForm.get('endDate')?.touched">
+                La date de fin est requise
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!dateForm.valid">
+              Confirmer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

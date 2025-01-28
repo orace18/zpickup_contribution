@@ -83,6 +83,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   canValidate: boolean = false;
   activeSection: 'informations' | 'portefeuille' | 'courses' | 'compteur' | 'infoszem' | null = null;
   counterData: CounterData | null = null;
+  userStatus: { [key: string]: string } = {};
   loading: boolean = false;
   error: string | null = null;
   users: User[] = [];
@@ -569,11 +570,12 @@ export class UsersComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.loadUsers();
     this.loadRoles();
-    //this.getProfileDisplay(this.selectedUser);
-    //this.checkValidation();
+    await this.loadUserStatuses();
+
+   
 
     this.editModal = new Modal(document.getElementById('kt_modal_edit_user')!);
     this.detailsModal = new Modal(document.getElementById('kt_modal_user_details')!);
@@ -1091,4 +1093,29 @@ export class UsersComponent implements OnInit, AfterViewInit {
     }
   }
 
+  async statutOfUser(user: User): Promise<string> {
+    if (user.user_type === 'customer') {
+      return user.validated_at ? 'Validé' : 'Non validé';
+    }
+    
+    if (user.user_type === 'zem' && user.zem) {
+      try {
+        const zemDetails = await this.getZemDetails(user.zem);
+        console.log("Les détails du zem", zemDetails);
+        return zemDetails?.validated_at ? 'Validé' : 'Non validé';
+      } catch (error) {
+        console.error('Erreur lors de la récupération des détails ZEM:', error);
+        return 'Non validé';
+      }
+    }
+    
+    return 'Non validé';
+  }
+
+  async loadUserStatuses(): Promise<void> {
+    for (const user of this.users) {
+      this.userStatus[user._id] = await this.statutOfUser(user);
+    }
+    this.cdr.detectChanges(); // Force la détection des changements
+  }
 }

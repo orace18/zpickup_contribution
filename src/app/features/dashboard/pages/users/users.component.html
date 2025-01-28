@@ -143,6 +143,7 @@
               <th>Utilisateurs</th>
               <th>Type</th>
               <th>Date d'ajout</th>
+              <th>Status</th>
               <th class="text-end">Détails</th>
             </tr>
             </thead>
@@ -166,6 +167,11 @@
                 {{ user.user_type === 'zem' ? 'Conducteur' : (user.user_type === 'customer' ? 'Client' : 'N/A') }}
               </td>
               <td>{{ user.created_at | date: 'medium' }}</td>
+              <td>
+                <span class="badge badge-light-primary">
+                  {{ user.validated_at ? 'Validé' : 'Non validé' }}
+                </span>
+              </td>
               <td class="text-end">
                 <button class="btn btn-sm btn-light" (click)="showUserDetails(user)">
                   Voir détails

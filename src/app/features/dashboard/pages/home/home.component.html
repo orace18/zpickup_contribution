@@ -11,17 +11,86 @@
 
       <!--begin::Actions-->
       <div class="d-flex align-items-center flex-nowrap text-nowrap py-1">
-        <a href="#" class="btn bg-body btn-color-gray-700 btn-active-primary me-4" data-bs-toggle="modal"
-           data-bs-target="#kt_modal_invite_friends">
-          Invite Friends
+        <a href="#" class="btn bg-body btn-color-gray-700 btn-active-primary me-4" data-bs-toggle="modal" (click)="openModal()"
+           data-bs-target="#kt_modal_select_period">
+          <i class="bi bi-calendar me-2"></i> Définir une période
         </a>
 
-        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_create_project"
-           id="kt_toolbar_primary_button">
-          New Project </a>
+        <!-- Bouton avec dropdown -->
+<div class="dropdown">
+  <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="bi bi-download me-2"></i> Exporter
+  </button>
+  <ul class="dropdown-menu">
+    <li>
+      <a class="dropdown-item" href="#" (click)="exportToCsv()">
+        <i class="bi bi-filetype-csv me-2"></i> CSV
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item" href="#" (click)="exportToPdf()">
+        <i class="bi bi-filetype-pdf me-2"></i> PDF
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item" href="#" (click)="exportToExcel()">
+        <i class="bi bi-file-earmark-excel me-2"></i> Excel
+      </a>
+    </li>
+  </ul>
+</div>
       </div>
       <!--end::Actions-->
     </div>
+
+    <div class="modal fade" id="kt_modal_select_period" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Sélection de période</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+    
+          <!-- Notez le [formGroup]="dateForm" ajouté ici -->
+          <form [formGroup]="dateForm" (ngSubmit)="onSubmit()">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="startDate" class="form-label">Date de début</label>
+                <input
+                  id="startDate"
+                  type="date"
+                  formControlName="startDate"
+                  class="form-control"
+                >
+                <div class="invalid-feedback" *ngIf="dateForm.get('startDate')?.errors?.['required'] && dateForm.get('startDate')?.touched">
+                  La date de début est requise
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="endDate" class="form-label">Date de fin</label>
+                <input
+                  id="endDate"
+                  type="date"
+                  formControlName="endDate"
+                  class="form-control"
+                >
+                <div class="invalid-feedback" *ngIf="dateForm.get('endDate')?.errors?.['required'] && dateForm.get('endDate')?.touched">
+                  La date de fin est requise
+                </div>
+              </div>
+            </div>
+    
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+              <button type="submit" class="btn btn-primary" [disabled]="!dateForm.valid">
+                Confirmer
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
   </div>
   <!--end::Toolbar-->
 

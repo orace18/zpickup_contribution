@@ -3,4 +3,13 @@
   max-height: 100vh;
 }
 
+.valid {
+  background-color: green;
+  color: white;
+}
+
+.invalid {
+  background-color: red;
+  color: white;
+}
 

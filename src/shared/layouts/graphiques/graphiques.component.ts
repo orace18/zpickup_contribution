@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { colorSets } from '@swimlane/ngx-charts';
 import { curveCardinal } from 'd3-shape';
@@ -15,10 +15,7 @@ interface DataPoint {
   templateUrl: './graphiques.component.html',
   styleUrl: './graphiques.component.css'
 })
-export class GraphiquesComponent implements OnInit {
- 
-
-  
+export class GraphiquesComponent implements OnChanges {
   curve = curveCardinal;
 
   @Input() data: any[] = [];
@@ -37,9 +34,9 @@ export class GraphiquesComponent implements OnInit {
     }
   ];
 
-  ngOnInit() {
-    
-    if (this.data && this.data.length > 0) {
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['data'] && this.data) {
+      console.log('Données reçues dans ngOnChanges:', this.data); // Ajoutez ce log
       this.chartData = this.data.map(series => ({
         name: series.name,
         series: series.series || series
