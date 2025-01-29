@@ -49,5 +49,11 @@ export const MENU_CONFIG = {
       title: 'Roles',
       permission: 'manage_roles'
     }
+    ,
+    {
+      route: '/faqs',
+      title: 'FAQs',
+      permission: 'manage_faqs'
+    }
   ]
 };

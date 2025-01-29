@@ -19,6 +19,7 @@ export class LoginComponent implements OnInit {
   isSubmitting = false;
   formError = '';
   returnUrl: string = '/dashboard';
+  showPassword: boolean = false;
 
   constructor(
     private router: Router,

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, catchError, map, of, shareReplay, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { GroupedPermissions } from '../models/permission.model';
 
@@ -8,9 +8,12 @@ import { GroupedPermissions } from '../models/permission.model';
   providedIn: 'root'
 })
 export class PermissionService {
+
   private readonly API_URL = environment.apiUrl;
   private readonly CURRENT_USER_KEY = 'currentUser';
   private permissionsMap: Map<string, string> = new Map();
+  private permissionsCache$: Observable<any[]> | null = null
+
 
   constructor(private http: HttpClient) {
     this.loadPermissions();
@@ -82,4 +85,35 @@ export class PermissionService {
   refreshPermissions() {
     this.loadPermissions();
   }
+
+
+
+  private getAllPermissions(): Observable<any[]> {
+    if (!this.permissionsCache$) {
+      this.permissionsCache$ = this.http.get<any[]>(`${this.API_URL}/permissions`).pipe(
+        shareReplay(1),
+        catchError(error => {
+          console.error('Error fetching permissions:', error);
+          return of([]);
+        })
+      );
+    }
+    return this.permissionsCache$;
+  }
+
+  // Convertit les IDs de permission en clés
+  getPermissionKeys(permissions: string[]): Observable<string[]> {
+    return this.getAllPermissions().pipe(
+      map(allPermissions => {
+        const permissionMap = new Map(allPermissions.map(p => [p._id, p.key]));
+        return permissions.map(p => permissionMap.get(p) || p);
+      })
+    );
+  }
+
+  // Méthode pour vider le cache si nécessaire
+  clearCache() {
+    this.permissionsCache$ = null;
+  }
+
 }
