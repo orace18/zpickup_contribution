@@ -20,7 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideNativeDateAdapter(),
     provideAnimationsAsync(),
     provideToastr({
-      timeOut: 10000,
+      timeOut: 5000,
       positionClass: 'toast-top-right',
       preventDuplicates: true,
     }),
