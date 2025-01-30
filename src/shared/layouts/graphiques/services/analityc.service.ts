@@ -4,6 +4,7 @@ import { Observable, forkJoin, map, tap } from "rxjs";
 import { User } from "../../../../core/models/datatype.model";
 import { Race } from "../../../../app/features/dashboard/pages/users/models/race.model";
 import { environment } from "../../../../environments/environment";
+import { UserMetrics,  InsuranceMetrics, AppMetrics, UserActivity, PendingValidations, Zem } from "../models/metric.model";
 
 @Injectable({
   providedIn: 'root'
@@ -114,4 +115,172 @@ private filterDataByDateRange<T>(
   console.log('Données filtrées:', filteredData); // Ajoutez ce log
   return filteredData;
 } 
+
+// Nouvelles fonctions indépendantes
+/* getUserMetrics(): Observable<UserMetrics> {
+  return this.http.get<User[]>(`${this.apiUrl}/users`, { headers: this.getHeaders() }).pipe(
+    map(users => {
+      const now = new Date();
+      const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      return {
+        totalUsers: users.length,
+        totalZem: users.filter(user => user.user_type === 'zem').length,
+        newUsersThisWeek: users.filter(user => new Date(user.create_at) >= weekStart).length,
+        newUsersThisMonth: users.filter(user => new Date(user.create_at) >= monthStart).length
+      };
+    })
+  );
+} */
+
+  /* getUserMetrics(): Observable<UserMetrics> {
+    return this.http.get<User[]>(`${this.apiUrl}/users`, { headers: this.getHeaders() }).pipe(
+      map(users => {
+        const now = new Date();
+        
+        // Début de la semaine (Lundi)
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
+        weekStart.setHours(0, 0, 0, 0);
+        
+        // Début du mois
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  
+        return {
+          totalUsers: users.length,
+          totalZem: users.filter(user => user.user_type === 'zem').length,
+          totalClients: users.filter(user => user.user_type === 'client').length,
+          weeklyRegistrations: users.filter(user => new Date(user.created_at) >= weekStart).length,
+          monthlyRegistrations: users.filter(user => new Date(user.created_at) >= monthStart).length
+        };
+      })
+    );
+  }
+ */
+/* getMotorcycleMetrics(): Observable<MotorcycleMetrics> {
+  return this.http.get<any[]>(`${this.apiUrl}/motorcycles`, { headers: this.getHeaders() }).pipe(
+    map(motorcycles => ({
+      totalMotorcycles: motorcycles.length
+    }))
+  );
+}
+ */
+/* getInsuranceMetrics(): Observable<InsuranceMetrics> {
+  return this.http.get<User[]>(`${this.apiUrl}/users`, { headers: this.getHeaders() }).pipe(
+    map(users => {
+      const now = new Date();
+      const thirtyDaysFromNow = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+      
+      return users.reduce((acc, user) => {
+        if (!user.insurance_expiry) {
+          acc.expired++;
+          return acc;
+        }
+        
+        const expiryDate = new Date(user.insurance_expiry);
+        if (expiryDate <= now) {
+          acc.expired++;
+        } else if (expiryDate <= thirtyDaysFromNow) {
+          acc.expiringSoon++;
+        } else {
+          acc.valid++;
+        }
+        return acc;
+      }, { valid: 0, expired: 0, expiringSoon: 0 });
+    })
+  );
+} */
+
+/* getAppDownloads(): Observable<AppMetrics> {
+  return this.http.get<AppMetrics>(`${this.apiUrl}/app-analytics`, { headers: this.getHeaders() });
+} */
+
+// Si vous voulez obtenir toutes les nouvelles métriques en une seule fois
+/* getAllNewMetrics(): Observable<{
+
+  motorcycles: MotorcycleMetrics;
+  insurance: InsuranceMetrics;
+  appDownloads: AppMetrics;
+}> {
+  return forkJoin({
+
+    motorcycles: this.getMotorcycleMetrics(),
+    insurance: this.getInsuranceMetrics(),
+    appDownloads: this.getAppDownloads()
+  });
+} */
+
+  getUserMetrics(): Observable<UserMetrics> {
+    return this.http.get<User[]>(`${this.apiUrl}/users`, { headers: this.getHeaders() }).pipe(
+      map(users => {
+        const now = new Date();
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
+        weekStart.setHours(0, 0, 0, 0);
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  
+        return {
+          totalUsers: users.length || 0,
+          totalZem: users.filter(user => user.user_type === 'zem').length || 0,
+          totalClients: users.filter(user => user.user_type === 'customer').length || 0,
+          weeklyRegistrations: users.filter(user => new Date(user.created_at) >= weekStart).length || 0,
+          monthlyRegistrations: users.filter(user => new Date(user.created_at) >= monthStart).length || 0
+        };
+      })
+    );
+  }
+
+  getAppDownloads(): Observable<AppMetrics> {
+    return this.http.get<AppMetrics>(`${this.apiUrl}/app-analytics`, { headers: this.getHeaders() }).pipe(
+      map(() => ({
+        totalDownloads: 0,
+        androidDownloads: 0,
+        iosDownloads: 0
+      }))
+    );
+  }
+
+  getInsuranceMetrics(): Observable<InsuranceMetrics> {
+    return this.http.get<User[]>(`${this.apiUrl}/users`, { headers: this.getHeaders() }).pipe(
+      map(users => ({
+        valid: 0,
+        expired: 0,
+        expiringSoon: 0
+      }))
+    );
+  }
+
+  getPendingValidations(): Observable<PendingValidations> {     
+    return this.http.get<Zem[]>(`${this.apiUrl}/zems`, { headers: this.getHeaders() }).pipe(       
+      map(zems => {         
+        // Filtrer les zems non validés         
+        const pendingZems = zems.filter(zem =>            
+          zem.profile_validation_status !== 'validated' && !zem.validated_at         
+        );            
+        
+        // Compter les ZEM en attente          
+        const pendingZem = pendingZems.length;             
+              
+        return {           
+          zem: pendingZem,           
+          documents: pendingZem,           
+          total: pendingZems.length 
+        };       
+      })     
+    );   
+  }
+
+  getUserActivity(): Observable<UserActivity> {
+    return new Observable<UserActivity>(observer => {
+      const metrics = {
+        active: 0,
+        inactive: 0,
+        engagementRate: 0
+      };
+      observer.next(metrics);
+      observer.complete();
+    });
+  }
+
 }

@@ -9,12 +9,29 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import * as Papa from 'papaparse';
 import 'jspdf-autotable';
+import { InsuranceMetrics, PendingValidations, UserActivity } from '../../../../../shared/layouts/graphiques/models/metric.model';
 
+
+interface UserMetrics {
+  totalUsers?: number;
+  totalZem?: number;
+  totalClients?: number;
+}
 
 interface ExportDataItem {
   Mois: string;
   Inscriptions: number;
   Courses: number;
+}
+
+interface AppMetrics {
+
+  totalDownloads: number;
+
+  androidDownloads: number;
+
+  iosDownloads: number;
+
 }
 
 @Component({
@@ -32,6 +49,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
   racesChartData: any[] = [];
   dateForm: FormGroup;
   private modalInstance: any;
+  userMetrics!: UserMetrics;
+  appMetrics!: AppMetrics;
+  insuranceMetrics!: InsuranceMetrics;
+  pendingValidations!: PendingValidations;
+  userActivity!: UserActivity;
 
   constructor(
     private analyticsService: AnalyticsService,
@@ -46,7 +68,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   @Output() dateRangeSelected = new EventEmitter<{startDate: string, endDate: string}>();
 
 
+
   ngOnInit() {
+    this.loadAllMetrics();
     this.loadDashboardData();
   }
 
@@ -60,6 +84,47 @@ export class HomeComponent implements OnInit, AfterViewInit {
         error: (err) => console.error('Erreur de chargement', err)
       });
     }
+
+    /* private loadUserMetrics() {
+      this.analyticsService.getUserMetrics().subscribe({
+        next: (metrics) => {
+          this.userMetrics = metrics;
+        },
+        error: (err) => console.error('Erreur lors du chargement des métriques:', err)
+      });
+    } */
+
+      private loadAllMetrics() {
+        // Charger les métriques utilisateurs
+        this.analyticsService.getUserMetrics().subscribe({
+          next: (metrics) => this.userMetrics = metrics,
+          error: (err) => console.error('Erreur métriques utilisateurs:', err)
+        });
+    
+        // Charger les métriques de l'application
+        this.analyticsService.getAppDownloads().subscribe({
+          next: (metrics) => this.appMetrics = metrics,
+          error: (err) => console.error('Erreur métriques app:', err)
+        });
+    
+        // Charger les métriques d'assurance
+        this.analyticsService.getInsuranceMetrics().subscribe({
+          next: (metrics) => this.insuranceMetrics = metrics,
+          error: (err) => console.error('Erreur métriques assurance:', err)
+        });
+    
+        // Charger les validations en attente
+        this.analyticsService.getPendingValidations().subscribe({
+          next: (metrics) => this.pendingValidations = metrics,
+          error: (err) => console.error('Erreur validations en attente:', err)
+        });
+    
+        // Charger l'activité des utilisateurs
+        this.analyticsService.getUserActivity().subscribe({
+          next: (metrics) => this.userActivity = metrics,
+          error: (err) => console.error('Erreur activité utilisateurs:', err)
+        });
+      }
 
   ngAfterViewInit() {
     const modalElement = document.getElementById('kt_modal_select_period');

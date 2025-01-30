@@ -12,6 +12,9 @@ export interface User {
   email_address: string;
   user_type: string;
   role: Role;
+  insurance_expiry?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AuthResponse {

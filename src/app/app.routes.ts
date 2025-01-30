@@ -26,8 +26,6 @@ export const routes: Routes = [
         redirectTo: 'dashboard',
         pathMatch: 'full'
       },
-
-
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/pages/home/home.component')
