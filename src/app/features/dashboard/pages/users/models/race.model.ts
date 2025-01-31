@@ -33,8 +33,8 @@ export interface Race {
   service_duration?: number;
   service_km?: number;
   zem?: Zem;
-  started_at?: string;
-  ended_at?: string;
+  started_at?: Date;
+  ended_at?: Date;
   start_datetime?: Date;
   pending_at?: Date;
   accepted_at?: Date;

@@ -3,7 +3,7 @@ export interface User {
   phone_number: string;
   password: string;
   verification_code: string | null;
-  birthday: string;
+  birthday?: string;
   user_type: string;
   created_at: string;
   updated_at: string;
@@ -27,3 +27,4 @@ export interface ZemValidationRequest {
   profile_validation_status: 'validated' | 'rejected';
   type_action: string;
 }
+

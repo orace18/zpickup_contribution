@@ -57,6 +57,44 @@
             <span class="menu-title">Utilisateurs</span>
           </a>
         </div>
+
+        <!-- Gestion Finance -->
+        <div class="menu-item menu-accordion" data-kt-menu-trigger="click" 
+        *ngIf="authService.hasPermission('view_finances')"
+        [ngClass]="{'hover show': isMenuExpanded('finance')}">
+     <span class="menu-link" (click)="toggleMenu('finance')">
+       <span class="menu-icon">
+         <i class="ki-duotone ki-dollar fs-2">
+           <span class="path1"></span>
+           <span class="path2"></span>
+         </i>
+       </span>
+       <span class="menu-title">Gestion Finance</span>
+       <span class="menu-arrow" [ngClass]="{'active': isMenuExpanded('finance')}"></span>
+     </span>
+   
+     <div class="menu-sub menu-sub-accordion" [ngClass]="{'show': isMenuExpanded('finance')}">
+       <!-- Gains -->
+       <div class="menu-item" *ngIf="authService.hasPermission('view_gains')">
+         <a class="menu-link" routerLink="/finance/gains" routerLinkActive="active">
+           <span class="menu-bullet">
+             <span class="bullet bullet-dot"></span>
+           </span>
+           <span class="menu-title">Gains</span>
+         </a>
+       </div>
+   
+       <!-- Courses -->
+       <div class="menu-item" *ngIf="authService.hasPermission('view_courses')">
+         <a class="menu-link" routerLink="/finance/courses" routerLinkActive="active">
+           <span class="menu-bullet">
+             <span class="bullet bullet-dot"></span>
+           </span>
+           <span class="menu-title">Courses</span>
+         </a>
+       </div>
+     </div>
+   </div>
         <!-- Rôles -->
         <div class="menu-item" *ngIf="authService.hasPermission('manage_roles')">
           <a class="menu-link" routerLink="/roles" routerLinkActive="active">

@@ -1,3 +1,5 @@
+import { CoursesComponent } from './features/dashboard/pages/courses/courses.component';
+import { GainsComponent } from './features/dashboard/pages/gains/gains.component';
 import { Routes } from '@angular/router';
 import {MainLayoutComponent} from '../core/layouts/main-layout/main-layout.component';
 import {authGuard} from '../core/services/auth.guard';
@@ -20,7 +22,6 @@ export const routes: Routes = [
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
-
       {
         path: '',
         redirectTo: 'dashboard',
@@ -54,6 +55,30 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/pages/chats/chats.component')
           .then(m => m.ChatsComponent),
         data: { permission: 'view_chat' }
+      },
+      {
+        path: 'finance',
+        data: { permission: 'view_finances' },
+        children: [
+          {
+            path: 'gains',
+            loadComponent: () => import('./features/dashboard/pages/gains/gains.component')
+              .then(m => m.GainsComponent),
+            data: { permission: 'view_gains' }
+          },
+          {
+            path: 'courses',
+            loadComponent: () => import('./features/dashboard/pages/courses/courses.component')
+              .then(m => m.CoursesComponent),
+            data: { permission: 'view_courses' }
+          }/* ,
+          {
+            path: 'rapports',
+            loadComponent: () => import('./features/dashboard/pages/finance/rapports/rapports.component')
+              .then(m => m.RapportsComponent),
+            data: { permission: 'view_rapports_financiers' }
+          } */
+        ]
       },
       {
         path: 'assureurs',

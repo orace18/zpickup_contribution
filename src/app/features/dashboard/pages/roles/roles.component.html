@@ -235,7 +235,7 @@
                                        [attr.aria-labelledby]="'heading_' + group.key"
                                        [attr.data-bs-parent]="'#accordion_' + group.key">
                                     <div class="accordion-body py-3">
-                                      <div class="d-flex flex-column" [formGroupName]="group.key">
+                                      <div class="d-flex flex-column ps-9" [formGroupName]="group.key">
                                         <div formGroupName="permissions">
                                           <ng-container *ngFor="let perm of group.value">
                                             <label class="form-check form-check-custom form-check-solid mb-3">
@@ -361,7 +361,7 @@
                              class="accordion-collapse collapse"
                              [attr.aria-labelledby]="'heading' + group.key"
                              data-bs-parent="#permissionsAccordion">
-                          <div class="accordion-body px-3" [formGroupName]="group.key">
+                          <div class="accordion-body px-3 ps-9" [formGroupName]="group.key">
                             <div formGroupName="permissions" class="d-flex flex-column gap-3 ps-5">
                               <label *ngFor="let perm of group.value"
                                      class="form-check form-check-custom form-check-solid">

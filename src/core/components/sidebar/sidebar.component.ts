@@ -182,4 +182,18 @@ export class SidebarComponent implements OnInit {
       }
     });
   }
+
+  private expandedMenus: { [key: string]: boolean } = {};
+
+  toggleMenu(menuId: string): void {
+    this.expandedMenus[menuId] = !this.expandedMenus[menuId];
+  }
+
+  isMenuExpanded(menuId: string): boolean {
+    return this.expandedMenus[menuId] || false;
+  }
+
+  isMenuActive(path: string): boolean {
+    return this.router.url.startsWith(path);
+  }
 }

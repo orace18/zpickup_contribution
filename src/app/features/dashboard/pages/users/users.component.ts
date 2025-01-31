@@ -8,7 +8,8 @@ import {
   PipeTransform,
   ViewChild
 } from '@angular/core';
-import {User, ZemValidationRequest,} from './models/users.model';
+import { NgbCollapseModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {User, ZemValidationRequest} from './models/users.model';
 import {UsersService} from './services/users.service';
 import {
   DatePipe,
@@ -60,6 +61,8 @@ export class FilterByTypePipe implements PipeTransform {
     NgIf,
     DatePipe,
     DecimalPipe,
+    NgbModule,
+    NgbCollapseModule,
     NgClass,
     ConfirmationDialogComponent
 ],
@@ -67,19 +70,8 @@ export class FilterByTypePipe implements PipeTransform {
 })
 export class UsersComponent implements OnInit, AfterViewInit {
 
-  constructor(
-    private router: Router,
-    private usersService: UsersService,
-    private walletService: WalletService,
-    private raceService: RaceService,
-    private roleService: RoleService,
-    private counterService: CounterService,
-    private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
-  ) {
-  }
-
-
+  isCollapsed = true;
+  collapsedSections: { [key: string]: boolean } = {};
   canValidate: boolean = false;
   activeSection: 'informations' | 'portefeuille' | 'courses' | 'compteur' | 'infoszem' | null = null;
   counterData: CounterData | null = null;
@@ -105,16 +97,20 @@ export class UsersComponent implements OnInit, AfterViewInit {
   showDeleteDialog = false;
   private userToDelete: string | null = null;
   showValidationDialog = false;
+  showRejetDialog = false;
   private zemToValidate: string | null = null;
+  private zemToInvalidate: string | null = null;
+  referenceFilter: string = '';
   
+  /* birthday: '',
+    address: '', */
   newUser = {
     phone_number: '',
     password: '',
     email_address: '',
     firstname: '',
     lastname: '',
-    birthday: '',
-    address: '',
+    
     user_type: 'admin',
     role: '',
     created_at: new Date().toISOString(),
@@ -126,6 +122,27 @@ export class UsersComponent implements OnInit, AfterViewInit {
   detailsModal: any;
   editModal: any;
   @ViewChild('editForm') editForm!: NgForm;
+
+
+  constructor(
+    private router: Router,
+    private usersService: UsersService,
+    private walletService: WalletService,
+    private raceService: RaceService,
+    private roleService: RoleService,
+    private counterService: CounterService,
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.userRaces.forEach(race => {
+      this.collapsedSections[race._id] = true;
+    });
+  }
+
+
+  toggleSection(raceId: string): void {
+    this.collapsedSections[raceId] = !this.collapsedSections[raceId];
+  }
 
   ngAfterViewInit() {
     // Initialisation des dropdowns
@@ -189,15 +206,33 @@ export class UsersComponent implements OnInit, AfterViewInit {
     }
   }
 
+  openRejetDialog(): void {
+    if (this.selectedUser?.zem) {
+      this.zemToInvalidate = this.selectedUser.zem;
+      this.showRejetDialog = true;
+    }
+  }
+
   closeValidationDialog(): void {
     this.showValidationDialog = false;
     this.zemToValidate = null;
+  }
+
+  closeRejetDialog(): void {
+    this.showRejetDialog = false;
+    this.zemToInvalidate = null;
   }
 
   confirmValidation(): void {
     if (this.zemToValidate) {
       this.validZem(this.zemToValidate);
       this.closeValidationDialog();
+    }
+  }
+  confirmRejet(): void {
+    if (this.zemToInvalidate) {
+      this.validZem(this.zemToInvalidate);
+      this.closeRejetDialog();
     }
   }
 
@@ -207,6 +242,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.addModal.show();
   }
 
+  /* birthday: '',
+      address: '', */
   resetNewUser(): void {
     this.newUser = {
       phone_number: '',
@@ -214,8 +251,6 @@ export class UsersComponent implements OnInit, AfterViewInit {
       email_address: '',
       firstname: '',
       lastname: '',
-      birthday: '',
-      address: '',
       user_type: 'admin',
       role: '',
       created_at: new Date().toISOString(),
@@ -238,8 +273,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
       email_address: this.newUser.email_address || undefined,
       firstname: this.newUser.firstname || undefined,
       lastname: this.newUser.lastname || undefined,
-      birthday: this.newUser.birthday ? new Date(this.newUser.birthday).toISOString() : undefined,
-      address: this.newUser.address || undefined,
+     // birthday: this.newUser.birthday ? new Date(this.newUser.birthday).toISOString() : undefined,
+     // address: this.newUser.address || undefined,
       user_type: 'admin',
       role: this.newUser.role,
       created_at: new Date().toISOString(),
@@ -364,6 +399,32 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
 
+onReferenceChange(userID: string) {
+  this.filterRaces(userID);
+}
+
+
+
+  filterRaces(userID: string): void {
+    this.loadUserRaces(userID);
+    
+    // Filter races based on reference
+    if (this.referenceFilter) {
+      this.userRaces = this.userRaces.filter(race => 
+        race.reference.toString().includes(this.referenceFilter)
+      );
+    }
+    if(this.referenceFilter === ''){
+      this.userRaces = this.originalUserRaces;
+    }
+  }
+
+  toggleStoppedDetails(race: any) {
+    race.showStoppedDetails = !race.showStoppedDetails;
+  }
+
+
+
   showUserSection(section: 'informations' | 'portefeuille' | 'courses' | 'compteur' | 'infoszem'): void {
     console.log("Section changée vers:", section);
     this.activeSection = section;
@@ -421,7 +482,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     });
   }
 
-  loadUserRaces(userId: string): void {
+ /*  loadUserRaces(userId: string): void {
     if (this.selectedUser?.user_type === 'zem') {
 
       this.raceService.getZemRaces(userId).subscribe({
@@ -430,7 +491,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
             return {
               ...race
             };
-          });*/
+          });
           this.originalUserRaces = races;
           this.userRaces = [...races];
           this.applyDateFilters();
@@ -452,6 +513,38 @@ export class UsersComponent implements OnInit, AfterViewInit {
         }
       });
     }
+  } */
+
+  loadUserRaces(userId: string): void {
+    // Obtenir le premier et le dernier jour du mois courant
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+    const service = this.selectedUser?.user_type === 'zem' 
+      ? this.raceService.getZemRaces(userId)
+      : this.raceService.getUserRaces(userId);
+
+    service.pipe(
+      map(races => races.filter(race => {
+        const raceDate = new Date(race.created_at); // ou race.date selon votre structure
+        return raceDate >= firstDayOfMonth && raceDate <= lastDayOfMonth;
+      })),
+      map(races => races.sort((a, b) => {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }))
+    ).subscribe({
+      next: (races) => {
+        this.originalUserRaces = races;
+        this.userRaces = [...races];
+        this.applyDateFilters();
+        this.setInitialCollapseState(this.userRaces);
+      },
+      error: (error) => {
+        //console.error('Erreur lors du chargement des courses:', error);
+        // Vous pourriez ajouter ici une notification d'erreur pour l'utilisateur
+      }
+    });
   }
 
   getZemFullName(zemId: string): string {
@@ -487,9 +580,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
   getTransactionLabel(type: string): string {
     switch (type.toLowerCase()) {
       case 'credit':
-        return 'Crédit';
+        return 'Recharge';
       case 'bonus':
-        return 'Bonus';
+        return 'Gain';
       case 'withdrawal':
       case 'debit':
         return 'Retrait';
@@ -575,12 +668,23 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.loadRoles();
     await this.loadUserStatuses();
 
-   
+    this.userRaces.forEach(race => {
+      this.collapsedSections[race._id] = true;
+    });
+
+
+    
 
     this.editModal = new Modal(document.getElementById('kt_modal_edit_user')!);
     this.detailsModal = new Modal(document.getElementById('kt_modal_user_details')!);
     this.addModal = new Modal(document.getElementById('kt_modal_add_user')!);
 
+  }
+
+  setInitialCollapseState(userRaces: Race[]): void {
+    this.userRaces.forEach(race => {
+      this.collapsedSections[race._id] = true;
+    });
   }
 
   private loadRoles(): void {
@@ -621,12 +725,12 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
     // Extraire l'ID du rôle
     const roleId = (this.selectedUser.role as any)?._id;
-    const hbd = (this.selectedUser.birthday);
+   // const hbd = (this.selectedUser.birthday);
 
-    if (hbd) {
+   /*  if (hbd) {
       const date = new Date(hbd);
       this.selectedUser.birthday = date.toISOString().split('T')[0];
-    }
+    } */
     const validRole = this.roles.find(role => role._id === roleId);
 
     // Assignez l'ID du rôle si valide, sinon mettez une chaîne vide
@@ -642,8 +746,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
         lastname: this.selectedUser.lastname,
         email_address: this.selectedUser.email_address,
         phone_number: this.selectedUser.phone_number,
-        birthday: this.selectedUser.birthday,
-        address: this.selectedUser.address,
+       /*  birthday: this.selectedUser.birthday,
+        address: this.selectedUser.address, */
         role: this.selectedUser.role
       };
 
@@ -777,6 +881,30 @@ export class UsersComponent implements OnInit, AfterViewInit {
         next: (response) => {
           console.log('Validation réussie', response);
           this.toastr.success('Compte validé!');
+          this.loadUsers();
+          this.canValidate = false;
+          this.getZemStatusText();
+        },
+        error: (error) => {
+          if (error.error.status === 401) {
+            this.router.navigate(["/login"])
+          }
+          this.toastr.error("Echec de validation de compte");
+        }
+      });
+  }
+
+  inValidZem(zemId: string) {
+    const inValidationData: ZemValidationRequest = {
+      profile_validation_status: 'rejected',
+      type_action: 'rejected_zem'
+    };
+
+    this.usersService.validateZemProfile(zemId, inValidationData)
+      .subscribe({
+        next: (response) => {
+          console.log('Validation réussie', response);
+          this.toastr.success('Compte rejeté!');
           this.loadUsers();
           this.canValidate = false;
           this.getZemStatusText();
@@ -963,6 +1091,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.startDate = '';
     this.endDate = '';
     this.userRaces = [...this.originalUserRaces];
+    this.referenceFilter = '';
     this.cdr.detectChanges();
   }
 
