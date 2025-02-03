@@ -1,8 +1,8 @@
 .aside {
   display: flex;
+  width: 100%; 
+  max-width: 100%;
   flex-direction: column;
-  /*background-color: #ffffff;*/
-  width: 250px;
   transition: width 0.3s ease;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
 
@@ -31,7 +31,6 @@
     transition: all 0.3s ease;
 
     &:hover {
-      /*background-color: #f5f8fa;*/
       color: #796ce7;
     }
   }
@@ -77,12 +76,12 @@
 }
 
 .sidebar.collapsed {
-  width: 60px; /* Reduced width when collapsed */
+  width: 60px; 
   overflow: hidden;
 }
 
 .sidebar.collapsed .sidebar-content {
-  display: none; /* Hide sidebar content when collapsed */
+  display: none; 
 }
 
 .sidebar-toggle {
@@ -93,3 +92,4 @@
   z-index: 100;
   font-size: 20px;
 }
+

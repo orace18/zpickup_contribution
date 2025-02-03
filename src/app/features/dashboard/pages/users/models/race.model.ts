@@ -40,6 +40,16 @@ export interface Race {
   accepted_at?: Date;
   longitude_start?: number;
   latitude_start?: number;
+  longitude_stop?: number;
+  latitude_stop?: number;
+  country?: string;
+  street?: string;
+  locality?: string;
+  street_accepted?: string;
+  country_accepted?: string;
+  locality_accepted?: string;
+  longitude_accepted?: number;
+  latitude_accepted?: number;
   country_start?: string;
   street_start?: string;
   locality_start?: string;
@@ -81,6 +91,7 @@ export interface Zem extends User{
   service_latitude: number | null;
   service_longitude: number | null;
   ray?: string | null;
+  zemData?: ZemUser;
 }
 
 

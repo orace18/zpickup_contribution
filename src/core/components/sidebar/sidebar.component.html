@@ -59,7 +59,7 @@
         </div>
 
         <!-- Gestion Finance -->
-        <div class="menu-item menu-accordion" data-kt-menu-trigger="click" 
+        <!-- <div class="menu-item menu-accordion" data-kt-menu-trigger="click" 
         *ngIf="authService.hasPermission('view_finances')"
         [ngClass]="{'hover show': isMenuExpanded('finance')}">
      <span class="menu-link" (click)="toggleMenu('finance')">
@@ -74,7 +74,7 @@
      </span>
    
      <div class="menu-sub menu-sub-accordion" [ngClass]="{'show': isMenuExpanded('finance')}">
-       <!-- Gains -->
+       
        <div class="menu-item" *ngIf="authService.hasPermission('view_gains')">
          <a class="menu-link" routerLink="/finance/gains" routerLinkActive="active">
            <span class="menu-bullet">
@@ -84,7 +84,7 @@
          </a>
        </div>
    
-       <!-- Courses -->
+      
        <div class="menu-item" *ngIf="authService.hasPermission('view_courses')">
          <a class="menu-link" routerLink="/finance/courses" routerLinkActive="active">
            <span class="menu-bullet">
@@ -94,7 +94,7 @@
          </a>
        </div>
      </div>
-   </div>
+   </div> -->
         <!-- Rôles -->
         <div class="menu-item" *ngIf="authService.hasPermission('manage_roles')">
           <a class="menu-link" routerLink="/roles" routerLinkActive="active">

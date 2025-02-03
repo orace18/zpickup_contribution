@@ -12,6 +12,7 @@ import { NgbCollapseModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {User, ZemValidationRequest} from './models/users.model';
 import {UsersService} from './services/users.service';
 import {
+  CommonModule,
   DatePipe,
   DecimalPipe,
   formatDate,
@@ -64,7 +65,8 @@ export class FilterByTypePipe implements PipeTransform {
     NgbModule,
     NgbCollapseModule,
     NgClass,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    CommonModule
 ],
   styleUrls: ['./users.component.css']
 })
@@ -122,6 +124,11 @@ export class UsersComponent implements OnInit, AfterViewInit {
   detailsModal: any;
   editModal: any;
   @ViewChild('editForm') editForm!: NgForm;
+
+  shouldShowLocation(race: any): boolean {
+    return ['started', 'stopped', 'end', 'pending'].includes(race.status) && 
+      (race.country_start || race.country_end || race.country_stop);
+  }
 
 
   constructor(
@@ -482,7 +489,7 @@ onReferenceChange(userID: string) {
     });
   }
 
- /*  loadUserRaces(userId: string): void {
+   /* loadUserRaces(userId: string): void {
     if (this.selectedUser?.user_type === 'zem') {
 
       this.raceService.getZemRaces(userId).subscribe({
@@ -513,7 +520,7 @@ onReferenceChange(userID: string) {
         }
       });
     }
-  } */
+  }  */
 
   loadUserRaces(userId: string): void {
     // Obtenir le premier et le dernier jour du mois courant

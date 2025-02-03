@@ -136,11 +136,11 @@ export class SidebarComponent implements OnInit {
         // Convert permission IDs to keys
         return this.permissionService.getPermissionKeys(userPermissions).pipe(
           map(permissionKeys => {
-            console.log('Converted permission keys:', permissionKeys);
+           // console.log('Converted permission keys:', permissionKeys);
             
             const filteredItems = MENU_CONFIG.menuItems.filter(item => {
               const hasPermission = !item.permission || permissionKeys.includes(item.permission);
-              console.log(`Menu item ${item.title}: permission=${item.permission}, has permission=${hasPermission}`);
+             // console.log(`Menu item ${item.title}: permission=${item.permission}, has permission=${hasPermission}`);
               return hasPermission;
             });
             
