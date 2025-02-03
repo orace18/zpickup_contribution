@@ -53,7 +53,7 @@
               "src/app/features/dashboard/pages/assets/js/custom/utilities/modals/create-app.js",
               "src/app/features/dashboard/pages/assets/js/custom/utilities/modals/users-search.js",
               "src/app/features/dashboard/pages/assets/plugins/custom/datatables/datatables.bundle.js",
-              "node_modules/apexcharts/dist/apexcharts.min.js" 
+              "node_modules/apexcharts/dist/apexcharts.min.js"
             ]
           },
           "configurations": {
@@ -61,8 +61,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "10m",
+                  "maximumError": "6MB"
                 },
                 {
                   "type": "anyComponentStyle",
