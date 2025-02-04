@@ -1,0 +1,20 @@
+/* race-details.component.css */
+.race-details-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .timeline {
+    position: relative;
+    padding-left: 20px;
+  }
+  
+  .timeline-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .timeline-item i {
+    margin-right: 10px;
+  }

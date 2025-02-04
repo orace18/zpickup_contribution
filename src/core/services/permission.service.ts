@@ -70,7 +70,7 @@ export class PermissionService {
     if (this.isMongoId(permission)) {
       const key = this.permissionsMap.get(permission);
       if (!key) {
-        console.warn(`Permission ID non trouvé: ${permission}`);
+       // console.warn(`Permission ID non trouvé: ${permission}`);
         return permission;
       }
       return key;
@@ -93,7 +93,7 @@ export class PermissionService {
       this.permissionsCache$ = this.http.get<any[]>(`${this.API_URL}/permissions`).pipe(
         shareReplay(1),
         catchError(error => {
-          console.error('Error fetching permissions:', error);
+         // console.error('Error fetching permissions:', error);
           return of([]);
         })
       );

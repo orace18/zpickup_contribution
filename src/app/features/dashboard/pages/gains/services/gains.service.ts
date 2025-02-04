@@ -3,13 +3,8 @@ import { environment } from "../../../../../../environments/environment";
 import { Observable, catchError, forkJoin, map, of, tap } from "rxjs";
 import { Race } from "../../users/models/race.model";
 import { Injectable } from "@angular/core";
+import { GainHistory } from "../models/gains.model";
 
-export interface GainsResult {
-  zem_bonus: number;
-  customer_bonus: number;
-  admin_bonus: number;
-  total: number;
-}
 
 
 @Injectable({
@@ -53,5 +48,36 @@ export class GainsService {
         });
       })
     ); 
+  }
+
+  getGains(): Observable<GainHistory[]> {
+    return this.getRaces().pipe(
+      map(races => 
+        races
+          // Filtrer uniquement les courses avec au moins un bonus
+          .filter(race => 
+            (race.zem_bonus && race.zem_bonus > 0) || 
+            (race.customer_bonus && race.customer_bonus > 0) || 
+            (race.admin_bonus && race.admin_bonus > 0)
+          )
+          // Transformer les données
+          .map(race => ({
+            date: race?.ended_at ? new Date(race.ended_at).toLocaleDateString('fr-FR') : '',
+            zem_bonus: Number((race.zem_bonus || 0).toFixed(2)),
+            customer_bonus: Number((race.customer_bonus || 0).toFixed(2)),
+            admin_bonus: Number((race.admin_bonus || 0).toFixed(2)),
+            total: Number(((race.zem_bonus || 0) + 
+                        (race.customer_bonus || 0) + 
+                        (race.admin_bonus || 0)).toFixed(2))
+          }))
+      ),
+      map(races => races.sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      )),
+      catchError(error => {
+        console.error('Error calculating race gains:', error);
+        return of([]);
+      })
+    );
   }
 }

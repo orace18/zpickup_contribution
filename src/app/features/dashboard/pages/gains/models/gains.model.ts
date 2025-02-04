@@ -5,7 +5,6 @@ export interface FinancialCard {
   color: string;
 }
 
-
 export interface GainsResult {
   zem_bonus: number;
   customer_bonus: number;
@@ -13,4 +12,10 @@ export interface GainsResult {
   total: number;
 }
 
-
+export interface GainHistory {
+  date: string;
+  zem_bonus: number;
+  customer_bonus: number;
+  admin_bonus: number;
+  total: number;
+}

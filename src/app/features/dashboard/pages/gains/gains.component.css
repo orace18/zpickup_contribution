@@ -1,4 +1,68 @@
-.card { transition: all 0.3s ease; }
+/* gains.component.css */
+:host ::ng-deep .p-datatable {
+    border: none !important;
+  }
+  
+  :host ::ng-deep .p-datatable .p-datatable-header {
+    background: transparent;
+    border: none;
+    padding: 1.5rem;
+  }
+  
+  :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+    background: #f8f9fa;
+    border: none;
+    color: #495057;
+  }
+  
+  :host ::ng-deep .p-datatable .p-datatable-tbody > tr {
+    border: none;
+  }
+  
+  :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+    border: none;
+  }
+  
+  :host ::ng-deep .p-paginator {
+    background: transparent;
+    border: none;
+    padding: 1.5rem;
+  }
+  
+  .hover-shadow {
+    transition: all 0.3s ease;
+  }
+  
+  .hover-shadow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .transition {
+    transition: all 0.3s ease;
+  }
+  
+  /* Ajustements pour les couleurs subtiles */
+  .bg-primary-subtle {
+    background-color: rgba(13, 110, 253, 0.1);
+  }
+  
+  .bg-success-subtle {
+    background-color: rgba(25, 135, 84, 0.1);
+  }
+  
+  .bg-warning-subtle {
+    background-color: rgba(255, 193, 7, 0.1);
+  }
 
-    .card:hover { transform: translateY(-5px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; }
+  .card {
+    min-height: 200px;
+  }
+  
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
  

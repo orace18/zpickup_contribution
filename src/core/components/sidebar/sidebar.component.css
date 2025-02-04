@@ -1,10 +1,18 @@
 .aside {
   display: flex;
-  width: 100%; 
-  max-width: 100%;
   flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px; 
+  background-color: #ffffff;
   transition: width 0.3s ease;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+  height: 100vh; 
+  overflow-y: auto; 
+
 
   &.collapsed {
     width: 70px;
@@ -18,78 +26,72 @@
       margin-right: 0;
     }
   }
-}
 
-.menu-item {
-  cursor: pointer;
 
-  .menu-link {
+  .aside-logo {
+    padding: 2rem 1rem;
+    border-bottom: 1px solid #eff2f5;
+  }
+
+
+  .aside-menu {
+    flex: 1;
     display: flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    color: #5e6278;
-    transition: all 0.3s ease;
+    flex-direction: column;
+    padding: 1rem 0;
 
-    &:hover {
-      color: #796ce7;
+    .menu-item {
+      .menu-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        color: #5e6278;
+        transition: all 0.3s ease;
+
+        &:hover {
+          color: #796ce7;
+          background-color: #f5f8fa;
+        }
+
+        &.active {
+          color: #796ce7;
+          background-color: #f5f8fa;
+        }
+      }
     }
   }
 }
 
-.menu-sub {
-  padding-left: 1.75rem;
-}
 
-.menu-icon {
-  margin-right: 0.75rem;
-}
+.wrapper {
+  margin-left: 280px; 
+  transition: margin-left 0.3s ease;
+  width: calc(100% - 280px);
+  min-height: 100vh;
 
-.menu-bullet {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 0.75rem;
-}
-
-.bullet {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #b5b5c3;
-}
-
-.menu-arrow {
-  margin-left: auto;
-  transition: transform 0.3s ease;
-
-  .show & {
-    transform: rotate(90deg);
+  &.collapsed {
+    margin-left: 70px;
+    width: calc(100% - 70px);
   }
 }
 
-.layout-container {
-  display: flex;
-}
 
-.sidebar {
-  transition: width 0.3s ease, transform 0.3s ease;
-}
+@media (max-width: 991.98px) {
+  .aside {
+    transform: translateX(-100%);
 
-.sidebar.collapsed {
-  width: 60px; 
-  overflow: hidden;
-}
+    &.show {
+      transform: translateX(0);
+    }
+  }
 
-.sidebar.collapsed .sidebar-content {
-  display: none; 
-}
+  .wrapper {
+    margin-left: 0;
+    width: 100%;
 
-.sidebar-toggle {
-  cursor: pointer;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 100;
-  font-size: 20px;
+    &.collapsed {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
 }
-

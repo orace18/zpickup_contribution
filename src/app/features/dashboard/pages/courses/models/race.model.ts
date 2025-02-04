@@ -8,4 +8,6 @@ export interface RaceHistory{
     country: string;
     race:string;
     otherRaceData: Race;
+    created_at: Date;
+    updated_at: Date;
 }
