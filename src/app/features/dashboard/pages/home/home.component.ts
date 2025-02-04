@@ -10,6 +10,7 @@ import { jsPDF } from 'jspdf';
 import * as Papa from 'papaparse';
 import 'jspdf-autotable';
 import { InsuranceMetrics, PendingValidations, UserActivity } from '../../../../../shared/layouts/graphiques/models/metric.model';
+import { UserService } from './services/home.service';
 
 
 interface UserMetrics {
@@ -57,6 +58,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   constructor(
     private analyticsService: AnalyticsService,
+    private userService: UserService,
     private fb: FormBuilder,
   ) {
     this.dateForm = this.fb.group({
@@ -72,6 +74,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.loadAllMetrics();
     this.loadDashboardData();
+
+    this.userService.getUsers().subscribe(users => {
+      const monthlyData = this.userService.getMonthlyRegistrations(users);
+      this.inscriptionsChartData = [{
+        name: "Inscriptions",
+        series: monthlyData.map(([name, value]) => ({
+          name,
+          value
+        }))
+      }];
+    });
   }
 
     private loadDashboardData(startDate?: string, endDate?: string) {

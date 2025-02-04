@@ -11,17 +11,24 @@
         <div class="card-body">
 
           <!-- Course créée -->
-          <div *ngIf="race.created_at && race.created_at !== 'null'" class="d-flex align-items-center mb-2">
-            <i class="bi bi-plus-circle text-primary me-2"></i>
-            <strong>Créée le:</strong>
-            <span class="badge badge-light-primary ms-2">
-              {{ race.created_at | date:'dd MMMM yyyy' }} à {{ race.created_at | date:'HH:mm' }}
-            </span>
-            <div *ngIf="race.initial_latitude && race.initial_longitude" class="ms-3">
-              <strong>Coordonnées initiales:</strong>
-              <span class="badge badge-light-warning ms-2">
-                {{ race.initial_latitude }}, {{ race.initial_longitude }}
-              </span>
+          <div class="row">
+            <div class="col-12 d-flex flex-column align-items-center">
+              <!-- Date -->
+              <div *ngIf="race.created_at && race.created_at !== 'null'" class="d-flex align-items-center mb-3">
+                <i class="bi bi-plus-circle text-primary me-2"></i>
+                <strong>Créée le:</strong>
+                <span class="badge badge-light-primary ms-2 mb-2">
+                  {{ race.created_at | date:'dd MMMM yyyy' }} à {{ race.created_at | date:'HH:mm' }}
+                </span>
+              </div>
+
+              <!-- Coordonnées -->
+              <div *ngIf="race.initial_latitude && race.initial_longitude" class="d-flex align-items-center">
+                <strong>Coordonnées initiales:</strong>
+                <span class="badge badge-light-warning ms-2">
+                  {{ race.initial_latitude }}, {{ race.initial_longitude }}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -31,34 +38,35 @@
               <div class="d-flex justify-content-center align-items-center">
                 <i class="bi bi-check-circle text-success me-2"></i>
                 <strong>Acceptée le:</strong>
-                <span class="badge badge-light-primary ms-2">
+                <span class="badge badge-light-primary ms-2 mb-2">
                   {{ race.accepted_at | date:'dd MMMM yyyy' }} à {{ race.accepted_at | date:'HH:mm' }}
                 </span>
               </div>
 
-              <div class="d-flex justify-content-center align-items-center mb-3"
+              <div class="row"
                 *ngIf="race.country_accepted || race.street_accepted || race.locality_accepted || (race.latitude_accepted && race.longitude_accepted)">
-                <!-- <h6 class="mb-2"></h6> -->
-                <!--  <div class="col-md-6"> -->
-                <p *ngIf="race.country_accepted" class="mb-1">
-                  <i class="bi bi-globe me-2"></i><strong>Pays:</strong>
-                  <span class="badge badge-light-warning">{{ race.country_accepted }}</span>
-                </p>
-                <p *ngIf="race.street_accepted" class="mb-1">
-                  <i class="bi bi-signpost me-2"></i><strong>Rue:</strong>
-                  <span class="badge badge-light-warning">{{ race.street_accepted }}</span>
-                </p>
-                <p *ngIf="race.locality_accepted" class="mb-1">
-                  <i class="bi bi-pin-map me-2"></i><strong>Localité:</strong>
-                  <span class="badge badge-light-warning">{{ race.locality_accepted }}</span>
-                </p>
-                <p *ngIf="race.latitude_accepted && race.longitude_accepted" class="mb-1">
-                  <i class="bi bi-geo me-2"></i><strong>Coordonnées:</strong>
-                  <span class="badge badge-light-warning">
-                    {{ race.latitude_accepted }}, {{ race.longitude_accepted }}
-                  </span>
-                </p>
-                <!-- </div> -->
+                <div class="col-md-6">
+                  <p *ngIf="race.country_accepted" class="mb-2">
+                    <i class="bi bi-globe me-2"></i><strong>Pays:</strong>
+                    <span class="badge badge-light-warning">{{ race.country_accepted }}</span>
+                  </p>
+                  <p *ngIf="race.street_accepted" class="mb-2">
+                    <i class="bi bi-signpost me-2"></i><strong>Rue:</strong>
+                    <span class="badge badge-light-warning">{{ race.street_accepted }}</span>
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <p *ngIf="race.locality_accepted" class="mb-2">
+                    <i class="bi bi-pin-map me-2"></i><strong>Localité:</strong>
+                    <span class="badge badge-light-warning">{{ race.locality_accepted }}</span>
+                  </p>
+                  <p *ngIf="race.latitude_accepted && race.longitude_accepted" class="mb-2">
+                    <i class="bi bi-geo me-2"></i><strong>Coordonnées:</strong>
+                    <span class="badge badge-light-warning">
+                      {{ race.latitude_accepted }}, {{ race.longitude_accepted }}
+                    </span>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -99,7 +107,7 @@
               <div class="d-flex justify-content-center align-items-center">
                 <i class="bi bi-play-circle text-success me-2"></i>
                 <strong>Démarré le:</strong>
-                <span class="badge badge-light-primary ms-2">
+                <span class="badge badge-light-primary ms-2 mb-2">
                   {{ race.started_at | date:'dd MMMM yyyy' }} à {{ race.started_at | date:'HH:mm' }}
                 </span>
               </div>
@@ -144,7 +152,7 @@
           </div>
 
           <!-- Course terminée -->
-          <div *ngIf="race.status === 'end' && race.ended_at">
+          <!--  <div *ngIf="race.status === 'end' && race.ended_at">
             <div class="d-flex align-items-center mb-2">
               <i class="bi bi-stop-circle text-danger me-2"></i>
               <strong>Terminé le:</strong>
@@ -158,6 +166,29 @@
                 <i class="bi bi-speedometer2 me-1"></i>{{ race.service_km | number:'1.2-2' }} km
               </span>
             </div>
+          </div> -->
+        </div>
+      </div>
+
+      <div *ngIf="race.status === 'end' && race.ended_at" class="row">
+        <div class="col-12 d-flex flex-column align-items-center">
+          <!-- Date de fin -->
+          <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-stop-circle text-danger me-2"></i>
+            <strong>Terminé le:</strong>
+            <span class="badge badge-light-primary ms-2">
+              {{ race.ended_at | date:'dd MMMM yyyy' }} à {{ race.ended_at | date:'HH:mm' }}
+            </span>
+          </div>
+
+          <!-- Durée et distance -->
+          <div class="d-flex align-items-center">
+            <span *ngIf="race.service_duration" class="badge badge-light-info me-2">
+              <i class="bi bi-clock me-1"></i>{{ race.service_duration }} min
+            </span>
+            <span *ngIf="race.service_km" class="badge badge-light-info">
+              <i class="bi bi-speedometer2 me-1"></i>{{ race.service_km | number:'1.2-2' }} km
+            </span>
           </div>
         </div>
       </div>
@@ -171,9 +202,9 @@
           <div class="col-md-6">
             <div class="card h-100">
               <div class="card-body">
-                <h6 class="mb-3">
+                <!-- <h6 class="mb-3">
                   <i class="bi bi-geo-alt me-2"></i>Localisation
-                </h6>
+                </h6> -->
                 <!-- Affichage conditionnel des informations de localisation -->
                 <ng-container [ngSwitch]="race.status">
                   <!-- <ng-container *ngSwitchCase="'stopped'">
@@ -253,7 +284,7 @@
           </div>
 
           <!-- Client/Transporteur Info -->
-          <div class="col-md-6">
+          <!-- <div class="col-md-6">
             <div class="col-md-12" *ngIf="selectedUser === 'zem'">
               <div>
                 <div class="p-3">
@@ -305,7 +336,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
 
         </div>
       </ng-container>
@@ -350,7 +381,7 @@
             <div class="col-md-4">
               <div class="bg-light rounded p-3 mb-3">
                 <h6 class="card-subtitle mb-2">
-                  <i class="bi bi-bicycle me-2"></i>Transporteur Zem
+                  <i class="bi bi-bicycle me-2"></i>Transporteur
                 </h6>
                 <p class="mb-1">
                   <i class="bi bi-piggy-bank me-2"></i><strong>Bonus:</strong>
@@ -381,14 +412,14 @@
       </div>
 
       <!-- Carte - uniquement pour le statut 'end' -->
-      <div *ngIf="race.status === 'end'" class="card">
+      <!-- <div *ngIf="race.status === 'end'" class="card">
         <div class="card-body">
           <h6 class="mb-3">
             <i class="bi bi-map me-2"></i>Itinéraire
           </h6>
           <div [id]="'map_' + race.reference" style="height: 400px; border-radius: 8px;"></div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>
