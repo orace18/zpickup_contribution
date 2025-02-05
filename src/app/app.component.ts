@@ -1,8 +1,7 @@
-import {Component, OnInit} from '@angular/core';
-import { LoginComponent } from "./features/dashboard/pages/login/login.component";
 import { RouterModule } from '@angular/router';
-import {NgIf} from '@angular/common';
 import {AutoLogoutService} from '../core/services/inspector.service';
+import { AuthService } from '../core/services/auth.service';
+import { Component, OnInit } from '@angular/core';
 
 
 @Component({
@@ -10,16 +9,16 @@ import {AutoLogoutService} from '../core/services/inspector.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   standalone: true,
-  imports: [RouterModule]
+  imports: [RouterModule],
+  providers: [AutoLogoutService]
 })
-export class AppComponent{
+export class AppComponent implements OnInit {
   title = 'ZpickUp ';
-/*
-  constructor(private autoLogoutService: AutoLogoutService) {}
+  constructor(
+    private autoLogoutService: AutoLogoutService
+  ) {}
 
   ngOnInit() {
     this.autoLogoutService.initializeAutoLogout();
-  }*/
-
-
+  }
 }

@@ -22,3 +22,25 @@ export interface AuthResponse {
   user: User;
 }
 
+
+export interface LoginResponse {
+  access_token: string;
+  user: {
+    email_address: string;
+    phone_number: string;
+    user_type: string;
+    role: {
+      _id: string;
+      key: string;
+      description: string;
+      permissions: string[];
+      name: string;
+    };
+    _id: string;
+  };
+}
+
+export interface LoginCredentials {
+  email_address: string;
+  password: string;
+}

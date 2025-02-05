@@ -454,14 +454,18 @@ onReferenceChange(userID: string) {
     }
     if (section === 'compteur' && this.selectedUser?.user_type === 'zem') {
       const z = this.selectedUser.zem;
+      console.log("Le zem", z);
       if (typeof z === "string") {
         this.loadCounterData(z);
       }
     }
     if (section === 'infoszem' && this.selectedUser?.user_type === 'zem') {
       const z = this.selectedUser?.zem;
+      console.log("Le zem", z);
       if (typeof z === "string") {
+        console.log("C'est dans le if ", z);
         this.loadZemDetails(z);
+        console.log("C'est après le if ", z);
       }
     }
 
@@ -473,14 +477,16 @@ onReferenceChange(userID: string) {
     this.usersService.getZemInfoById(zemId).subscribe({
       next: (details) => {
         this.zem = details;
+        console.log("Les détails du zem", details);
         this.loading = false;
+        this.cdr.detectChanges();
 
-        const locationModal = document.getElementById('locationModal');
+        /* const locationModal = document.getElementById('locationModal');
         if (locationModal) {
           locationModal.addEventListener('shown.bs.modal', () => {
-            //  this.initServiceMap();
+             this.initServiceMap();
           });
-        }
+        } */
       },
       error: (error) => {
         this.loading = false;

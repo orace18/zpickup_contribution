@@ -2,30 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-
-import {environment} from '../../environments/environment';
-
-interface LoginResponse {
-  access_token: string;
-  user: {
-    email_address: string;
-    phone_number: string;
-    user_type: string;
-    role: {
-      _id: string;
-      key: string;
-      description: string;
-      permissions: string[];
-      name: string;
-    };
-    _id: string;
-  };
-}
-
-interface LoginCredentials {
-  email_address: string;
-  password: string;
-}
+import { LoginCredentials, LoginResponse } from '../models/datatype.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -33,13 +11,56 @@ interface LoginCredentials {
 export class AuthService {
   private apiUrl = environment.apiUrl;
   private currentUserSubject = new BehaviorSubject<any>(null);
+  private tokenExpirationTimer: any;
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
+    this.checkAndLoadStoredUser();
+  }
+
+  private checkAndLoadStoredUser() {
     const storedUser = localStorage.getItem('currentUser');
-   // console.log('Constructor - stored user:', storedUser);
     if (storedUser) {
-      this.currentUserSubject.next(JSON.parse(storedUser));
+      const user = JSON.parse(storedUser);
+      // Vérifier si le token n'est pas expiré
+      if (this.isTokenValid(user.access_token)) {
+        this.currentUserSubject.next(user);
+        this.autoRenewToken();
+      } else {
+        this.logout();
+      }
+    }
+  }
+
+  isAuthenticated(): boolean {
+    const hasToken = !!this.currentUserSubject.value?.access_token;
+    return hasToken;
+  }
+
+
+  private isTokenValid(token: string): boolean {
+    if (!token) return false;
+    const tokenData = JSON.parse(atob(token.split('.')[1]));
+    return tokenData.exp * 1000 > Date.now();
+  }
+
+  private autoRenewToken() {
+    const token = this.getToken();
+    if (token) {
+      const tokenData = JSON.parse(atob(token.split('.')[1]));
+      const expirationTime = tokenData.exp * 1000;
+      const timeUntilExpiration = expirationTime - Date.now();
+      
+      // Renouveler 5 minutes avant l'expiration
+      const renewalTime = timeUntilExpiration - (5 * 60 * 1000);
+      
+      if (this.tokenExpirationTimer) {
+        clearTimeout(this.tokenExpirationTimer);
+      }
+
+      this.tokenExpirationTimer = setTimeout(() => {
+        this.refreshToken().subscribe();
+      }, renewalTime);
     }
   }
 
@@ -47,27 +68,24 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/admin/auth/login`, credentials)
       .pipe(
         tap(response => {
-         // console.log('Login response:', response);
           localStorage.setItem('currentUser', JSON.stringify(response));
-         // console.log('Stored in localStorage:', localStorage.getItem('currentUser'));
           this.currentUserSubject.next(response);
-         // console.log('Current user subject value:', this.currentUserSubject.value);
+          this.autoRenewToken();
         }),
         catchError(this.handleError)
       );
   }
 
-  isAuthenticated(): boolean {
-    const hasToken = !!this.currentUserSubject.value?.access_token;
-   /* console.log('isAuthenticated check:', {
-      currentUserValue: this.currentUserSubject.value,
-      hasToken: hasToken
-    });*/
-    return hasToken;
-  }
+  logout(userId?: string): Observable<any> {
+    if (this.tokenExpirationTimer) {
+      clearTimeout(this.tokenExpirationTimer);
+    }
 
-  logout(userId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/users/logout/${userId}`, {}).pipe(
+    const logoutRequest = userId ? 
+      this.http.delete(`${this.apiUrl}/users/logout/${userId}`) :
+      new Observable(subscriber => subscriber.next());
+
+    return logoutRequest.pipe(
       tap(() => {
         localStorage.removeItem('currentUser');
         this.currentUserSubject.next(null);
@@ -76,6 +94,10 @@ export class AuthService {
     );
   }
 
+  hasPermission(permission: string): boolean {
+    const currentUser = this.currentUserSubject.value;
+    return currentUser?.user?.role?.permissions?.includes(permission) || false;
+  }
 
   refreshToken(): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/refresh-token`, {}).pipe(
@@ -126,20 +148,8 @@ export class AuthService {
     return throwError(() => new Error(errorMessage));
   }
 
-
-  hasPermission(permission: string): boolean {
-    /*console.log('Checking permission:', {
-      permission,
-      currentUser: this.currentUserSubject.value,
-      userPermissions: this.currentUserSubject.value?.user?.role?.permissions
-    });*/
-    return this.currentUserSubject.value?.user?.role?.permissions?.includes(permission) || false;
-  }
-
   hasAnyPermission(permissions: string[]): boolean {
     return permissions.some(permission => this.hasPermission(permission));
   }
-
-
 
 }

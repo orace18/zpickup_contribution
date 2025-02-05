@@ -9,19 +9,15 @@ import {SidebarComponent} from '../components/sidebar/sidebar.component';
   providedIn: 'root'
 })
 export class AutoLogoutService implements OnDestroy {
-  private readonly INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
-  private readonly SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 heures
+  private readonly INACTIVITY_TIMEOUT = 10 * 60 * 1000; 
+  private readonly SESSION_TIMEOUT = 24 * 60 * 60 * 1000; 
 
   private destroy$ = new Subject<void>();
   private userActivity: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  private sessionStartTime: number = Date.now(); // Initialisation ici pour corriger l'erreur TS2564
-
+  private sessionStartTime: number = Date.now();
   constructor(
     private router: Router,
-  
-     private authService: AuthService,
-    private sidService: SidebarComponent
-    
+    private authService: AuthService
   ) {}
 
   initializeAutoLogout(): void {
@@ -76,43 +72,40 @@ export class AutoLogoutService implements OnDestroy {
       this.logout('Session expirée (24h)');
     }
   }
-
-  private logout(reason: string): void {
-    console.log(reason);
-
-    // 1. Nettoyage du localStorage
-    localStorage.clear();
-    // OU si vous préférez supprimer des éléments spécifiques :
-    // localStorage.removeItem('token');
-    // localStorage.removeItem('user');
-
-    // 2. Nettoyage des cookies si nécessaire
-    document.cookie.split(';').forEach(cookie => {
-      document.cookie = cookie
-        .replace(/^ +/, '')
-        .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
-    });
-
-    // 3. Si vous utilisez un service d'authentification
-    this.authService.logout(this.sidService.userId).subscribe({
-      next: () => {
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
-        console.error('Erreur lors de la déconnexion:', error);
+  
+    private logout(reason: string): void {
+      console.log(reason);
+      
+      // Récupérer l'ID de l'utilisateur depuis le service d'authentification
+      const currentUser = this.authService.getCurrentUser();
+      const userId = currentUser?.user?._id;
+  
+      // Nettoyage du localStorage
+      localStorage.clear();
+  
+      // Nettoyage des cookies
+      document.cookie.split(';').forEach(cookie => {
+        document.cookie = cookie
+          .replace(/^ +/, '')
+          .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+      });
+  
+      if (userId) {
+        this.authService.logout(userId).subscribe({
+          next: () => {
+            this.router.navigate(['/login']);
+          },
+          error: (error) => {
+            console.error('Erreur lors de la déconnexion:', error);
+            this.router.navigate(['/login']);
+          }
+        });
+      } else {
         this.router.navigate(['/login']);
       }
-    });
-
-    // 4. Si vous n'utilisez pas de service d'authentification, redirection directe
-    this.router.navigate(['/login']);
-
-    // 5. Optionnel : Afficher un message à l'utilisateur
-    // this.notificationService.show({
-    //   type: 'info',
-    //   message: `Vous avez été déconnecté. ${reason}`
-    // });
-  }
+    }
+  
+ 
 
   ngOnDestroy(): void {
     this.destroy$.next();

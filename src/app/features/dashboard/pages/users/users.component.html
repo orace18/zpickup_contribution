@@ -246,7 +246,7 @@
               <i class="bi bi-chevron-right fs-2"></i>
             </div>
 
-            <div *ngIf="selectedUser.user_type === 'zem' && selectedUser.zem !== null"
+            <div *ngIf="selectedUser.user_type === 'zem' && selectedUser?.zem !== null"
               class="d-flex align-items-center p-3 rounded cursor-pointer hover-bg-light mt-3"
               (click)="showUserSection('infoszem')">
               <div class="symbol symbol-35px me-3">
@@ -912,280 +912,179 @@
             </div>
           </div>
 
-
-        </div>
-
-
-
-
-
-
-      </div>
-    </div>
-  </div>
-
-
-
-
-
-</div>
-
-<div *ngIf="activeSection === 'compteur'" class="mt-5">
-  <!-- Header -->
-  <div class="d-flex align-items-center mb-4">
-    <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
-    <h3 class="mb-0">Compteur</h3>
-  </div>
-
-  <!-- Loading State -->
-  <div *ngIf="loading" class="d-flex justify-content-center my-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Chargement...</span>
-    </div>
-  </div>
-
-  <!-- Error State -->
-  <div *ngIf="error" class="alert alert-danger" role="alert">
-    {{ error }}
-  </div>
-
-  <!-- Main Content -->
-  <div *ngIf="counterData" class="border rounded p-4">
-    <!-- Statistiques générales -->
-    <div class="row g-4 mb-5">
-      <div class="col-12">
-        <div class="d-flex gap-4">
-          <!-- Solde actuel -->
-          <div class="border rounded p-4 text-center w-50">
-            <i class="bi bi-currency-exchange fs-1 text-primary mb-2"></i>
-            <div class="text-muted mb-1">Solde actuel</div>
-            <div class="fs-2 fw-bold" [class.text-danger]="counterData.currentBalance < 0"
-              [class.text-success]="counterData.currentBalance >= 0">
-              {{ counterData.currentBalance | number:'1.2-2' }} XOF
+          <div *ngIf="activeSection === 'infoszem'" class="mt-5">
+            <!-- Header -->
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
+              <h3 class="mb-0">Information compte Zem</h3>
+            </div>
+          
+            <div class="container mt-4">
+              <!-- Loading spinner -->
+              <div *ngIf="loading" class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Chargement...</span>
+                </div>
+              </div>
+          
+              <!-- Zem details -->
+              <div *ngIf="!loading" class="card mb-4">
+                <div class="card-body">
+                  <table class="table table-hover">
+                    <tbody>
+                      <tr>
+                        <th scope="row" style="width: 30%">Type de carte</th>
+                        <td>
+                          <span [ngClass]="'badge badge-light-' + (
+                            zem?.card_type === 'identity_card' ? 'primary' :
+                            zem?.card_type === 'cip_card' ? 'success' :
+                            zem?.card_type === 'passport_card' ? 'info' :
+                            'secondary'
+                          )">
+                            {{ getCardTypeLabel(zem?.card_type!) }}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Numéro de carte</th>
+                        <td><span [ngClass]="'badge badge-light-primary'">{{zem?.card_number}}</span></td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Photo de carte</th>
+                        <td>
+                          <span [ngClass]="'badge badge-light-primary cursor-pointer'" (click)="openPhotoModal('card_photo')">
+                            Voir la photo
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Photo de la plaque</th>
+                        <td>
+                          <span [ngClass]="'badge badge-light-primary cursor-pointer'" (click)="openPhotoModal('plate_photo')">
+                            Voir la photo
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Certificat de résidence</th>
+                        <td>
+                          <span [ngClass]="'badge badge-light-primary cursor-pointer'"
+                            (click)="openPhotoModal('residence_photo')">
+                            Voir la photo
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Numéro de plaque</th>
+                        <td><span [ngClass]="'badge badge-light-primary'">{{zem?.number_plate}}</span></td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Numéro de IFU</th>
+                        <td><span [ngClass]="'badge badge-light-primary'">{{zem?.ifu_number}}</span></td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Photo d'IFU</th>
+                        <td>
+                          <span [ngClass]="'badge badge-light-primary cursor-pointer'" (click)="openPhotoModal('ifu_photo')">
+                            Voir la photo
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Date de validation</th>
+                        <td><span [ngClass]="'badge badge-light-success'">{{zem?.validated_at | date:'dd/MM/yyyy HH:mm'}}</span></td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Statut de validation</th>
+                        <td>
+                          <span class="badge"
+                            [ngClass]="{'badge-light-success': zem?.profile_validation_status === 'validated',
+                                                           'badge-light-warning': zem?.profile_validation_status === 'pending',
+                                                           'badge-light-danger': zem?.profile_validation_status === 'rejected',
+                                                           'badge-light-primary': zem?.profile_validation_status === 'in_progress'}">
+                            {{zem?.profile_validation_status === 'validated' ? 'Validé' :
+                            zem?.profile_validation_status === 'pending' ? 'En attente' :
+                            zem?.profile_validation_status === 'rejected' ? 'Rejeté' :
+                            zem?.profile_validation_status === 'in_progress' ? 'En cours':
+                            zem?.profile_validation_status}}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Statut du service</th>
+                        <td>
+                          <span class="badge"
+                            [ngClass]="{'badge-light-success': zem?.service, 'badge-light-warning': !zem?.service}">
+                            {{zem?.service ? 'En service' : 'Hors service'}}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Rayon</th>
+                        <td>{{zem?.ray || 'Non renseigné'}}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Coordonnées en service</th>
+                        <td>
+                          <ng-container *ngIf="zem?.service_latitude && zem?.service_longitude; else noCoords">
+                            Latitude: {{zem?.service_latitude}}<br>
+                            Longitude: {{zem?.service_longitude}}
+                            <button class="btn btn-primary btn-sm ms-2" (click)="openLocationModal()">
+                              <i class="bi bi-geo-alt-fill me-1"></i>
+                              Voir la position
+                            </button>
+                          </ng-container>
+                          <ng-template #noCoords>
+                            Non renseignée
+                          </ng-template>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+          
+              <!-- Error message -->
+              <div *ngIf="!loading && !zem" class="alert alert-danger">
+                Impossible de charger les détails du Zem.
+              </div>
+            </div>
+          
+            <!-- Photo Modal -->
+            <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="photoModalLabel">Photo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body text-center">
+                    <img [src]="currentPhoto" class="img-fluid" alt="Photo">
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+            <!-- Location Modal -->
+            <div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-fullscreen">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="locationModalLabel">Position du Zem</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body p-0">
+                    <div id="zemLocationMap" style="height: calc(100vh - 100px); width: 100%;"></div>
+                  </div>
+                  <div class="modal-footer">
+                    <p class="mb-0">Latitude: {{zem?.service_latitude}} | Longitude: {{zem?.service_longitude}}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Distance parcourue -->
-          <div class="border rounded p-4 text-center w-50">
-            <i class="bi bi-speedometer2 fs-1 text-primary mb-2"></i>
-            <div class="text-muted mb-1">Distance parcourue</div>
-            <div class="fs-2 fw-bold text-gray-800">
-              {{ counterData.totalKmTraveled | number:'1.2-2' }} Km
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Historique des opérations -->
-    <div class="mt-5">
-      <h4 class="mb-4">Historique des opérations</h4>
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Référence</th>
-              <th>Type</th>
-              <th>Montant</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let history of counterData.histories">
-              <td>{{ history.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td>{{ history.reference }}</td>
-              <td>
-                <span class="badge" [ngClass]="getTypeClass(history.counter_type)">
-                  {{ getTypeLabel(history.counter_type) }}
-                </span>
-              </td>
-              <td
-                [ngClass]="{'text-success': history.counter_type === 'input', 'text-danger': history.counter_type === 'output'}">
-                {{ history.counter_type === 'input' ? '+' : '-' }}{{ history.value | number:'1.2-2' }} XOF
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div *ngIf="activeSection === 'infoszem'" class="mt-5">
-  <!-- Header -->
-  <div class="d-flex align-items-center mb-3">
-    <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
-    <h3 class="mb-0">Information compte Zem</h3>
-  </div>
-
-  <div class="container mt-4">
-    <!-- Loading spinner -->
-    <div *ngIf="loading" class="text-center">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Chargement...</span>
-      </div>
-    </div>
-
-    <!-- Zem details -->
-    <div *ngIf="!loading && zem" class="card mb-4">
-      <div class="card-body">
-        <table class="table table-hover">
-          <tbody>
-            <tr>
-              <th scope="row" style="width: 30%">Type de carte</th>
-              <td>
-                <span [ngClass]="'badge badge-light-' + (
-                  zem.card_type === 'identity_card' ? 'primary' :
-                  zem.card_type === 'cip_card' ? 'success' :
-                  zem.card_type === 'passport_card' ? 'info' :
-                  'secondary'
-                )">
-                  {{ getCardTypeLabel(zem.card_type) }}
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Numéro de carte</th>
-              <td><span [ngClass]="'badge badge-light-primary'">{{zem.card_number}}</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Photo de carte</th>
-              <td>
-                <span [ngClass]="'badge badge-light-primary cursor-pointer'" (click)="openPhotoModal('card_photo')">
-                  Voir la photo
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Photo de la plaque</th>
-              <td>
-                <span [ngClass]="'badge badge-light-primary cursor-pointer'" (click)="openPhotoModal('plate_photo')">
-                  Voir la photo
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Certificat de résidence</th>
-              <td>
-                <span [ngClass]="'badge badge-light-primary cursor-pointer'"
-                  (click)="openPhotoModal('residence_photo')">
-                  Voir la photo
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Numéro de plaque</th>
-              <td><span [ngClass]="'badge badge-light-primary'">{{zem.number_plate}}</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Numéro de IFU</th>
-              <td><span [ngClass]="'badge badge-light-primary'">{{zem.ifu_number}}</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Photo d'IFU</th>
-              <td>
-                <span [ngClass]="'badge badge-light-primary cursor-pointer'" (click)="openPhotoModal('ifu_photo')">
-                  Voir la photo
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Date de validation</th>
-              <td><span [ngClass]="'badge badge-light-success'">{{zem.validated_at | date:'dd/MM/yyyy HH:mm'}}</span></td>
-            </tr>
-            <tr>
-              <th scope="row">Statut de validation</th>
-              <td>
-                <span class="badge"
-                  [ngClass]="{'badge-light-success': zem.profile_validation_status === 'validated',
-                                                 'badge-light-warning': zem.profile_validation_status === 'pending',
-                                                 'badge-light-danger': zem.profile_validation_status === 'rejected',
-                                                 'badge-light-primary': zem.profile_validation_status === 'in_progress'}">
-                  {{zem.profile_validation_status === 'validated' ? 'Validé' :
-                  zem.profile_validation_status === 'pending' ? 'En attente' :
-                  zem.profile_validation_status === 'rejected' ? 'Rejeté' :
-                  zem.profile_validation_status === 'in_progress' ? 'En cours':
-                  zem.profile_validation_status}}
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Statut du service</th>
-              <td>
-                <span class="badge"
-                  [ngClass]="{'badge-light-success': zem.service, 'badge-light-warning': !zem.service}">
-                  {{zem.service ? 'En service' : 'Hors service'}}
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Rayon</th>
-              <td>{{zem.ray || 'Non renseigné'}}</td>
-            </tr>
-            <tr>
-              <th scope="row">Coordonnées en service</th>
-              <td>
-                <ng-container *ngIf="zem.service_latitude && zem.service_longitude; else noCoords">
-                  Latitude: {{zem.service_latitude}}<br>
-                  Longitude: {{zem.service_longitude}}
-                  <button class="btn btn-primary btn-sm ms-2" (click)="openLocationModal()">
-                    <i class="bi bi-geo-alt-fill me-1"></i>
-                    Voir la position
-                  </button>
-                </ng-container>
-                <ng-template #noCoords>
-                  Non renseignée
-                </ng-template>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Error message -->
-    <div *ngIf="!loading && !zem" class="alert alert-danger">
-      Impossible de charger les détails du Zem.
-    </div>
-  </div>
-
-  <!-- Photo Modal -->
-  <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="photoModalLabel">Photo</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-          <img [src]="currentPhoto" class="img-fluid" alt="Photo">
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Location Modal -->
-  <div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-fullscreen">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="locationModalLabel">Position du Zem</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-0">
-          <div id="zemLocationMap" style="height: calc(100vh - 100px); width: 100%;"></div>
-        </div>
-        <div class="modal-footer">
-          <p class="mb-0">Latitude: {{zem?.service_latitude}} | Longitude: {{zem?.service_longitude}}</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-<div class="modal fade" id="profileImageModal" tabindex="-1" aria-labelledby="profileImageModalLabel"
+          <div class="modal fade" id="profileImageModal" tabindex="-1" aria-labelledby="profileImageModalLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -1214,6 +1113,100 @@
   </div>
 </div>
 
+          <div *ngIf="activeSection === 'compteur'" class="mt-5">
+            <!-- Header -->
+            <div class="d-flex align-items-center mb-4">
+              <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
+              <h3 class="mb-0">Compteur</h3>
+            </div>
+          
+            <!-- Loading State -->
+            <div *ngIf="loading" class="d-flex justify-content-center my-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
+              </div>
+            </div>
+          
+            <!-- Error State -->
+            <div *ngIf="error" class="alert alert-danger" role="alert">
+              {{ error }}
+            </div>
+          
+            <!-- Main Content -->
+            <div *ngIf="counterData" class="border rounded p-4">
+              <!-- Statistiques générales -->
+              <div class="row g-4 mb-5">
+                <div class="col-12">
+                  <div class="d-flex gap-4">
+                    <!-- Solde actuel -->
+                    <div class="border rounded p-4 text-center w-50">
+                      <i class="bi bi-currency-exchange fs-1 text-primary mb-2"></i>
+                      <div class="text-muted mb-1">Solde actuel</div>
+                      <div class="fs-2 fw-bold" [class.text-danger]="counterData.currentBalance < 0"
+                        [class.text-success]="counterData.currentBalance >= 0">
+                        {{ counterData.currentBalance | number:'1.2-2' }} XOF
+                      </div>
+                    </div>
+          
+                    <!-- Distance parcourue -->
+                    <div class="border rounded p-4 text-center w-50">
+                      <i class="bi bi-speedometer2 fs-1 text-primary mb-2"></i>
+                      <div class="text-muted mb-1">Distance parcourue</div>
+                      <div class="fs-2 fw-bold text-gray-800">
+                        {{ counterData.totalKmTraveled | number:'1.2-2' }} Km
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          
+              <!-- Historique des opérations -->
+              <div class="mt-5">
+                <h4 class="mb-4">Historique des opérations</h4>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Référence</th>
+                        <th>Type</th>
+                        <th>Montant</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let history of counterData.histories">
+                        <td>{{ history.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                        <td>{{ history.reference }}</td>
+                        <td>
+                          <span class="badge" [ngClass]="getTypeClass(history.counter_type)">
+                            {{ getTypeLabel(history.counter_type) }}
+                          </span>
+                        </td>
+                        <td
+                          [ngClass]="{'text-success': history.counter_type === 'input', 'text-danger': history.counter_type === 'output'}">
+                          {{ history.counter_type === 'input' ? '+' : '-' }}{{ history.value | number:'1.2-2' }} XOF
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+</div>
 
 
 <div class="modal fade" id="kt_modal_edit_user" tabindex="-1" role="dialog">
