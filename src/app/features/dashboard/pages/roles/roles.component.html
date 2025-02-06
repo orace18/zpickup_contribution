@@ -72,10 +72,9 @@
               <div class="dropdown">
                 <button class="btn btn-light btn-active-light-primary dropdown-toggle"
                         type="button"
-                        (click)="toggleDropdown($event)"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                        (click)="toggleDropdown($event)">
                   Actions
+                
                   <span class="svg-icon svg-icon-5 m-0">
 
       </span>
@@ -213,9 +212,8 @@
                                   <!-- Group Header -->
                                   <div class="accordion-header" [id]="'heading_' + group.key">
                                     <div class="accordion-button collapsed py-3"
-                                         data-bs-toggle="collapse"
-                                         [attr.data-bs-target]="'#collapse_' + group.key"
-                                         [attr.aria-controls]="'collapse_' + group.key">
+     (click)="toggleAccordion($event, group.key)"
+     [attr.data-bs-target]="'#collapse_' + group.key">
                                       <div class="d-flex align-items-center w-100">
                                         <label class="form-check form-check-custom form-check-solid me-3">
                                           <input

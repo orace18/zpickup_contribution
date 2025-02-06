@@ -26,6 +26,7 @@ export class RolesComponent implements OnInit, AfterViewInit {
   private unfilteredRoles: any[] = [];
   permissionNames: Map<string, string> = new Map();
   permissionsByKey: Map<string, string> = new Map();
+  private accordions: Map<string, any> = new Map();
   dropdowns: any[] = [];
 
   constructor(
@@ -138,15 +139,92 @@ export class RolesComponent implements OnInit, AfterViewInit {
     });
 
     this.addModal = new Modal(document.getElementById('kt_modal_add_role')!);
+
+    setTimeout(() => {
+      this.initializeAccordions();
+      this.initializeDropdowns();
+    }, 100);
+
   }
 
-  toggleDropdown(event: Event) {
-    const dropdownMenu = (event.target as HTMLElement)
-      .closest('.dropdown')
-      ?.querySelector('.dropdown-menu');
+  private initializeAccordions(): void {
+    // Réinitialiser les accordéons existants
+    this.accordions.clear();
+
+    // Initialiser tous les éléments d'accordéon
+    document.querySelectorAll('.accordion-collapse').forEach(element => {
+      const accordionId = element.id;
+      if (accordionId) {
+        const accordion = new bootstrap.Collapse(element, {
+          toggle: false
+        });
+        this.accordions.set(accordionId, accordion);
+      }
+    });
+  }
+
+  toggleDropdown(event: Event): void {
+    event.stopPropagation(); // Important pour empêcher la propagation
+    
+    const button = event.target as HTMLElement;
+    const dropdownMenu = button.closest('.dropdown')?.querySelector('.dropdown-menu');
+    
     if (dropdownMenu) {
+      // Fermer tous les autres dropdowns d'abord
+      document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+        if (menu !== dropdownMenu) {
+          menu.classList.remove('show');
+        }
+      });
+      
+      // Toggle le dropdown actuel
       dropdownMenu.classList.toggle('show');
+      
+      // Ajouter un gestionnaire de clic sur le document pour fermer le dropdown
+      const closeDropdown = (e: MouseEvent) => {
+        if (!button.contains(e.target as Node) && !dropdownMenu.contains(e.target as Node)) {
+          dropdownMenu.classList.remove('show');
+          document.removeEventListener('click', closeDropdown);
+        }
+      };
+      
+      document.addEventListener('click', closeDropdown);
     }
+  }
+
+  toggleAccordion(event: Event, groupKey: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const collapseId = `collapse_${groupKey}`;
+    const collapseElement = document.getElementById(collapseId);
+    
+    if (collapseElement) {
+      const bsCollapse = this.accordions.get(collapseId) || 
+                        new bootstrap.Collapse(collapseElement, { toggle: false });
+      
+      if (!this.accordions.has(collapseId)) {
+        this.accordions.set(collapseId, bsCollapse);
+      }
+
+      // Fermer les autres accordéons ouverts
+      this.accordions.forEach((accordion, id) => {
+        if (id !== collapseId && accordion) {
+          accordion.hide();
+        }
+      });
+
+      // Toggle l'accordéon actuel
+      bsCollapse.toggle();
+    }
+  }
+
+  ngAfterViewInit() {
+    // Réinitialiser les composants après chaque changement de vue
+    setTimeout(() => {
+      this.initializeAccordions();
+      this.initializeDropdowns();
+    });
   }
 
   private setupPermissionControls(): void {
@@ -269,7 +347,7 @@ export class RolesComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit() {
+ /*  ngAfterViewInit() {
     // Initialiser les boutons de fermeture modaux
     const closeButton = document.querySelector('[data-kt-roles-modal-action="close"]');
     if (closeButton) {
@@ -282,7 +360,9 @@ export class RolesComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.initializeDropdowns();
     });
-  }
+  } */
+
+    
 
   private initializeDropdowns(): void {
     // Détruire les anciens dropdowns
