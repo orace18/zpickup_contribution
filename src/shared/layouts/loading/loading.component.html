@@ -1,0 +1,23 @@
+<div class="modal-overlay" [class.show]="isOpen">
+    <div class="modal-container" [class.show]="isOpen">
+      <div class="modal-content">
+        <div class="loading-content" *ngIf="isLoading">
+          <div class="spinner">
+            <div class="spinner-ring"></div>
+          </div>
+          <p class="loading-text">{{ loadingText }}</p>
+        </div>
+        
+        <div class="modal-body" *ngIf="!isLoading">
+          <ng-content></ng-content>
+        </div>
+        
+        <button *ngIf="!isLoading" 
+                class="close-button" 
+                (click)="close()"
+                aria-label="Fermer">
+          &times;
+        </button>
+      </div>
+    </div>
+  </div>

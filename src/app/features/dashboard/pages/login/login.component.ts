@@ -6,12 +6,13 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import {AuthService} from '../../../../../core/services/auth.service';
 import {ToastrService} from 'ngx-toastr';
+import { AnimatebuttonComponent } from "../../../../../shared/layouts/animatebutton/animatebutton.component";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, AnimatebuttonComponent],
   standalone: true
 })
 export class LoginComponent implements OnInit {

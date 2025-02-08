@@ -1,0 +1,22 @@
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background: white;
+    border-radius: 0.475rem;
+    box-shadow: 0 0 50px 0 rgba(82, 63, 105, 0.15);
+    border: 0;
+    z-index: 1000;
+  }
+  
+  .dropdown-menu.show {
+    display: block;
+  }
+
+  .nav-link {
+    color: #181C32;
+    transition: color 0.2s ease;
+  }
+
+  .nav-link:hover {
+    color: #009EF7;
+  }

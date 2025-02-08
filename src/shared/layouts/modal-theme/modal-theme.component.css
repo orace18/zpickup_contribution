@@ -1,0 +1,48 @@
+.menu {
+    display: none;
+    background: white;
+    border-radius: 0.475rem;
+    box-shadow: 0 0 50px 0 rgba(82, 63, 105, 0.15);
+    border: 0;
+  }
+  
+  .menu.show {
+    display: block;
+  }
+
+  .menu-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #181C32;
+    transition: color 0.2s ease;
+  }
+
+  .menu-link:hover, .menu-link.active {
+    background-color: #F4F6FA;
+    color: #796ce7;
+  }
+
+  .menu-icon {
+    margin-right: 0.5rem;
+  }
+
+  ::root {
+    --background-color: white;
+    --text-color: black;
+  }
+  
+  :root[data-theme='dark'] {
+    --background-color: #1a1a1a;
+    --text-color: white;
+  }
+  
+  body.dark {
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+  
+  body.light {
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }

@@ -1,1 +1,89 @@
-
+:root {
+    --min-font-size: 12px;
+    --max-font-size: 16px;
+    --min-input-padding: 0.5rem;
+    --max-input-padding: 1rem;
+  }
+  
+  .h-clamp-60 {
+    height: clamp(40px, 5vw, 70px);
+  }
+  
+  .fs-clamp {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  
+  .fs-clamp-text {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+  }
+  
+  .fs-clamp-title {
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+  
+  .fs-clamp-label {
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+  }
+  
+  .fs-clamp-error {
+    font-size: clamp(0.75rem, 1.2vw, 0.875rem);
+  }
+  
+  .fs-clamp-small {
+    font-size: clamp(0.75rem, 1.2vw, 0.875rem);
+  }
+  
+  .py-clamp {
+    padding-top: clamp(var(--min-input-padding), 2vw, var(--max-input-padding));
+    padding-bottom: clamp(var(--min-input-padding), 2vw, var(--max-input-padding));
+  }
+  
+  .px-6 {
+    padding-left: clamp(0.75rem, 2vw, 1.5rem);
+    padding-right: clamp(0.75rem, 2vw, 1.5rem);
+  }
+  
+  .min-w-lg-450px {
+    @media (min-width: 992px) {
+      min-width: clamp(300px, 40vw, 600px);
+    }
+  }
+  
+  .max-w-md {
+    max-width: clamp(300px, 90vw, 500px);
+  }
+  
+  .illustration-container {
+    position: relative;
+    flex-grow: 1;
+    min-height: clamp(200px, 30vh, 350px);
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: contain;
+    margin-top: auto;
+  }
+  
+  /* Ajustements responsifs */
+  @media (max-width: 991.98px) {
+    .flex-lg-row-auto {
+      flex: 0 0 auto;
+    }
+    
+    .illustration-container {
+      display: none;
+    }
+  }
+  
+  /* Amélioration de l'accessibilité au focus */
+  input:focus, 
+  button:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  
+  /* Prévention du débordement */
+  .flex-root {
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+  }

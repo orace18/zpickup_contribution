@@ -1,0 +1,52 @@
+<div class="position-relative">
+    <!-- Profile Button -->
+    <div class="cursor-pointer" (click)="toggleDropdown()">
+        <img 
+          [src]="userImage" 
+          alt="Profile" 
+          style="width: 35px; height: 35px; border-radius: 4px;"
+        />
+  </div>
+
+    <!-- Dropdown Menu -->
+    <div class="dropdown-menu p-4" 
+         [class.show]="isOpen"
+         style="min-width: 250px; right: 0; top: 100%; margin-top: 0.5rem;">
+      <!-- User Info -->
+      <div class="d-flex align-items-center mb-4">
+        <img [src]="userImage" alt="Profile" class=" me-3" style="width: 40px; height: 40px;"/>
+        <div>
+          <div class="d-flex align-items-center">
+            <h6 class="mb-0 me-2">{{ userData?.user?.firstname +' '+ userData?.user?.lastname }}</h6>
+          </div>
+          <div class="text-muted small">{{ userData?.user?.email_address }}</div>
+        </div>
+      </div>
+      <hr class="my-3">
+
+      <!-- Rôle et Permissions -->
+      <div class="menu-item">
+        <a class="menu-link" style="cursor: pointer;">
+          <span class="menu-icon">
+            <i class="bi bi-pencil-square fs-2"></i>
+          </span>
+          <span class="menu-title">Modifier mon profil</span>
+        </a>
+      </div>
+
+      <!-- Sign Out -->
+      <div class="menu-item">
+        <!--  <a href="#" class="nav-link px-0 py-2">Paramètres du compte</a> -->
+        <a class="menu-link" (click)="deconnexion()" style="cursor: pointer;">
+            <span class="menu-icon">
+              <i class="ki-duotone ki-exit-right fs-2">
+                <span class="path1"></span>
+                <span class="path2"></span>
+              </i>
+            </span>
+                    <span class="menu-title">Déconnexion</span>
+                  </a>
+                
+      </div>
+    </div>
+  </div>

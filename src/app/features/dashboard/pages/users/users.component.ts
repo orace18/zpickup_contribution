@@ -32,10 +32,11 @@ import {RoleService} from './services/role.service';
 import {ToastrService} from 'ngx-toastr';
 import {CounterData} from './models/counter.model';
 import {CounterService} from './services/counter.service';
-import {BehaviorSubject, Observable, shareReplay, take, tap} from 'rxjs';
+import { BehaviorSubject, Observable, shareReplay, take, tap, throwError } from 'rxjs';
 import {Router} from '@angular/router';
 import {map} from 'rxjs/operators';
 import { ConfirmationDialogComponent } from "../../../../../shared/layouts/confirmation-dialog/confirmation-dialog.component";
+import { LoadingComponent } from '../../../../../shared/layouts/loading/loading.component';
 declare var bootstrap: any;
 
 @Pipe({
@@ -66,7 +67,8 @@ export class FilterByTypePipe implements PipeTransform {
     NgbCollapseModule,
     NgClass,
     ConfirmationDialogComponent,
-    CommonModule
+    CommonModule,
+    LoadingComponent
 ],
   styleUrls: ['./users.component.css']
 })
@@ -92,6 +94,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
   filters = {
     typeUtilisateur: '',
     pays: '',
+    status: '',
+    
   };
   startDate: string = '';
   endDate: string = '';
@@ -103,6 +107,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
   private zemToValidate: string | null = null;
   private zemToInvalidate: string | null = null;
   referenceFilter: string = '';
+  isModalOpen: boolean = this.loading;
+  isLoading: boolean = false;
   
   /* birthday: '',
     address: '', */
@@ -124,6 +130,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   detailsModal: any;
   editModal: any;
   @ViewChild('editForm') editForm!: NgForm;
+
 
   shouldShowLocation(race: any): boolean {
     return ['started', 'stopped', 'end', 'pending'].includes(race.status) && 
@@ -412,19 +419,19 @@ onReferenceChange(userID: string) {
 
 
 
-  filterRaces(userID: string): void {
-    this.loadUserRaces(userID);
-    
-    // Filter races based on reference
-    if (this.referenceFilter) {
-      this.userRaces = this.userRaces.filter(race => 
-        race.reference.toString().includes(this.referenceFilter)
-      );
-    }
-    if(this.referenceFilter === ''){
-      this.userRaces = this.originalUserRaces;
-    }
+filterRaces(userID: string): void {
+  // On garde en mémoire le filtre actuel
+  const currentFilter = this.referenceFilter;
+  
+  this.loadUserRaces(userID);
+  
+  // On réapplique le filtre si il existe toujours
+  if (currentFilter) {
+    this.userRaces = this.userRaces.filter(race => 
+      race.reference.toString().includes(currentFilter)
+    );
   }
+}
 
   toggleStoppedDetails(race: any) {
     race.showStoppedDetails = !race.showStoppedDetails;
@@ -495,12 +502,12 @@ onReferenceChange(userID: string) {
     });
   }
 
-   /* loadUserRaces(userId: string): void {
+   /* loadRaces(userId: string): void {
     if (this.selectedUser?.user_type === 'zem') {
 
       this.raceService.getZemRaces(userId).subscribe({
         next: (races) => {
-          /*this.userRaces = races.map(race => {
+          this.userRaces = races.map(race => {
             return {
               ...race
             };
@@ -526,7 +533,8 @@ onReferenceChange(userID: string) {
         }
       });
     }
-  }  */
+  } 
+
 
   loadUserRaces(userId: string): void {
     // Obtenir le premier et le dernier jour du mois courant
@@ -558,7 +566,77 @@ onReferenceChange(userID: string) {
         // Vous pourriez ajouter ici une notification d'erreur pour l'utilisateur
       }
     });
-  }
+  } */
+
+    loadUserRaces(userId: string): void {
+      // Obtenir le premier et le dernier jour du mois courant
+      const now = new Date();
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    
+      if (this.selectedUser?.user_type === 'zem') {
+        this.raceService.getZemRaces(userId).pipe(
+          map(races => races.filter(race => {
+            const raceDate = new Date(race.created_at);
+            return raceDate >= firstDayOfMonth && raceDate <= lastDayOfMonth;
+          })),
+          map(races => races.sort((a, b) => {
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          }))
+        ).subscribe({
+          next: (races) => {
+            this.userRaces = races.map(race => {
+              return {
+                ...race
+              };
+            });
+            this.originalUserRaces = races;
+            this.userRaces = [...races];
+            if (this.referenceFilter) {
+              this.userRaces = this.originalUserRaces.filter(race => 
+                race.reference.toString().includes(this.referenceFilter)
+              );
+            } else {
+              this.userRaces = [...this.originalUserRaces];
+            }
+            this.applyDateFilters();
+           // this.setInitialCollapseState(this.userRaces);
+          
+          },
+          error: (error) => {
+            console.error('Erreur lors du chargement des courses du zem:', error);
+          }
+        });
+      } else {
+        this.raceService.getUserRaces(userId).pipe(
+          map(races => races.filter(race => {
+            const raceDate = new Date(race.created_at);
+            return raceDate >= firstDayOfMonth && raceDate <= lastDayOfMonth;
+          })),
+          map(races => races.sort((a, b) => {
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          }))
+        ).subscribe({
+          next: (races) => {
+            this.originalUserRaces = races;
+            this.userRaces = [...races];
+            if (this.referenceFilter) {
+              this.userRaces = this.originalUserRaces.filter(race => 
+                race.reference.toString().includes(this.referenceFilter)
+              );
+            } else {
+              this.userRaces = [...this.originalUserRaces];
+            }
+            this.applyDateFilters();
+            this.setInitialCollapseState(this.userRaces);
+          
+          },
+          error: (error) => {
+            console.error('Erreur lors du chargement des courses:', error);
+          }
+        });
+      }
+    }
 
   getZemFullName(zemId: string): string {
     if (this.selectedUser?.user_type === 'zem') {
