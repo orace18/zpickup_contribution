@@ -43,7 +43,7 @@
             type="date" 
             class="form-control" 
             [(ngModel)]="startDate"
-            aria-label="Date de début">
+            aria-label="Date de début" [max]="today">
         </div>
         <div class="col-md-6">
           <label for="endDate">Date de fin</label>
@@ -52,7 +52,7 @@
             type="date" 
             class="form-control" 
             [(ngModel)]="endDate"
-            aria-label="Date de fin">
+            aria-label="Date de fin"[max]="today">
         </div>
       </div>
     </div>

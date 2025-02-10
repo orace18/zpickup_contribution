@@ -45,7 +45,7 @@ interface AppMetrics {
 
 export class HomeComponent implements OnInit, AfterViewInit {
 
-
+  today: string = new Date().toISOString().split('T')[0];
   inscriptionsChartData: any[] = [];
   racesChartData: any[] = [];
   dateForm: FormGroup;
@@ -74,8 +74,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.loadAllMetrics();
     this.loadDashboardData();
+    this.loadData();
 
-    this.userService.getUsers().subscribe(users => {
+    /* this.userService.getUsers().subscribe(users => {
       const monthlyData = this.userService.getMonthlyRegistrations(users);
       this.inscriptionsChartData = [{
         name: "Inscriptions",
@@ -84,7 +85,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           value
         }))
       }];
-    });
+    }); */
   }
 
     private loadDashboardData(startDate?: string, endDate?: string) {
@@ -136,6 +137,33 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.analyticsService.getUserActivity().subscribe({
           next: (metrics) => this.userActivity = metrics,
           error: (err) => console.error('Erreur activité utilisateurs:', err)
+        });
+      }
+
+
+      loadData() {
+        // Pour les courses
+        this.userService.getRaces().subscribe(races => {
+          const monthlyRaces = this.userService.getMonthlyRaces(races);
+          this.racesChartData = [{
+            name: "Courses",
+            series: monthlyRaces.map(([name, value]) => ({
+              name,
+              value
+            }))
+          }];
+        });
+      
+        // Pour les inscriptions
+        this.userService.getUsers().subscribe(users => {
+          const monthlyUsers = this.userService.getMonthlyRegistrations(users);
+          this.inscriptionsChartData = [{
+            name: "Inscriptions",
+            series: monthlyUsers.map(([name, value]) => ({
+              name,
+              value
+            }))
+          }];
         });
       }
 

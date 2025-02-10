@@ -186,11 +186,11 @@
         <div class="modal-body">
           <div class="mb-3">
             <label for="startDate" class="form-label">Date de début</label>
-            <input type="date" id="startDate" formControlName="startDate" class="form-control">
+            <input type="date" id="startDate" formControlName="startDate" class="form-control" [max]="today">
           </div>
           <div class="mb-3">
             <label for="endDate" class="form-label">Date de fin</label>
-            <input type="date" id="endDate" formControlName="endDate" class="form-control">
+            <input type="date" id="endDate" formControlName="endDate" class="form-control" [max]="today">
           </div>
         </div>
         <div class="modal-footer">

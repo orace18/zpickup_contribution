@@ -11,13 +11,13 @@
           <label>Date de début</label>
           <input type="date" 
                  class="form-control" 
-                 [(ngModel)]="startDate">
+                 [(ngModel)]="startDate" [max]="today">
         </div>
         <div class="col-md-6">
           <label>Date de fin</label>
           <input type="date" 
                  class="form-control" 
-                 [(ngModel)]="endDate">
+                 [(ngModel)]="endDate" [max]="today">
         </div>
       </div>
     </div>

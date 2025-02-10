@@ -27,6 +27,7 @@ export class CoursesComponent implements OnInit {
   searchQuery: any;
   startDate: Date | null = null;
   endDate: Date | null = null;
+  today: string = new Date().toISOString().split('T')[0];
 
   constructor(
     private raceHistoryService: RaceHistoryService,

@@ -37,6 +37,7 @@ import {Router} from '@angular/router';
 import {map} from 'rxjs/operators';
 import { ConfirmationDialogComponent } from "../../../../../shared/layouts/confirmation-dialog/confirmation-dialog.component";
 import { LoadingComponent } from '../../../../../shared/layouts/loading/loading.component';
+import { state } from '@angular/animations';
 declare var bootstrap: any;
 
 @Pipe({
@@ -74,6 +75,7 @@ export class FilterByTypePipe implements PipeTransform {
 })
 export class UsersComponent implements OnInit, AfterViewInit {
 
+  today: string = new Date().toISOString().split('T')[0];
   isCollapsed = true;
   collapsedSections: { [key: string]: boolean } = {};
   canValidate: boolean = false;
@@ -93,9 +95,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
   walletHistory?: WalletHistory;
   filters = {
     typeUtilisateur: '',
-    pays: '',
     status: '',
-    
+    startDate: '',
+    endDate: '',
   };
   startDate: string = '';
   endDate: string = '';
@@ -568,8 +570,9 @@ filterRaces(userID: string): void {
     });
   } */
 
-    loadUserRaces(userId: string): void {
+    /* loadUserRaces(userId: string): void {
       // Obtenir le premier et le dernier jour du mois courant
+      this.isLoading = true;
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
@@ -592,6 +595,7 @@ filterRaces(userID: string): void {
             });
             this.originalUserRaces = races;
             this.userRaces = [...races];
+            this.isLoading = false;
             if (this.referenceFilter) {
               this.userRaces = this.originalUserRaces.filter(race => 
                 race.reference.toString().includes(this.referenceFilter)
@@ -600,7 +604,8 @@ filterRaces(userID: string): void {
               this.userRaces = [...this.originalUserRaces];
             }
             this.applyDateFilters();
-           // this.setInitialCollapseState(this.userRaces);
+            this.setInitialCollapseState(this.userRaces);
+            //this.isLoading = false;
           
           },
           error: (error) => {
@@ -620,6 +625,7 @@ filterRaces(userID: string): void {
           next: (races) => {
             this.originalUserRaces = races;
             this.userRaces = [...races];
+            this.isLoading = false;
             if (this.referenceFilter) {
               this.userRaces = this.originalUserRaces.filter(race => 
                 race.reference.toString().includes(this.referenceFilter)
@@ -636,7 +642,61 @@ filterRaces(userID: string): void {
           }
         });
       }
+    } */
+
+  showAllRaces = false; 
+
+loadUserRaces(userId: string): void {
+  this.isLoading = true;
+  const now = new Date();
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+  const service = this.selectedUser?.user_type === 'zem' 
+    ? this.raceService.getZemRaces(userId)
+    : this.raceService.getUserRaces(userId);
+
+  service.pipe(
+    map(races => {
+      this.userRaces = [...races]; // Stocker toutes les courses
+      if(this.startDate || this.endDate) {
+        this.showAllRaces = true;
+      } 
+
+      // Si showAllRaces est false, on filtre les courses du mois en cours
+      if (!this.showAllRaces) {
+        return races.filter(race => {
+          const raceDate = new Date(race.created_at);
+          return raceDate >= firstDayOfMonth && raceDate <= lastDayOfMonth;
+        });
+      }
+      return races;
+    }),
+    map(races => races.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))
+  ).subscribe({
+    next: (races) => {
+      this.originalUserRaces = races;
+      this.userRaces = [...races];
+      this.isLoading = false;
+
+      // Appliquer un filtre sur la référence si nécessaire
+      if (this.referenceFilter) {
+        this.userRaces = this.originalUserRaces.filter(race => 
+          race.reference.toString().includes(this.referenceFilter)
+        );
+      } else {
+        this.userRaces = [...this.originalUserRaces];
+      }
+
+      this.applyDateFilters();
+      this.setInitialCollapseState(this.userRaces);
+    },
+    error: (error) => {
+      console.error('Erreur lors du chargement des courses:', error);
     }
+  });
+}
+
 
   getZemFullName(zemId: string): string {
     if (this.selectedUser?.user_type === 'zem') {
@@ -909,8 +969,38 @@ filterRaces(userID: string): void {
 
 
     this.filteredUsers = filtered.filter(user => {
-      return (!this.filters.typeUtilisateur || user.user_type === this.filters.typeUtilisateur) &&
-        (!this.filters.pays);
+      return (!this.filters.typeUtilisateur || user.user_type === this.filters.typeUtilisateur);
+    });
+
+
+    this.filteredUsers = filtered.filter(user => {
+      let matchesStatus = true;
+      let matchesDate = true;
+  
+      // Filtrage par statut
+      if (this.filters.status) {
+       const state = user.validated_at;
+        if(state !== null) {
+          user.validated_at = 'validated';
+          matchesStatus = user.validated_at === this.filters.status;
+        }
+        if(state === null) {
+          user.validated_at = 'pending';
+          matchesStatus = user.validated_at === this.filters.status;
+        }
+      }
+  
+      // Filtrage par date
+      if (this.filters.startDate || this.filters.endDate) {
+        const userDate = new Date(user.created_at);
+        const startDate = this.filters.startDate ? new Date(this.filters.startDate) : null;
+        const endDate = this.filters.endDate ? new Date(this.filters.endDate) : null;
+  
+        if (startDate && userDate < startDate) matchesDate = false;
+        if (endDate && userDate > endDate) matchesDate = false;
+      }
+  
+      return matchesStatus && matchesDate;
     });
   }
 
@@ -1149,7 +1239,7 @@ filterRaces(userID: string): void {
     }
   }
 
-  applyDateFilters(): void {
+  /* applyDateFilters(): void {
     let filtered = [...this.originalUserRaces];
 
     if (this.startDate || this.endDate) {
@@ -1176,7 +1266,31 @@ filterRaces(userID: string): void {
 
     this.userRaces = filtered;
     this.cdr.detectChanges();
+  } */
+
+    applyDateFilters(): void {
+      let filtered = [...this.originalUserRaces];
+  
+      if (this.startDate || this.endDate) {
+        filtered = filtered.filter(race => {
+          const raceDate = new Date(race.initial_datetime);
+          raceDate.setHours(0, 0, 0, 0); // S'assurer que la date est à minuit
+  
+          const start = this.startDate ? new Date(this.startDate) : null;
+          const end = this.endDate ? new Date(this.endDate) : null;
+  
+          if (start) start.setHours(0, 0, 0, 0);
+          if (end) end.setHours(23, 59, 59, 999); // Fin de journée
+  
+          // Vérifier que la course est bien dans l'intervalle défini
+          return (!start || raceDate >= start) && (!end || raceDate <= end);
+        });
+      }
+  
+      this.userRaces = filtered;
+      this.cdr.detectChanges(); // Met à jour l'affichage si nécessaire
   }
+  
 
   resetDateFilters(): void {
     this.startDate = '';

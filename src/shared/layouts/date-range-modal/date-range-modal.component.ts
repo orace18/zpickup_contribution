@@ -13,7 +13,7 @@ declare var bootstrap: any;
 export class DateRangeModalComponent implements AfterViewInit, OnDestroy {
 
   @Output() dateRangeSelected = new EventEmitter<{startDate: string, endDate: string}>();
-  
+  today: string = new Date().toISOString().split('T')[0];
   dateForm: FormGroup;
   private modalInstance: any;
 

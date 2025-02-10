@@ -32,6 +32,7 @@ export class GainsComponent implements OnInit {
   originalData: GainHistory[] = [];
   private modalRef: NgbModalRef | null = null;
   private gainsSubject = new BehaviorSubject<GainHistory[]>([]);
+  today: string = new Date().toISOString().split('T')[0];
 
   @ViewChild('periodModal') periodModal!: ElementRef;
 

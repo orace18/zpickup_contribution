@@ -15,6 +15,7 @@
                 type="date"
                 formControlName="startDate"
                 class="form-control"
+                [max]="today"
               >
               <div class="invalid-feedback" *ngIf="dateForm.get('startDate')?.errors?.['required'] && dateForm.get('startDate')?.touched">
                 La date de début est requise
@@ -28,6 +29,7 @@
                 type="date"
                 formControlName="endDate"
                 class="form-control"
+                [max]="today"
               >
               <div class="invalid-feedback" *ngIf="dateForm.get('endDate')?.errors?.['required'] && dateForm.get('endDate')?.touched">
                 La date de fin est requise
