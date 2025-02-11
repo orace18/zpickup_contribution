@@ -1,1 +1,46 @@
-<p>configs works!</p>
+<div class="container my-4">
+    <div class="config-item mb-3" *ngFor="let config of configs; let i = index">
+      <div class="config-header" 
+           [class.active]="selectedIndex === i"
+           (click)="toggleItem(i)">
+        <h3>{{ config.description }}</h3>
+        <span class="arrow">▼</span>
+      </div>
+      
+      <div class="config-content" [class.show]="selectedIndex === i">
+        <div [ngSwitch]="config.type" class="form-group">
+          <!-- Type string -->
+          <input *ngSwitchCase="'string'"
+                 type="text"
+                 class="form-control"
+                 [value]="config.value"
+                 >
+
+          <!-- Type number -->
+          <input *ngSwitchCase="'number'"
+                 type="number"
+                 class="form-control"
+                 [value]="config.value"
+                 >
+
+          <!-- Type boolean -->
+          <div *ngSwitchCase="'boolean'" class="form-check">
+            <input type="checkbox"
+                   class="form-check-input"
+                   [checked]="config.value === 'true'"
+                   disabled>
+            <label class="form-check-label">
+              {{ config.value }}
+            </label>
+          </div>
+
+          <!-- Type par défaut -->
+          <input *ngSwitchDefault
+                 type="text"
+                 class="form-control"
+                 [value]="config.value"
+                 >
+        </div>
+      </div>
+    </div>
+  </div>
