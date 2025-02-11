@@ -1,21 +1,20 @@
-<div class="aside" id="kt_aside" [class.collapsed]="isCollapsed" data-kt-drawer="true" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-direction="start">
- 
+<div class="aside" id="kt_aside" [class.collapsed]="isCollapsed" data-kt-drawer="true"
+  data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-direction="start">
+
   <div class="aside-logo flex-column-auto px-10 pt-9 pb-5" id="kt_aside_logo">
     <a href="/dashboard">
-      <img src="/assets/media/publics/logo/logo_light.svg"
-           alt="Logo"
-           class="max-h-50px"
-           [ngClass]="{
+      <img src="/assets/media/publics/logo/logo_light.svg" alt="Logo" class="max-h-50px" [ngClass]="{
              'logo-default theme-light-show': !isDarkMode,
              'logo-default theme-dark-show': isDarkMode
            }" />
     </a>
-</div>
+  </div>
 
   <!-- Menu -->
   <div class="aside-menu flex-column-fluid ps-3 pe-1">
-    
-    <div class="menu menu-sub-indention menu-column menu-rounded menu-title-gray-600 menu-icon-gray-400 menu-active-bg menu-state-primary menu-arrow-gray-500 fw-semibold fs-6 my-5 mt-lg-2 mb-lg-0">
+
+    <div
+      class="menu menu-sub-indention menu-column menu-rounded menu-title-gray-600 menu-icon-gray-400 menu-active-bg menu-state-primary menu-arrow-gray-500 fw-semibold fs-6 my-5 mt-lg-2 mb-lg-0">
       <div class="hover-scroll-y mx-4">
 
         <!-- Tableau de bord -->
@@ -36,12 +35,12 @@
         <!-- Cartes -->
         <div class="menu-item" *ngIf="authService.hasPermission('view_cartes')">
           <a class="menu-link" routerLink="/cartes" routerLinkActive="active">
-    <span class="menu-icon">
-      <i class="ki-duotone ki-map fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-      </i>
-    </span>
+            <span class="menu-icon">
+              <i class="ki-duotone ki-map fs-2">
+                <span class="path1"></span>
+                <span class="path2"></span>
+              </i>
+            </span>
             <span class="menu-title">Cartes en temps réel</span>
           </a>
         </div>
@@ -49,173 +48,231 @@
         <!-- Utilisateurs -->
         <div class="menu-item" *ngIf="authService.hasPermission('view_users')">
           <a class="menu-link" routerLink="/users" routerLinkActive="active">
-    <span class="menu-icon">
-      <i class="ki-duotone ki-user fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-        <span class="path3"></span>
-      </i>
-    </span>
+            <span class="menu-icon">
+              <i class="ki-duotone ki-user fs-2">
+                <span class="path1"></span>
+                <span class="path2"></span>
+                <span class="path3"></span>
+              </i>
+            </span>
             <span class="menu-title">Utilisateurs</span>
           </a>
         </div>
 
         <!-- Gestion Finance -->
-        <div class="menu-item menu-accordion" data-kt-menu-trigger="click" 
-        *ngIf="authService.hasPermission('view_finances')"
-        [ngClass]="{'hover show': isMenuExpanded('finance')}">
-     <span class="menu-link" (click)="toggleMenu('finance')">
-       <span class="menu-icon">
-         <i class="ki-duotone ki-dollar fs-2">
-           <span class="path1"></span>
-           <span class="path2"></span>
-         </i>
-       </span>
-       <span class="menu-title">Gestion Finance</span>
-       <span class="menu-arrow" [ngClass]="{'active': isMenuExpanded('finance')}"></span>
-     </span>
-   
-     <div class="menu-sub menu-sub-accordion" [ngClass]="{'show': isMenuExpanded('finance')}">
-       
-      <!-- Gains -->
-<div class="menu-item" *ngIf="authService.hasPermission('view_gains')">
-  <a class="menu-link" routerLink="/finance/gains" routerLinkActive="active">
-    <span class="menu-bullet">
-      <i class="ki-duotone ki-wallet fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-      </i>
-    </span>
-    <span class="menu-title">Gains</span>
-  </a>
-</div>
+        <div class="menu-item menu-accordion" data-kt-menu-trigger="click"
+          *ngIf="authService.hasPermission('view_finances')" [ngClass]="{'hover show': isMenuExpanded('finance')}">
+          <span class="menu-link" (click)="toggleMenu('finance')">
+            <span class="menu-icon">
+              <i class="ki-duotone ki-dollar fs-2">
+                <span class="path1"></span>
+                <span class="path2"></span>
+              </i>
+            </span>
+            <span class="menu-title">Gestion Finance</span>
+            <span class="menu-arrow" [ngClass]="{'active': isMenuExpanded('finance')}"></span>
+          </span>
 
-<!-- Courses -->
-<div class="menu-item" *ngIf="authService.hasPermission('view_courses')">
-  <a class="menu-link" routerLink="/finance/courses" routerLinkActive="active">
-    <span class="menu-bullet">
-      <i class="ki-duotone ki-basket fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-        
-      </i>
-    </span>
-    <span class="menu-title">Courses</span>
-  </a>
-</div>
-   </div>
-        <!-- Rôles -->
-        <div class="menu-item" *ngIf="authService.hasPermission('manage_roles')">
-          <a class="menu-link" routerLink="/roles" routerLinkActive="active">
-    <span class="menu-icon">
-      <i class="ki-duotone ki-shield-tick fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-      </i>
-    </span>
-            <span class="menu-title">Rôles</span>
-          </a>
-        </div>
+          <div class="menu-sub menu-sub-accordion" [ngClass]="{'show': isMenuExpanded('finance')}">
 
-        <!-- Tickets -->
-        <div class="menu-item" *ngIf="authService.hasPermission('view_tickets')">
-          <a class="menu-link" routerLink="/tickets" routerLinkActive="active">
-    <span class="menu-icon">
-      <i class="ki-duotone ki-ticket fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-      </i>
-    </span>
-            <span class="menu-title">Tickets</span>
-          </a>
-        </div>
+            <!-- Gains -->
+            <div class="menu-item" *ngIf="authService.hasPermission('view_gains')">
+              <a class="menu-link" routerLink="/finance/gains" routerLinkActive="active">
+                <span class="menu-bullet">
+                  <i class="ki-duotone ki-wallet fs-2">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                  </i>
+                </span>
+                <span class="menu-title">Gains</span>
+              </a>
+            </div>
 
-        <!-- Chats -->
-        <div class="menu-item" *ngIf="authService.hasPermission('view_chat')">
-          <a class="menu-link" routerLink="/chats" routerLinkActive="active">
-    <span class="menu-icon">
-      <i class="ki-duotone ki-message-text fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-      </i>
-    </span>
-            <span class="menu-title">Chats</span>
-          </a>
-        </div>
+            <!-- Courses -->
+            <div class="menu-item" *ngIf="authService.hasPermission('view_courses')">
+              <a class="menu-link" routerLink="/finance/courses" routerLinkActive="active">
+                <span class="menu-bullet">
+                  <i class="ki-duotone ki-basket fs-2">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
 
-        <!-- Assureurs -->
-        <div class="menu-item" *ngIf="authService.hasPermission('view_assureurs')">
-          <a class="menu-link" routerLink="/assureurs" routerLinkActive="active">
-    <span class="menu-icon">
-      <i class="ki-duotone ki-shield-security fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-      </i>
-    </span>
-            <span class="menu-title">Assureurs</span>
-          </a>
-        </div>
-
-        <!-- Statistiques -->
-        <div class="menu-item" *ngIf="authService.hasPermission('view_statistics')">
-          <a class="menu-link" routerLink="/statistiques" routerLinkActive="active">
-    <span class="menu-icon">
-      <i class="ki-duotone ki-chart-line fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-      </i>
-    </span>
-            <span class="menu-title">Statistiques</span>
-          </a>
-        </div>
-
-        <!-- Paramètres -->
-        <div class="menu-item" *ngIf="authService.hasPermission('manage_settings')">
-          <a class="menu-link" routerLink="/settings" routerLinkActive="active">
-    <span class="menu-icon">
-      <i class="ki-duotone ki-setting-2 fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-      </i>
-    </span>
-            <span class="menu-title">Paramètres</span>
-          </a>
-        </div>
-
-        <!-- FAQs -->
-        <div class="menu-item">
-          <a class="menu-link" routerLink="/faqs" routerLinkActive="active">
-    <span class="menu-icon">
-      <i class="ki-duotone ki-information fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-      </i>
-    </span>
-            <span class="menu-title">FAQs</span>
-          </a>
-        </div>
-
-        <!-- Separator -->
-        <div class="menu-item">
-          <div class="menu-content">
-            <div class="separator mx-1 my-4"></div>
+                  </i>
+                </span>
+                <span class="menu-title">Courses</span>
+              </a>
+            </div>
           </div>
+          <!-- Rôles -->
+          <div class="menu-item" *ngIf="authService.hasPermission('manage_roles')">
+            <a class="menu-link" routerLink="/roles" routerLinkActive="active">
+              <span class="menu-icon">
+                <i class="ki-duotone ki-shield-tick fs-2">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                </i>
+              </span>
+              <span class="menu-title">Rôles</span>
+            </a>
+          </div>
+
+          <!-- Tickets -->
+          <div class="menu-item" *ngIf="authService.hasPermission('view_tickets')">
+            <a class="menu-link" routerLink="/tickets" routerLinkActive="active">
+              <span class="menu-icon">
+                <i class="ki-duotone ki-ticket fs-2">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                </i>
+              </span>
+              <span class="menu-title">Tickets</span>
+            </a>
+          </div>
+
+          <!-- Chats -->
+          <div class="menu-item" *ngIf="authService.hasPermission('view_chat')">
+            <a class="menu-link" routerLink="/chats" routerLinkActive="active">
+              <span class="menu-icon">
+                <i class="ki-duotone ki-message-text fs-2">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                </i>
+              </span>
+              <span class="menu-title">Chats</span>
+            </a>
+          </div>
+
+          <!-- Assureurs -->
+          <div class="menu-item" *ngIf="authService.hasPermission('view_assureurs')">
+            <a class="menu-link" routerLink="/assureurs" routerLinkActive="active">
+              <span class="menu-icon">
+                <i class="ki-duotone ki-shield-security fs-2">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                </i>
+              </span>
+              <span class="menu-title">Assureurs</span>
+            </a>
+          </div>
+
+          <!-- Statistiques -->
+          <div class="menu-item" *ngIf="authService.hasPermission('view_statistics')">
+            <a class="menu-link" routerLink="/statistiques" routerLinkActive="active">
+              <span class="menu-icon">
+                <i class="ki-duotone ki-chart-line fs-2">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                </i>
+              </span>
+              <span class="menu-title">Statistiques</span>
+            </a>
+          </div>
+
+          <!-- Paramètres -->
+          <div class="menu-item" *ngIf="authService.hasPermission('manage_settings')">
+            <a class="menu-link" routerLink="/settings" routerLinkActive="active">
+              <span class="menu-icon">
+                <i class="ki-duotone ki-setting-2 fs-2">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                </i>
+              </span>
+              <span class="menu-title">Paramètres</span>
+            </a>
+          </div>
+
+          <!-- FAQs -->
+          <div class="menu-item">
+            <a class="menu-link" routerLink="/faqs" routerLinkActive="active">
+              <span class="menu-icon">
+                <i class="ki-duotone ki-information fs-2">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                </i>
+              </span>
+              <span class="menu-title">FAQs</span>
+            </a>
+          </div>
+
+          <div class="menu-item menu-accordion" data-kt-menu-trigger="click"
+          *ngIf="authService.hasPermission('view_finances')" [ngClass]="{'hover show': isMenuExpanded('parametre')}">
+          <span class="menu-link" (click)="toggleMenu('parametre')">
+            <span class="menu-icon">
+              <i class="ki-duotone ki-setting-2 fs-2">
+                <span class="path1"></span>
+                <span class="path2"></span>
+              </i>
+            </span>
+            <span class="menu-title">Paramètre</span>
+            <span class="menu-arrow" [ngClass]="{'active': isMenuExpanded('finance')}"></span>
+          </span>
+
+          <div class="menu-sub menu-sub-accordion" [ngClass]="{'show': isMenuExpanded('finance')}">
+
+            <!-- Gains -->
+            <div class="menu-item" *ngIf="authService.hasPermission('view_gains')">
+              <a class="menu-link" routerLink="/parametre/cgus" routerLinkActive="active">
+                <span class="menu-bullet">
+                  <i class="ki-duotone ki-chart-line fs-2">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                  </i>
+                </span>
+                <span class="menu-title">CGU</span>
+              </a>
+            </div>
+
+            <!-- Courses -->
+            <div class="menu-item" *ngIf="authService.hasPermission('view_courses')">
+              <a class="menu-link" routerLink="/parametre/configs" routerLinkActive="active">
+                <span class="menu-bullet">
+                  <i class="ki-duotone ki-basket fs-2">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+
+                  </i>
+                </span>
+                <span class="menu-title">Configurations</span>
+              </a>
+            </div>
+
+            <div class="menu-item" *ngIf="authService.hasPermission('view_courses')">
+              <a class="menu-link" routerLink="/parametre/confidentialite" routerLinkActive="active">
+                <span class="menu-bullet">
+                  <i class="ki-duotone ki-setting-2 fs-2">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+
+                  </i>
+                </span>
+                <span class="menu-title">Confidentialites</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Separator -->
+          <div class="menu-item">
+            <div class="menu-content">
+              <div class="separator mx-1 my-4"></div>
+            </div>
+          </div>
+
+          <!-- Déconnexion -->
+          <div class="menu-item">
+            <a class="menu-link" (click)="deconnexion()" style="cursor: pointer;">
+              <span class="menu-icon">
+                <i class="ki-duotone ki-exit-right fs-2">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                </i>
+              </span>
+              <span class="menu-title">Déconnexion</span>
+            </a>
+          </div>
+
         </div>
 
-        <!-- Déconnexion -->
-        <div class="menu-item">
-          <a class="menu-link" (click)="deconnexion()" style="cursor: pointer;">
-    <span class="menu-icon">
-      <i class="ki-duotone ki-exit-right fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-      </i>
-    </span>
-            <span class="menu-title">Déconnexion</span>
-          </a>
-        </div>
-
+        <!-- Paramètres nouveau -->
+         
       </div>
     </div>
   </div>
-</div>

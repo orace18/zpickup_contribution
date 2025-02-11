@@ -16,19 +16,22 @@
             "outputPath": "dist/zpickup_admin",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
                 "glob": "**/*",
                 "input": "src/app/features/dashboard/pages/assets",
                 "output": "/assets"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/tinymce",
+                "output": "/tinymce/"
               }
             ],
             "styles": [
-             "node_modules/ngx-toastr/toastr.css",
+              "node_modules/ngx-toastr/toastr.css",
               "src/app/features/dashboard/pages/assets/css/style.bundle.css",
               "src/app/features/dashboard/pages/assets/plugins/custom/datatables/datatables.bundle.css",
               "src/styles.css"
@@ -98,10 +101,7 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               {

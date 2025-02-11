@@ -110,6 +110,31 @@ export const routes: Routes = [
           .then(m => m.FaqsComponent),
         data: { permission: 'manage_faqs' }
       },
+      {
+        path: 'parametre',
+        data: { permission: 'view_finances' },
+        children: [
+          {
+            path: 'cgus',
+            loadComponent: () => import('./features/dashboard/pages/cgus/cgus.component')
+              .then(m => m.CgusComponent),
+            data: { permission: 'view_gains' }
+          },
+          {
+            path: 'configs',
+            loadComponent: () => import('./features/dashboard/pages/configs/configs.component')
+              .then(m => m.ConfigsComponent),
+            data: { permission: 'view_courses' }
+          }
+          ,
+          {
+            path: 'confidentialite',
+            loadComponent: () => import('./features/dashboard/pages/confidentialite/confidentialite.component')
+              .then(m => m.ConfidentialiteComponent),
+            data: { permission: 'view_courses' }
+          }
+        ]
+      },
       { path: 'access-denied', component: PermissionDeniedComponent },
     ]
   },

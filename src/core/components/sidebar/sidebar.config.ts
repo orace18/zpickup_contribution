@@ -75,5 +75,28 @@ export const MENU_CONFIG = {
       title: 'FAQs',
       permission: 'manage_faqs'
     }
+    ,
+    {
+      route: '/parametre',
+      title: 'Paramèrtes',
+      permission: 'view_finances',
+      children: [
+        {
+          route: '/parametre/cgus',
+          title: 'CGUs',
+          permission: 'view_gains'
+        },
+        {
+          route: '/parametre/configs',
+          title: 'Configurations',
+          permission: 'view_courses'
+        },
+        {
+          route: '/parametre/confidentialite',
+          title: 'Rapports financiers',
+          permission: 'view_courses'
+        }
+      ]
+    },
   ]
 };
