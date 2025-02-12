@@ -14,4 +14,8 @@ export class ConfigService {
         return this.http.get<Config>(this.apiUrl);
     }
 
+    updateConfig(id: string, config: Partial<Config>) {
+        return this.http.patch<Config>(`${this.apiUrl}/${id}`, config);
+      }
+
 }

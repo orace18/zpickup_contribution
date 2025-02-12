@@ -115,8 +115,8 @@ export const routes: Routes = [
         data: { permission: 'view_finances' },
         children: [
           {
-            path: 'cgus',
-            loadComponent: () => import('./features/dashboard/pages/cgus/cgus.component')
+            path: 'politique',
+            loadComponent: () => import('./features/dashboard/pages/cgus/private_polity.component')
               .then(m => m.CgusComponent),
             data: { permission: 'view_gains' }
           },
@@ -128,8 +128,8 @@ export const routes: Routes = [
           }
           ,
           {
-            path: 'confidentialite',
-            loadComponent: () => import('./features/dashboard/pages/confidentialite/confidentialite.component')
+            path: 'cgus',
+            loadComponent: () => import('./features/dashboard/pages/terms_condition/terms_condition.component')
               .then(m => m.ConfidentialiteComponent),
             data: { permission: 'view_courses' }
           }

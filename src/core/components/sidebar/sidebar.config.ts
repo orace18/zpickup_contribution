@@ -82,8 +82,8 @@ export const MENU_CONFIG = {
       permission: 'view_finances',
       children: [
         {
-          route: '/parametre/cgus',
-          title: 'CGUs',
+          route: '/parametre/politique',
+          title: 'Politique d\'utilisation',
           permission: 'view_gains'
         },
         {
@@ -92,8 +92,8 @@ export const MENU_CONFIG = {
           permission: 'view_courses'
         },
         {
-          route: '/parametre/confidentialite',
-          title: 'Rapports financiers',
+          route: '/parametre/cgus',
+          title: 'CGUs',
           permission: 'view_courses'
         }
       ]

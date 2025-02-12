@@ -210,14 +210,14 @@
 
             <!-- Gains -->
             <div class="menu-item" *ngIf="authService.hasPermission('view_gains')">
-              <a class="menu-link" routerLink="/parametre/cgus" routerLinkActive="active">
+              <a class="menu-link" routerLink="/parametre/politique" routerLinkActive="active">
                 <span class="menu-bullet">
                   <i class="ki-duotone ki-chart-line fs-2">
                     <span class="path1"></span>
                     <span class="path2"></span>
                   </i>
                 </span>
-                <span class="menu-title">CGU</span>
+                <span class="menu-title">Politique d'utilisation</span>
               </a>
             </div>
 
@@ -236,7 +236,7 @@
             </div>
 
             <div class="menu-item" *ngIf="authService.hasPermission('view_courses')">
-              <a class="menu-link" routerLink="/parametre/confidentialite" routerLinkActive="active">
+              <a class="menu-link" routerLink="/parametre/cgus" routerLinkActive="active">
                 <span class="menu-bullet">
                   <i class="ki-duotone ki-setting-2 fs-2">
                     <span class="path1"></span>
@@ -244,7 +244,7 @@
 
                   </i>
                 </span>
-                <span class="menu-title">Confidentialites</span>
+                <span class="menu-title">CGUs</span>
               </a>
             </div>
           </div>

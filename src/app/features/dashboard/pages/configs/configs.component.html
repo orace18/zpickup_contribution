@@ -1,46 +1,57 @@
+<!-- configs.component.html -->
 <div class="container my-4">
-    <div class="config-item mb-3" *ngFor="let config of configs; let i = index">
-      <div class="config-header" 
-           [class.active]="selectedIndex === i"
-           (click)="toggleItem(i)">
-        <h3>{{ config.description }}</h3>
-        <span class="arrow">▼</span>
+  <div class="config-item mb-3" *ngFor="let config of configs; let i = index">
+    <div class="config-header" 
+         [class.active]="selectedIndex === i"
+         (click)="toggleItem(i)">
+      <h3>{{ config.description }}</h3>
+      <span class="arrow">▼</span>
+    </div>
+    
+    <div class="config-content" [class.show]="selectedIndex === i">
+      <div [ngSwitch]="config.type" class="form-group">
+        <!-- Type string -->
+        <input *ngSwitchCase="'string'"
+               type="text"
+               class="form-control"
+               [(ngModel)]="config.value"
+               (ngModelChange)="onValueChange(i, $event)">
+
+        <!-- Type number -->
+        <input *ngSwitchCase="'number'"
+               type="number"
+               class="form-control"
+               [(ngModel)]="config.value"
+               (ngModelChange)="onValueChange(i, $event)">
+
+        <!-- Type boolean -->
+        <div *ngSwitchCase="'boolean'" class="form-check">
+          <input type="checkbox"
+                 class="form-check-input"
+                 [(ngModel)]="config.value"
+                 (ngModelChange)="onValueChange(i, $event)">
+          <label class="form-check-label">
+            {{ config.value }}
+          </label>
+        </div>
+
+        <!-- Type par défaut -->
+        <input *ngSwitchDefault
+               type="text"
+               class="form-control"
+               [(ngModel)]="config.value"
+               (ngModelChange)="onValueChange(i, $event)">
       </div>
       
-      <div class="config-content" [class.show]="selectedIndex === i">
-        <div [ngSwitch]="config.type" class="form-group">
-          <!-- Type string -->
-          <input *ngSwitchCase="'string'"
-                 type="text"
-                 class="form-control"
-                 [value]="config.value"
-                 >
-
-          <!-- Type number -->
-          <input *ngSwitchCase="'number'"
-                 type="number"
-                 class="form-control"
-                 [value]="config.value"
-                 >
-
-          <!-- Type boolean -->
-          <div *ngSwitchCase="'boolean'" class="form-check">
-            <input type="checkbox"
-                   class="form-check-input"
-                   [checked]="config.value === 'true'"
-                   disabled>
-            <label class="form-check-label">
-              {{ config.value }}
-            </label>
-          </div>
-
-          <!-- Type par défaut -->
-          <input *ngSwitchDefault
-                 type="text"
-                 class="form-control"
-                 [value]="config.value"
-                 >
-        </div>
+      <!-- Boutons qui apparaissent uniquement si modifié -->
+      <div class="mt-3" *ngIf="config.isDirty">
+        <button class="btn btn-primary" (click)="saveConfig(i)">
+          Enregistrer
+        </button>
+        <button class="btn btn-secondary ms-2" (click)="resetConfig(i)">
+          Annuler
+        </button>
       </div>
     </div>
   </div>
+</div>

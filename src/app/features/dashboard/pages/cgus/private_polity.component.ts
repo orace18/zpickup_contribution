@@ -1,7 +1,7 @@
-import { PrivacyPolicyService } from './services/cgu.service';
+import { PrivacyPolicyService } from './services/private_polity.service';
 import { Component, NgModule, OnDestroy, OnInit } from '@angular/core';
 import { TINYMCE_SCRIPT_SRC } from '@tinymce/tinymce-angular';
-import { PrivacyPolicy } from './models/cgu.model';
+import { PrivacyPolicy } from './models/private_polity.model';
 import { CommonModule } from '@angular/common';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { environment } from '../../../../../environments/environment';
@@ -15,8 +15,8 @@ import { ToastrService } from 'ngx-toastr';
   selector: 'app-cgus',
   imports: [CommonModule, EditorModule, HttpClientModule, FormsModule],
   standalone: true,
-  templateUrl: './cgus.component.html',
-  styleUrl: './cgus.component.css',
+  templateUrl: './private_polity.component.html',
+  styleUrl: './private_polity.component.css',
   providers: [
     { provide: TINYMCE_SCRIPT_SRC, useValue: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js' }
   ]

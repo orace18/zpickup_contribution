@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CgusComponent } from './cgus.component';
+import { ConfidentialiteComponent } from './terms_condition.component';
 
-describe('CgusComponent', () => {
-  let component: CgusComponent;
-  let fixture: ComponentFixture<CgusComponent>;
+describe('ConfidentialiteComponent', () => {
+  let component: ConfidentialiteComponent;
+  let fixture: ComponentFixture<ConfidentialiteComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CgusComponent]
+      imports: [ConfidentialiteComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CgusComponent);
+    fixture = TestBed.createComponent(ConfidentialiteComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
