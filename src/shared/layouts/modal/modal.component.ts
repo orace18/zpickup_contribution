@@ -1,3 +1,4 @@
+// modal.component.ts
 import { Component, HostListener } from '@angular/core';
 import { UserData } from './models/userdata.model';
 import { AuthService } from '../../../core/services/auth.service';
@@ -8,16 +9,16 @@ import { ToastrService } from 'ngx-toastr';
   selector: 'app-modal',
   imports: [],
   templateUrl: './modal.component.html',
-  styleUrl: './modal.component.css'
+  styleUrls: ['./modal.component.css']
 })
 export class ModalComponent {
-  constructor(private authService: AuthService,
+  constructor(
+    private authService: AuthService,
     private router: Router,
     private toast: ToastrService
   ) { }
 
   isOpen = false;
-  userImage = '../assets/media/avatars/300-1.jpg';
   userData: UserData | null = null;
 
   ngOnInit() {
@@ -32,11 +33,27 @@ export class ModalComponent {
     const userString = localStorage.getItem('currentUser');
     if (userString) {
       this.userData = JSON.parse(userString);
-     // console.log("Données utilisateur chargées:", this.userData);
     }
   }
 
-  
+  getInitials(): string {
+    if (!this.userData?.user) return '';
+    const firstname = this.userData.user.firstname || '';
+    const lastname = this.userData.user.lastname || '';
+    return `${firstname[0] || ''}${lastname[0] || ''}`.toUpperCase();
+  }
+
+  getInitialsBackground(): string {
+    // Générer une couleur aléatoire mais cohérente pour un utilisateur
+    const str = this.userData?.user?._id || '';
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = hash % 360;
+    return `hsl(${hue}, 70%, 60%)`; // Utilise HSL pour une couleur vibrante
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     if (!(event.target as Element).closest('.position-relative')) {
@@ -58,5 +75,4 @@ export class ModalComponent {
       }
     });
   }
-
 }

@@ -1,54 +1,23 @@
-.config-item {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
-  }
+.card-header {
+  transition: background-color 0.3s ease;
+}
 
-  .config-header {
-    background: #f8f9fa;
-    padding: 15px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background-color 0.3s;
-  }
+.card-header:hover {
+  background-color: #f8f9fa !important;
+}
 
-  .config-header:hover {
-    background: #e9ecef;
-  }
+.collapse {
+  transition: all 0.3s ease;
+}
 
-  .config-header h3 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 500;
-  }
+.form-control:focus, 
+.form-check-input:focus {
+  box-shadow: none;
+  border-color: #0d6efd;
+}
 
-  .config-header .arrow {
-    transition: transform 0.3s;
-  }
-
-  .config-header.active .arrow {
-    transform: rotate(180deg);
-  }
-
-  .config-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-    background: white;
-  }
-
-  .config-content.show {
-    max-height: 200px;
-    padding: 15px;
-  }
-
-  .form-control {
-    background-color: #f8f9fa;
-  }
-
-  .form-control:read-only {
-    background-color: #f8f9fa;
-    opacity: 0.8;
-  }
+.form-switch .form-check-input {
+  width: 3em;
+  height: 1.5em;
+  cursor: pointer;
+}

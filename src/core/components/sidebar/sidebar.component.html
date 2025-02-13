@@ -194,7 +194,7 @@
           </div>
 
           <div class="menu-item menu-accordion" data-kt-menu-trigger="click"
-          *ngIf="authService.hasPermission('view_finances')" [ngClass]="{'hover show': isMenuExpanded('parametre')}">
+          *ngIf="authService.hasPermission('manage_settings')" [ngClass]="{'hover show': isMenuExpanded('parametre')}">
           <span class="menu-link" (click)="toggleMenu('parametre')">
             <span class="menu-icon">
               <i class="ki-duotone ki-setting-2 fs-2">
@@ -203,16 +203,16 @@
               </i>
             </span>
             <span class="menu-title">Paramètre</span>
-            <span class="menu-arrow" [ngClass]="{'active': isMenuExpanded('finance')}"></span>
+            <span class="menu-arrow" [ngClass]="{'active': isMenuExpanded('parametre')}"></span>
           </span>
 
-          <div class="menu-sub menu-sub-accordion" [ngClass]="{'show': isMenuExpanded('finance')}">
+          <div class="menu-sub menu-sub-accordion" [ngClass]="{'show': isMenuExpanded('parametre')}">
 
             <!-- Gains -->
-            <div class="menu-item" *ngIf="authService.hasPermission('view_gains')">
+            <div class="menu-item" *ngIf="authService.hasPermission('view_policy')">
               <a class="menu-link" routerLink="/parametre/politique" routerLinkActive="active">
                 <span class="menu-bullet">
-                  <i class="ki-duotone ki-chart-line fs-2">
+                  <i class="bi bi-shield-check fs-2">
                     <span class="path1"></span>
                     <span class="path2"></span>
                   </i>
@@ -222,10 +222,10 @@
             </div>
 
             <!-- Courses -->
-            <div class="menu-item" *ngIf="authService.hasPermission('view_courses')">
+            <div class="menu-item" *ngIf="authService.hasPermission('view_configs')">
               <a class="menu-link" routerLink="/parametre/configs" routerLinkActive="active">
                 <span class="menu-bullet">
-                  <i class="ki-duotone ki-basket fs-2">
+                  <i class="bi bi-wrench fs-2">
                     <span class="path1"></span>
                     <span class="path2"></span>
 
@@ -235,10 +235,10 @@
               </a>
             </div>
 
-            <div class="menu-item" *ngIf="authService.hasPermission('view_courses')">
+            <div class="menu-item" *ngIf="authService.hasPermission('view_cgu')">
               <a class="menu-link" routerLink="/parametre/cgus" routerLinkActive="active">
                 <span class="menu-bullet">
-                  <i class="ki-duotone ki-setting-2 fs-2">
+                  <i class="bi bi-gear-wide-connected fs-2">
                     <span class="path1"></span>
                     <span class="path2"></span>
 

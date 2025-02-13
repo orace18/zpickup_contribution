@@ -59,45 +59,63 @@
     {{ error }}
   </div>
 
-  <table *ngIf="!isLoading && !error" class="table table-striped table-hover">
-    <thead class="table-light">
-      <tr>
-        <th>N</th>
-        <th>Statut</th>
-        <th>Rue</th>
-        <th>Localité</th>
-        <th>Date</th>
-        <th>Pays</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let history of raceHistories; let i = index">
-        <td>{{ i + 1 }}</td>
-        <td>
-          <span class="badge" 
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-0 py-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0 fw-bold">Historique des courses</h5>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <p-table 
+        [value]="raceHistories" 
+        [paginator]="false" 
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+        [rowsPerPageOptions]="[10,25,50]"
+        styleClass="p-datatable-striped">
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="fw-bold text-primary p-3">N°</th>
+            <th class="fw-bold text-primary p-3">Statut</th>
+            <th class="fw-bold text-primary p-3">Rue</th>
+            <th class="fw-bold text-primary p-3">Localité</th>
+            <th class="fw-bold text-primary p-3">Date</th>
+            <th class="fw-bold text-primary p-3">Pays</th>
+            <th class="fw-bold text-primary p-3">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-history let-i="rowIndex">
+          <tr>
+            <td class="p-3">{{ i + 1 }}</td>
+            <td class="p-3">
+              <span class="badge"
                 [ngClass]="{
-                  'badge-light-success': history.status === 'accepted', 
+                  'badge-light-success': history.status === 'accepted',
                   'badge-light-warning': history.status === 'pending',
-                  'badge-light-danger': history.status === 'rejected',
+                  'badge-light-danger': history.status === 'stoped',
                   'badge-light-primary': history.status === 'start'
                 }">
-            {{ getLabel(history.status) }}
-          </span>
-        </td>
-        <td>{{ history.street }}</td>
-        <td>{{ history.locality }}</td>
-        <td>{{ history.created_at }}</td>
-        <td>{{ history.country }}</td>
-        <td>
-          <button class="btn btn-primary btn-sm" (click)="selectedRace = history.race; openModal(historyModal)">
-            Détails
-            <i class="bi bi-info-circle ms-1"></i>
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+                {{ getLabel(history.status) }}
+              </span>
+            </td>
+            <td class="p-3">{{ history.street }}</td>
+            <td class="p-3">{{ history.locality }}</td>
+            <td class="p-3">{{ history.created_at | date:'dd MMMM yyyy' }} à {{ history.created_at | date:'HH:mm'}}</td>
+            <td class="p-3">{{ history.country }}</td>
+            <td class="p-3">
+              <button pButton 
+                class="btn btn-primary " 
+                (click)="selectedRace = history.race; openModal(historyModal)">
+                Détails
+                <i class="bi bi-info-circle ms-1"></i>
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
 
   <!-- Composant de détails conditionnel -->
    <ng-template #historyModal let-moda>

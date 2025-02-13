@@ -8,11 +8,12 @@ import { FormsModule } from '@angular/forms';
 import { jsPDF } from "jspdf";
 import  'jspdf-autotable';
 import { map } from 'rxjs';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-courses',
   standalone: true,
-  imports: [CommonModule, NgbModule, NgbModalModule ,FormsModule, DetailsComponentComponent],
+  imports: [CommonModule, NgbModule, NgbModalModule ,FormsModule, DetailsComponentComponent, TableModule],
   templateUrl: './courses.component.html',
   styleUrl: './courses.component.css'
 })

@@ -1,22 +1,39 @@
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    background: white;
-    border-radius: 0.475rem;
-    box-shadow: 0 0 50px 0 rgba(82, 63, 105, 0.15);
-    border: 0;
-    z-index: 1000;
-  }
-  
-  .dropdown-menu.show {
-    display: block;
-  }
+/* modal.component.css */
+.initials-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
 
-  .nav-link {
-    color: #181C32;
-    transition: color 0.2s ease;
-  }
+.dropdown-menu .initials-avatar {
+  width: 40px;
+  height: 40px;
+}
 
-  .nav-link:hover {
-    color: #009EF7;
-  }
+.menu-link {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.menu-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.menu-icon {
+  margin-right: 0.75rem;
+}
+
+.menu-title {
+  flex-grow: 1;
+}

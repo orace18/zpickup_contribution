@@ -1,56 +1,102 @@
-<!-- configs.component.html -->
-<div class="container my-4">
-  <div class="config-item mb-3" *ngFor="let config of configs; let i = index">
-    <div class="config-header" 
-         [class.active]="selectedIndex === i"
-         (click)="toggleItem(i)">
-      <h3>{{ config.description }}</h3>
-      <span class="arrow">▼</span>
-    </div>
-    
-    <div class="config-content" [class.show]="selectedIndex === i">
-      <div [ngSwitch]="config.type" class="form-group">
-        <!-- Type string -->
-        <input *ngSwitchCase="'string'"
-               type="text"
-               class="form-control"
-               [(ngModel)]="config.value"
-               (ngModelChange)="onValueChange(i, $event)">
-
-        <!-- Type number -->
-        <input *ngSwitchCase="'number'"
-               type="number"
-               class="form-control"
-               [(ngModel)]="config.value"
-               (ngModelChange)="onValueChange(i, $event)">
-
-        <!-- Type boolean -->
-        <div *ngSwitchCase="'boolean'" class="form-check">
-          <input type="checkbox"
-                 class="form-check-input"
-                 [(ngModel)]="config.value"
-                 (ngModelChange)="onValueChange(i, $event)">
-          <label class="form-check-label">
-            {{ config.value }}
-          </label>
+<div class="container my-5">
+  <div class="accordion" id="configAccordion">
+    <div class="card border-0 shadow-sm mb-3 rounded-3" *ngFor="let config of configs; let i = index">
+      <!-- En-tête de l'accordéon -->
+      <div class="card-header bg-white border-0 py-3" 
+           [id]="'heading' + i"
+           [class.active]="selectedIndex === i"
+           (click)="toggleItem(i)"
+           style="cursor: pointer;">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <!-- <i class="bi bi-gear-fill text-primary me-3"></i> -->
+            <h5 class="mb-0 fw-semibold text-dark">{{ config.description }}</h5>
+          </div>
+          <i class="bi" 
+             [class.bi-chevron-down]="selectedIndex !== i"
+             [class.bi-chevron-up]="selectedIndex === i"></i>
         </div>
-
-        <!-- Type par défaut -->
-        <input *ngSwitchDefault
-               type="text"
-               class="form-control"
-               [(ngModel)]="config.value"
-               (ngModelChange)="onValueChange(i, $event)">
       </div>
-      
-      <!-- Boutons qui apparaissent uniquement si modifié -->
-      <div class="mt-3" *ngIf="config.isDirty">
-        <button class="btn btn-primary" (click)="saveConfig(i)">
-          Enregistrer
-        </button>
-        <button class="btn btn-secondary ms-2" (click)="resetConfig(i)">
-          Annuler
-        </button>
+
+      <!-- Contenu de l'accordéon -->
+      <div class="collapse" 
+           [class.show]="selectedIndex === i"
+           [id]="'collapse' + i">
+        <div class="card-body pt-0 pb-4 px-4">
+          <div [ngSwitch]="config.type" class="form-group">
+            <!-- Type string -->
+            <div *ngSwitchCase="'string'" class="mb-3">
+              <label class="form-label text-muted small mb-2">Valeur textuelle</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-0">
+                  <i class="bi bi-type text-primary"></i>
+                </span>
+                <input type="text"
+                       class="form-control border-0 bg-light"
+                       [(ngModel)]="config.value"
+                       (ngModelChange)="onValueChange(i, $event)"
+                       placeholder="Entrez une valeur">
+              </div>
+            </div>
+
+            <!-- Type number -->
+            <div *ngSwitchCase="'number'" class="mb-3">
+              <label class="form-label text-muted small mb-2">Valeur numérique</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-0">
+                  <i class="bi bi-123 text-primary"></i>
+                </span>
+                <input type="number"
+                       class="form-control border-0 bg-light"
+                       [(ngModel)]="config.value"
+                       (ngModelChange)="onValueChange(i, $event)"
+                       placeholder="Entrez un nombre">
+              </div>
+            </div>
+
+            <!-- Type boolean -->
+            <div *ngSwitchCase="'boolean'" class="mb-3">
+              <div class="form-check form-switch">
+                <input type="checkbox"
+                       class="form-check-input"
+                       role="switch"
+                       [(ngModel)]="config.value"
+                       (ngModelChange)="onValueChange(i, $event)"
+                       [id]="'switch' + i">
+                <label class="form-check-label" [for]="'switch' + i">
+                  {{ config.value ? 'Activé' : 'Désactivé' }}
+                </label>
+              </div>
+            </div>
+
+            <!-- Type par défaut -->
+            <div *ngSwitchDefault class="mb-3">
+              <label class="form-label text-muted small mb-2">Valeur</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-0">
+                  <i class="bi bi-input-cursor-text text-primary"></i>
+                </span>
+                <input type="text"
+                       class="form-control border-0 bg-light"
+                       [(ngModel)]="config.value"
+                       (ngModelChange)="onValueChange(i, $event)"
+                       placeholder="Entrez une valeur">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Boutons de contrôle -->
+          <div class="mt-4 d-flex gap-2" *ngIf="config.isDirty">
+            <button class="btn btn-primary px-4 d-flex align-items-center" (click)="saveConfig(i)">
+              <i class="bi bi-check2 me-2"></i>
+              Enregistrer
+            </button>
+            <button class="btn btn-light px-4 d-flex align-items-center" (click)="resetConfig(i)">
+              <i class="bi bi-x-lg me-2"></i>
+              Annuler
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

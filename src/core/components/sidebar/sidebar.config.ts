@@ -42,12 +42,7 @@ export const MENU_CONFIG = {
           route: '/finance/courses',
           title: 'Courses',
           permission: 'view_courses'
-        }/* ,
-        {
-          route: '/finance/rapports',
-          title: 'Rapports financiers',
-          permission: 'view_rapports_finances'
-        } */
+        }
       ]
     },
     {
@@ -79,22 +74,22 @@ export const MENU_CONFIG = {
     {
       route: '/parametre',
       title: 'Paramèrtes',
-      permission: 'view_finances',
+      permission: 'manage_settings',
       children: [
         {
           route: '/parametre/politique',
           title: 'Politique d\'utilisation',
-          permission: 'view_gains'
+          permission: 'view_policy'
         },
         {
           route: '/parametre/configs',
           title: 'Configurations',
-          permission: 'view_courses'
+          permission: 'view_configs'
         },
         {
           route: '/parametre/cgus',
           title: 'CGUs',
-          permission: 'view_courses'
+          permission: 'view_cgu'
         }
       ]
     },

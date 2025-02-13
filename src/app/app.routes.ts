@@ -71,13 +71,7 @@ export const routes: Routes = [
             loadComponent: () => import('./features/dashboard/pages/courses/courses.component')
               .then(m => m.CoursesComponent),
             data: { permission: 'view_courses' }
-          }/* ,
-          {
-            path: 'rapports',
-            loadComponent: () => import('./features/dashboard/pages/finance/rapports/rapports.component')
-              .then(m => m.RapportsComponent),
-            data: { permission: 'view_rapports_financiers' }
-          } */
+          }
         ]
       },
       {
@@ -112,26 +106,26 @@ export const routes: Routes = [
       },
       {
         path: 'parametre',
-        data: { permission: 'view_finances' },
+        data: { permission: 'manage_settings' },
         children: [
           {
             path: 'politique',
             loadComponent: () => import('./features/dashboard/pages/cgus/private_polity.component')
               .then(m => m.CgusComponent),
-            data: { permission: 'view_gains' }
+            data: { permission: 'view_policy' }
           },
           {
             path: 'configs',
             loadComponent: () => import('./features/dashboard/pages/configs/configs.component')
               .then(m => m.ConfigsComponent),
-            data: { permission: 'view_courses' }
+            data: { permission: 'view_configs' }
           }
           ,
           {
             path: 'cgus',
             loadComponent: () => import('./features/dashboard/pages/terms_condition/terms_condition.component')
               .then(m => m.ConfidentialiteComponent),
-            data: { permission: 'view_courses' }
+            data: { permission: 'view_cgu' }
           }
         ]
       },

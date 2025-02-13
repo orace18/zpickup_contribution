@@ -1,33 +1,66 @@
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .race-history-table {
-    width: 100%;
-    border-collapse: collapse;
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-  
-  .race-history-table th, 
-  .race-history-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  .race-history-table thead {
-    background-color: #f2f2f2;
-  }
-  
-  .loading, .error {
-    text-align: center;
-    padding: 20px;
-    color: #666;
-  }
-  
-  .error {
-    color: red;
-  }
+:host ::ng-deep .p-datatable {
+  border: none !important;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-header {
+  background: transparent;
+  border: none;
+  padding: 1.5rem;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #f8f9fa;
+  border: none;
+  color: #495057;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr {
+  border: none;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  border: none;
+}
+
+:host ::ng-deep .p-paginator {
+  background: transparent;
+  border: none;
+  padding: 1.5rem;
+}
+
+.hover-shadow {
+  transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.transition {
+  transition: all 0.3s ease;
+}
+
+/* Ajustements pour les couleurs subtiles */
+.bg-primary-subtle {
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.bg-success-subtle {
+  background-color: rgba(25, 135, 84, 0.1);
+}
+
+.bg-warning-subtle {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.card {
+  min-height: 200px;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+

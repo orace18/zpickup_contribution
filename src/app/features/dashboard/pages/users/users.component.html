@@ -484,9 +484,6 @@
                 </div>
               </div>
 
-              <!-- <div *ngIf="userRaces.length === 0" class="text-center p-4">
-                <p>Aucune course trouvée pour cet utilisateur</p>
-              </div> -->
 
               <ng-container *ngIf="!isLoading">
                 <div *ngIf="userRaces.length === 0" class="text-center p-4">
@@ -525,10 +522,10 @@
 
                               <!-- Course créée -->
                               <div class="row">
-                                <div class="col-12 d-flex flex-column align-items-center">
+                                <div class="col-12 d-flex flex-row ms-5">
                                   <!-- Date -->
                                   <div *ngIf="race.created_at && race.created_at !== 'null'"
-                                    class="d-flex align-items-center mb-3">
+                                    class="d-flex  mb-3">
                                     <i class="bi bi-plus-circle text-primary me-2"></i>
                                     <strong>Créée le:</strong>
                                     <span class="badge badge-light-primary ms-2 mb-2">
@@ -538,7 +535,7 @@
 
                                   <!-- Coordonnées -->
                                   <div *ngIf="race.initial_latitude && race.initial_longitude"
-                                    class="d-flex align-items-center">
+                                    class="d-flex align-items-center ms-5">
                                     <strong>Coordonnées initiales:</strong>
                                     <span class="badge badge-light-warning ms-2">
                                       {{ race.initial_latitude }}, {{ race.initial_longitude }}
@@ -550,7 +547,7 @@
                               <!-- Course acceptée -->
                               <div *ngIf="race.accepted_at" class="card mb-3">
                                 <div class="card p-3 mb-3">
-                                  <div class="d-flex justify-content-center align-items-center">
+                                  <div class="d-flex justify-content-left">
                                     <i class="bi bi-check-circle text-success me-2"></i>
                                     <strong>Acceptée le:</strong>
                                     <span class="badge badge-light-primary ms-2 mb-2">
@@ -587,40 +584,11 @@
                                 </div>
                               </div>
 
-                              <!-- Course démarrée -->
-                              <!-- <div *ngIf="race.started_at" class="d-flex align-items-center mb-2">
-                            <i class="bi bi-play-circle text-success me-2"></i>
-                            <strong>Démarré le:</strong>
-                            <span class="badge badge-light-primary ms-2">
-                              {{ race.started_at | date:'dd MMMM yyyy' }} à {{ race.started_at | date:'HH:mm' }}
-                            </span>
-                             <div class="mb-3" *ngIf="race.country_start || race.street_start || race.locality_start || (race.latitude_start && race.longitude_start)">
                               
-                              <p *ngIf="race.country_start" class="mb-1">
-                                <i class="bi bi-globe me-2"></i><strong>Pays:</strong>
-                                <span class="badge badge-light-warning">{{ race.country_start }}</span>
-                              </p>
-                              <p *ngIf="race.street_start" class="mb-1">
-                                <i class="bi bi-signpost me-2"></i><strong>Rue:</strong>
-                                <span class="badge badge-light-warning">{{ race.street_start }}</span>
-                              </p>
-                              <p *ngIf="race.locality_start" class="mb-1">
-                                <i class="bi bi-pin-map me-2"></i><strong>Localité:</strong>
-                                <span class="badge badge-light-warning">{{ race.locality_start }}</span>
-                              </p>
-                              <p *ngIf="race.latitude_start && race.longitude_start" class="mb-1">
-                                <i class="bi bi-geo me-2"></i><strong>Coordonnées:</strong>
-                                <span class="badge badge-light-warning">
-                                  {{ race.latitude_start }}, {{ race.longitude_start }}
-                                </span>
-                              </p>
-                            </div>
-                          </div> -->
-
                               <!-- Course démarrée -->
-                              <div *ngIf="race.started_at" class="card mb-3">
+                              <div *ngIf="race.started_at" class="card mb-4">
                                 <div class="card p-3 mb-3">
-                                  <div class="d-flex justify-content-center align-items-center">
+                                  <div class="d-flex justify-content-left">
                                     <i class="bi bi-play-circle text-success me-2"></i>
                                     <strong>Démarré le:</strong>
                                     <span class="badge badge-light-primary ms-2 mb-2">
@@ -658,7 +626,7 @@
 
                               <!-- Course arrêtée -->
                               <div *ngIf="race.stopped_at" class="card mb-3 mt-2">
-                                <div class="d-flex justify-content-center align-items-center mb-3 mt-2">
+                                <div class="d-flex justify-content-left mb-3 mt-2">
                                   <i class="bi bi-pause-circle text-warning me-2"></i>
                                   <strong>Arrêté le:</strong>
                                   <span class="badge badge-light-primary ms-2">
@@ -718,58 +686,12 @@
                               <div class="col-md-6">
                                 <div class="card h-100">
                                   <div class="card-body">
-                                    <!-- <h6 class="mb-3">
-                                    <i class="bi bi-geo-alt me-2"></i>Localisation
-                                  </h6> -->
+                                   
                                     <!-- Affichage conditionnel des informations de localisation -->
                                     <ng-container [ngSwitch]="race.status">
-                                      <!-- <ng-container *ngSwitchCase="'stopped'">
-                                    <div *ngIf="race.country || race.street || race.locality || (race.latitude_stop && race.longitude_stop)">
-                                      <p *ngIf="race.country" class="mb-2">
-                                        <i class="bi bi-globe me-2"></i><strong>Pays:</strong>
-                                        <span class="badge badge-light-warning">{{ race.country }}</span>
-                                      </p>
-                                      <p *ngIf="race.street" class="mb-2">
-                                        <i class="bi bi-signpost me-2"></i><strong>Rue:</strong>
-                                        <span class="badge badge-light-warning">{{ race.street }}</span>
-                                      </p>
-                                      <p *ngIf="race.locality" class="mb-2">
-                                        <i class="bi bi-pin-map me-2"></i><strong>Localité:</strong>
-                                        <span class="badge badge-light-warning">{{ race.locality }}</span>
-                                      </p>
-                                      <p *ngIf="race.latitude_stop && race.longitude_stop" class="mb-2">
-                                        <i class="bi bi-geo me-2"></i><strong>Coordonnées:</strong>
-                                        <span class="badge badge-light-warning">
-                                          {{ race.latitude_stop }}, {{ race.longitude_stop }}
-                                        </span>
-                                      </p>
-                                    </div>
-                                  </ng-container> -->
-
+                                     
                                       <ng-container *ngSwitchDefault>
-                                        <!-- Point de départ -->
-                                        <!-- <div class="mb-3" *ngIf="race.country_start || race.street_start || race.locality_start || (race.latitude_start && race.longitude_start)">
-                                      <h6 class="mb-2">Point de départ</h6>
-                                      <p *ngIf="race.country_start" class="mb-1">
-                                        <i class="bi bi-globe me-2"></i><strong>Pays:</strong>
-                                        <span class="badge badge-light-warning">{{ race.country_start }}</span>
-                                      </p>
-                                      <p *ngIf="race.street_start" class="mb-1">
-                                        <i class="bi bi-signpost me-2"></i><strong>Rue:</strong>
-                                        <span class="badge badge-light-warning">{{ race.street_start }}</span>
-                                      </p>
-                                      <p *ngIf="race.locality_start" class="mb-1">
-                                        <i class="bi bi-pin-map me-2"></i><strong>Localité:</strong>
-                                        <span class="badge badge-light-warning">{{ race.locality_start }}</span>
-                                      </p>
-                                      <p *ngIf="race.latitude_start && race.longitude_start" class="mb-1">
-                                        <i class="bi bi-geo me-2"></i><strong>Coordonnées:</strong>
-                                        <span class="badge badge-light-warning">
-                                          {{ race.latitude_start }}, {{ race.longitude_start }}
-                                        </span>
-                                      </p>
-                                    </div> -->
-
+                                        
                                         <!-- Point d'arrivée -->
                                         <div
                                           *ngIf="race.country_end || race.street_end || race.locality_end || (race.latitude_end && race.longitude_end)">
@@ -1235,15 +1157,7 @@
               </div>
             </div>
           </div>
-
-
         </div>
-
-
-
-
-
-
       </div>
     </div>
   </div>
@@ -1307,37 +1221,9 @@
             </div>
           </div>
 
-          <!-- Date de naissance -->
-          <!-- <div class="mb-3">
-              <label for="birthday" class="form-label">Date de naissance</label>
-              <input
-                type="date"
-                id="birthday"
-                class="form-control"
-                [(ngModel)]="selectedUser.birthday"
-                name="birthday"
-                required>
-              <div *ngIf="editForm.form.controls['birthday']?.invalid && editForm.form.controls['birthday']?.touched" class="text-danger">
-                La date de naissance est requise.
-              </div>
-            </div> -->
 
-          <!-- Adresse -->
-          <!-- <div class="mb-3">
-              <label for="address" class="form-label">Adresse</label>
-              <input
-                type="text"
-                id="address"
-                class="form-control"
-                [(ngModel)]="selectedUser.address"
-                name="address"
-                required
-                rows="3">
-              <div *ngIf="editForm.form.controls['address']?.invalid && editForm.form.controls['address']?.touched" class="text-danger">
-                L'adresse est requise.
-              </div>
-            </div>
- -->
+
+
           <!-- Rôle -->
           <div class="mb-3">
             <label for="role" class="form-label">Rôle</label>
@@ -1423,37 +1309,7 @@
               </div>
             </div>
 
-            <!-- Address -->
-            <!-- <div class="fv-row mb-7">
-                <label class="required fw-semibold fs-6 mb-2">Adresse</label>
-                <input
-                  name="address"
-                  [(ngModel)]="newUser.address"
-                  required
-                  #address="ngModel"
-                  class="form-control form-control-solid mb-3 mb-lg-0"
-                  placeholder="Votre adresse complète"
-                  rows="3">
-                <div *ngIf="address.invalid && (address.dirty || address.touched)" class="alert alert-danger">
-                  L'adresse est requise
-                </div>
-              </div> -->
-
-            <!-- Birthday -->
-            <!-- <div class="fv-row mb-7">
-                <label class="required fw-semibold fs-6 mb-2">Date de naissance</label>
-                <input
-                  type="date"
-                  name="birthday"
-                  [(ngModel)]="newUser.birthday"
-                  required
-                  #birthday="ngModel"
-                  class="form-control form-control-solid mb-3 mb-lg-0" />
-                <div *ngIf="birthday.invalid && (birthday.dirty || birthday.touched)" class="alert alert-danger">
-                  La date de naissance est requise
-                </div>
-              </div> -->
-
+             
             <!-- Password -->
             <div class="fv-row mb-7">
               <label class="required fw-semibold fs-6 mb-2">Mot de passe</label>

@@ -65,11 +65,11 @@ export class GainsComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    console.log('Gains component initialized');
+    //console.log('Gains component initialized');
     
     // Chargement initial des données
     this.gainsService.getGains().subscribe(data => {
-      console.log('Données reçues:', data);
+     // console.log('Données reçues:', data);
       this.originalData = data;
       this.gainsSubject.next(data);
     });
@@ -81,11 +81,11 @@ export class GainsComponent implements OnInit {
           this.cards[2].amount = Number(gains.zem_bonus) || 0;
           this.cards[1].amount = Number(gains.admin_bonus) || 0;
         } else {
-          console.error('Invalid gains data:', gains);
+         // console.error('Invalid gains data:', gains);
         }
       },
       error => {
-        console.error('Error in ngOnInit:', error);
+        //console.error('Error in ngOnInit:', error);
       }
     );
   }
@@ -110,8 +110,8 @@ export class GainsComponent implements OnInit {
       return;
     }
 
-    console.log('Applying filter:', this.startDate, this.endDate);
-    console.log('Original data:', this.originalData);
+    /* console.log('Applying filter:', this.startDate, this.endDate);
+    console.log('Original data:', this.originalData); */
 
     const startDate = new Date(this.startDate);
     const endDate = new Date(this.endDate);
@@ -124,13 +124,14 @@ export class GainsComponent implements OnInit {
         const itemDate = this.parseFrenchDate(item.date);
         return itemDate >= startDate && itemDate <= endDate;
       } catch (error) {
-        console.error('Error parsing date:', item.date, error);
+        //console.error('Error parsing date:', item.date, error);
         return false;
       }
     });
 
-    console.log('Filtered data:', filteredData);
+   // console.log('Filtered data:', filteredData);
     this.gainsSubject.next(filteredData);
+    this.updateCardAmounts(filteredData);
     this.closeModal();
   }
 
@@ -138,15 +139,16 @@ export class GainsComponent implements OnInit {
     this.startDate = '';
     this.endDate = '';
     this.gainsSubject.next(this.originalData);
+    this.updateCardAmounts(this.originalData);
     this.closeModal();
   }
 
   private prepareExportData(): any[] {
     return this.gainsSubject.value.map(item => ({
       'Date': item.date,
-      'Bonus Zem': item.zem_bonus,
-      'Bonus Client': item.customer_bonus,
-      'Bonus Admin': item.admin_bonus,
+      'Gain Transporteur': item.zem_bonus,
+      'Gain Client': item.customer_bonus,
+      'Gain ZpickUp': item.admin_bonus,
       'Total': item.total
     }));
   }
@@ -179,12 +181,12 @@ export class GainsComponent implements OnInit {
     doc.text('Rapport des Gains', 14, 15);
     
     autoTable(doc, {
-      head: [['Date', 'Bonus Zem', 'Bonus Client', 'Bonus Admin', 'Total']],
+      head: [['Date', 'Gain Transporteur', 'Gain Client', 'Bonus ZpickUp', 'Total']],
       body: data.map(row => [
         row.Date,
-        `${row['Bonus Zem']} FCFA`,
-        `${row['Bonus Client']} FCFA`,
-        `${row['Bonus Admin']} FCFA`,
+        `${row['Gain Transporteur']} FCFA`,
+        `${row['Gain Client']} FCFA`,
+        `${row['Gain ZpickUp']} FCFA`,
         `${row.Total} FCFA`
       ])
     });
@@ -197,5 +199,18 @@ export class GainsComponent implements OnInit {
     return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
   }
 
+  private updateCardAmounts(data: GainHistory[]) {
+    const totals = data.reduce((acc, curr) => {
+      return {
+        customer_bonus: acc.customer_bonus + curr.customer_bonus,
+        admin_bonus: acc.admin_bonus + curr.admin_bonus,
+        zem_bonus: acc.zem_bonus + curr.zem_bonus
+      };
+    }, { customer_bonus: 0, admin_bonus: 0, zem_bonus: 0 });
+
+    this.cards[0].amount = totals.customer_bonus;
+    this.cards[1].amount = totals.admin_bonus;
+    this.cards[2].amount = totals.zem_bonus;
+  }
 
 }
