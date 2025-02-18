@@ -35,7 +35,7 @@ import { RaceService } from '../users/services/race.service';
 })
 export class CartesComponent implements OnInit {
   @ViewChildren(GoogleMap) maps!: QueryList<GoogleMap>;
-  
+
   center = { lat: 6.3702928, lng: 2.3912362 };
   zoom = 19;
   races: Race[] = [];
@@ -148,7 +148,16 @@ export class CartesComponent implements OnInit {
       position: this.getStartPosition(race),
       map: map.googleMap!,
       title: 'Départ: ' + this.getRaceTitle(race),
-      icon: this.markerColors[race.status as keyof typeof this.markerColors]
+     // icon: this.markerColors[race.status as keyof typeof this.markerColors]
+
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 6,
+        fillColor: '#008000',
+        fillOpacity: 1,
+        strokeColor: '#fa8c00',
+        strokeWeight: 2
+      }
     });
 
     if (this.hasEndPosition(race)) {
@@ -170,20 +179,20 @@ export class CartesComponent implements OnInit {
 
   hasValidCoordinates(race: Race): boolean {
     return !!(
-      race.initial_latitude && 
-      race.initial_longitude && 
-      (race.latitude_end || race.latitude_start) && 
+      race.initial_latitude &&
+      race.initial_longitude &&
+      (race.latitude_end || race.latitude_start) &&
       (race.longitude_end || race.longitude_start)
     );
   }
 
   getRouteColor(status: string): string {
     const colorMap: Record<string, string> = {
-      pending: '#FFD700',  
-      accepted: '#4CAF50', 
-      start: '#2196F3',    
-      end: '#F44336',      
-      stopped: '#9E9E9E'   
+      pending: '#FFD700',
+      accepted: '#4CAF50',
+      start: '#2196F3',
+      end: '#F44336',
+      stopped: '#9E9E9E'
     };
     return colorMap[status] || '#000000';
   }
@@ -247,14 +256,14 @@ Status: ${race.status}`;
   }
 
   hasEndPosition(race: Race): boolean {
-    return !!(race.latitude_end || race.latitude_start) && 
+    return !!(race.latitude_end || race.latitude_start) &&
            !!(race.longitude_end || race.longitude_start);
   }
 
   onTabChange(event: MatTabChangeEvent) {
     const mapsArray = this.maps.toArray();
     const selectedMap = mapsArray[event.index];
-    
+
     // Réafficher les routes pour l'onglet sélectionné
     setTimeout(() => {
       switch(event.index) {
@@ -262,23 +271,23 @@ Status: ${race.status}`;
           this.displayRoutesForMap(selectedMap, this.races, 'all');
           break;
         case 1:
-          this.displayRoutesForMap(selectedMap, 
-            this.races.filter(race => race.status === 'pending'), 
+          this.displayRoutesForMap(selectedMap,
+            this.races.filter(race => race.status === 'pending'),
             'pending');
           break;
         case 2:
-          this.displayRoutesForMap(selectedMap, 
-            this.races.filter(race => ['start', 'accepted'].includes(race.status)), 
+          this.displayRoutesForMap(selectedMap,
+            this.races.filter(race => ['start', 'accepted'].includes(race.status)),
             'started');
           break;
         case 3:
-          this.displayRoutesForMap(selectedMap, 
-            this.races.filter(race => race.status === 'end'), 
+          this.displayRoutesForMap(selectedMap,
+            this.races.filter(race => race.status === 'end'),
             'completed');
           break;
         case 4:
-          this.displayRoutesForMap(selectedMap, 
-            this.races.filter(race => race.status === 'stopped'), 
+          this.displayRoutesForMap(selectedMap,
+            this.races.filter(race => race.status === 'stopped'),
             'canceled');
           break;
       }

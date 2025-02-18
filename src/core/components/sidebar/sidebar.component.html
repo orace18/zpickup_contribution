@@ -33,17 +33,17 @@
         </div>
 
         <!-- Cartes -->
-        <div class="menu-item" *ngIf="authService.hasPermission('view_cartes')">
+       <!-- <div class="menu-item" *ngIf="authService.hasPermission('view_cartes')">
           <a class="menu-link" routerLink="/cartes" routerLinkActive="active">
             <span class="menu-icon">
-              <i class="ki-duotone ki-map fs-2">
+              <i class="bi bi-map fs-2">
                 <span class="path1"></span>
                 <span class="path2"></span>
               </i>
             </span>
             <span class="menu-title">Cartes en temps réel</span>
           </a>
-        </div>
+        </div>-->
 
         <!-- Utilisateurs -->
         <div class="menu-item" *ngIf="authService.hasPermission('view_users')">
@@ -168,7 +168,7 @@
           </div>
 
           <!-- Paramètres -->
-          <div class="menu-item" *ngIf="authService.hasPermission('manage_settings')">
+          <!--<div class="menu-item" *ngIf="authService.hasPermission('manage_settings')">
             <a class="menu-link" routerLink="/settings" routerLinkActive="active">
               <span class="menu-icon">
                 <i class="ki-duotone ki-setting-2 fs-2">
@@ -178,7 +178,7 @@
               </span>
               <span class="menu-title">Paramètres</span>
             </a>
-          </div>
+          </div>-->
 
           <!-- FAQs -->
           <div class="menu-item">
@@ -202,7 +202,7 @@
                 <span class="path2"></span>
               </i>
             </span>
-            <span class="menu-title">Paramètre</span>
+            <span class="menu-title">Paramètres</span>
             <span class="menu-arrow" [ngClass]="{'active': isMenuExpanded('parametre')}"></span>
           </span>
 
@@ -221,6 +221,19 @@
               </a>
             </div>
 
+            <div class="menu-item" *ngIf="authService.hasPermission('view_cgu')">
+              <a class="menu-link" routerLink="/parametre/cgus" routerLinkActive="active">
+                <span class="menu-bullet">
+                  <i class="bi bi-gear-wide-connected fs-2">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+
+                  </i>
+                </span>
+                <span class="menu-title">CGU</span>
+              </a>
+            </div>
+
             <!-- Courses -->
             <div class="menu-item" *ngIf="authService.hasPermission('view_configs')">
               <a class="menu-link" routerLink="/parametre/configs" routerLinkActive="active">
@@ -235,18 +248,7 @@
               </a>
             </div>
 
-            <div class="menu-item" *ngIf="authService.hasPermission('view_cgu')">
-              <a class="menu-link" routerLink="/parametre/cgus" routerLinkActive="active">
-                <span class="menu-bullet">
-                  <i class="bi bi-gear-wide-connected fs-2">
-                    <span class="path1"></span>
-                    <span class="path2"></span>
 
-                  </i>
-                </span>
-                <span class="menu-title">CGUs</span>
-              </a>
-            </div>
           </div>
 
           <!-- Separator -->
@@ -272,7 +274,7 @@
         </div>
 
         <!-- Paramètres nouveau -->
-         
+
       </div>
     </div>
   </div>
