@@ -9,14 +9,14 @@
       <div class="row">
         <div class="col-md-6">
           <label>Date de début</label>
-          <input type="date" 
-                 class="form-control" 
+          <input type="date"
+                 class="form-control"
                  [(ngModel)]="startDate" [max]="today">
         </div>
         <div class="col-md-6">
           <label>Date de fin</label>
-          <input type="date" 
-                 class="form-control" 
+          <input type="date"
+                 class="form-control"
                  [(ngModel)]="endDate" [max]="today">
         </div>
       </div>
@@ -29,7 +29,9 @@
   </ng-template>
 
   <div class="mb-4 d-flex justify-content-between align-items-center">
-    <div class="mb-0"></div>
+    <div class="mb-0">
+      <h1> Courses</h1>
+    </div>
     <div class="d-flex gap-3">
       <button class="btn btn-primary" (click)="openModal(periodModal)">
         <i class="bi bi-calendar me-2"></i>
@@ -66,9 +68,9 @@
       </div>
     </div>
     <div class="card-body p-0">
-      <p-table 
-        [value]="raceHistories" 
-        [paginator]="false" 
+      <p-table
+        [value]="raceHistories"
+        [paginator]="false"
         [rows]="10"
         [showCurrentPageReport]="true"
         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
@@ -104,8 +106,8 @@
             <td class="p-3">{{ history.created_at | date:'dd MMMM yyyy' }} à {{ history.created_at | date:'HH:mm'}}</td>
             <td class="p-3">{{ history.country }}</td>
             <td class="p-3">
-              <button pButton 
-                class="btn btn-primary " 
+              <button pButton
+                class="btn btn-primary "
                 (click)="selectedRace = history.race; openModal(historyModal)">
                 Détails
                 <i class="bi bi-info-circle ms-1"></i>
@@ -120,14 +122,14 @@
   <!-- Composant de détails conditionnel -->
    <ng-template #historyModal let-moda>
     <div *ngIf="selectedRace" class="mt-3">
-      <app-details-component 
-          [race]="selectedRace" 
+      <app-details-component
+          [race]="selectedRace"
           [selectedUser]="userType">
       </app-details-component>
     </div>
    </ng-template>
-   
-  
+
+
 
   <p *ngIf="!isLoading && raceHistories.length === 0" class="alert alert-info">
     Aucun historique de course trouvé.

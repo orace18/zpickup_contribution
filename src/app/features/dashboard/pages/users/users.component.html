@@ -1,6 +1,7 @@
 <div class="content fs-6 d-flex flex-column flex-column-fluid" id="kt_content">
   <!-- Card -->
   <div class="card">
+    <h1>Utilisateurs</h1>
     <!-- Tabs navigation -->
     <div class="card-header border-0 pt-6">
       <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6">
@@ -584,7 +585,7 @@
                                 </div>
                               </div>
 
-                              
+
                               <!-- Course démarrée -->
                               <div *ngIf="race.started_at" class="card mb-4">
                                 <div class="card p-3 mb-3">
@@ -686,12 +687,12 @@
                               <div class="col-md-6">
                                 <div class="card h-100">
                                   <div class="card-body">
-                                   
+
                                     <!-- Affichage conditionnel des informations de localisation -->
                                     <ng-container [ngSwitch]="race.status">
-                                     
+
                                       <ng-container *ngSwitchDefault>
-                                        
+
                                         <!-- Point d'arrivée -->
                                         <div
                                           *ngIf="race.country_end || race.street_end || race.locality_end || (race.latitude_end && race.longitude_end)">
@@ -1309,7 +1310,7 @@
               </div>
             </div>
 
-             
+
             <!-- Password -->
             <div class="fv-row mb-7">
               <label class="required fw-semibold fs-6 mb-2">Mot de passe</label>

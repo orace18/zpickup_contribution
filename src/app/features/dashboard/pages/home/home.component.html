@@ -1,7 +1,9 @@
 <div class="container-fluid p-4">
   <!-- Header Toolbar -->
   <div class="mb-4 d-flex justify-content-between align-items-center">
-    <div class="mb-0"></div>
+    <div class="mb-0">
+      <h1>Tableau de bord</h1>
+    </div>
     <div class="d-flex gap-3">
       <button class="btn btn-primary" (click)="openModal()">
         <i class="bi bi-calendar me-2"></i>
@@ -133,7 +135,7 @@
             <span class="badge badge-light-warning">{{userActivity?.inactive || 0}}</span>
           </div>
           <div class="progress mt-3" style="height: 8px;">
-            <div class="progress-bar badge-light-success" 
+            <div class="progress-bar badge-light-success"
                  [style.width]="(userActivity?.engagementRate || 0) + '%'">
             </div>
           </div>
@@ -148,7 +150,7 @@
       <div class="card border-0 shadow-sm">
         <div class="card-body">
           <h5 class="card-title mb-4">Inscriptions par période</h5>
-          <app-graphiques 
+          <app-graphiques
             *ngIf="inscriptionsChartData.length"
             [data]="inscriptionsChartData"
             xLabel="Mois"
@@ -157,12 +159,12 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-12 col-lg-6">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
           <h5 class="card-title mb-4">Performance des transporteurs</h5>
-          <app-graphiques 
+          <app-graphiques
             *ngIf="racesChartData.length"
             [data]="racesChartData"
             xLabel="Mois"

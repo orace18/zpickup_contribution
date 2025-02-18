@@ -1,8 +1,9 @@
 <div class="container my-5">
   <div class="accordion" id="configAccordion">
+    <h1> Configurations</h1>
     <div class="card border-0 shadow-sm mb-3 rounded-3" *ngFor="let config of configs; let i = index">
       <!-- En-tête de l'accordéon -->
-      <div class="card-header bg-white border-0 py-3" 
+      <div class="card-header bg-white border-0 py-3"
            [id]="'heading' + i"
            [class.active]="selectedIndex === i"
            (click)="toggleItem(i)"
@@ -12,14 +13,14 @@
             <!-- <i class="bi bi-gear-fill text-primary me-3"></i> -->
             <h5 class="mb-0 fw-semibold text-dark">{{ config.description }}</h5>
           </div>
-          <i class="bi" 
+          <i class="bi"
              [class.bi-chevron-down]="selectedIndex !== i"
              [class.bi-chevron-up]="selectedIndex === i"></i>
         </div>
       </div>
 
       <!-- Contenu de l'accordéon -->
-      <div class="collapse" 
+      <div class="collapse"
            [class.show]="selectedIndex === i"
            [id]="'collapse' + i">
         <div class="card-body pt-0 pb-4 px-4">
@@ -84,7 +85,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Boutons de contrôle -->
           <div class="mt-4 d-flex gap-2" *ngIf="config.isDirty">
             <button class="btn btn-primary px-4 d-flex align-items-center" (click)="saveConfig(i)">

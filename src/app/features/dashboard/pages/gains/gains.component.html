@@ -1,15 +1,17 @@
 <div class="container-fluid py-5 px-4">
   <!-- En-tête avec titre et actions -->
   <div class="mb-4 d-flex justify-content-between align-items-center">
-    <div class="mb-0"></div>
+    <div class="mb-0">
+      <h1>Gains</h1>
+    </div>
     <div class="d-flex gap-3">
       <button class="btn btn-primary" (click)="openModal(periodModal)">
         <i class="bi bi-calendar me-2"></i>
         Filtrer
       </button>
       <div class="dropdown" ngbDropdown>
-        <button class="btn btn-primary dropdown-toggle" 
-                type="button" 
+        <button class="btn btn-primary dropdown-toggle"
+                type="button"
                 ngbDropdownToggle>
           <i class="bi bi-download me-2"></i>
           Exporter
@@ -28,7 +30,7 @@
       </div>
     </div>
   </div>
-  
+
   <ng-template #periodModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="modal-basic-title">Filtrer par période</h4>
@@ -38,19 +40,19 @@
       <div class="row">
         <div class="col-md-6">
           <label for="startDate">Date de début</label>
-          <input 
+          <input
             id="startDate"
-            type="date" 
-            class="form-control" 
+            type="date"
+            class="form-control"
             [(ngModel)]="startDate"
             aria-label="Date de début" [max]="today">
         </div>
         <div class="col-md-6">
           <label for="endDate">Date de fin</label>
-          <input 
+          <input
             id="endDate"
-            type="date" 
-            class="form-control" 
+            type="date"
+            class="form-control"
             [(ngModel)]="endDate"
             aria-label="Date de fin"[max]="today">
         </div>
@@ -92,9 +94,9 @@
       </div>
     </div>
     <div class="card-body p-0">
-      <p-table 
-        [value]="(racesHistory$ | async) || []" 
-        [paginator]="false" 
+      <p-table
+        [value]="(racesHistory$ | async) || []"
+        [paginator]="false"
         [rows]="10"
         [showCurrentPageReport]="true"
         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
