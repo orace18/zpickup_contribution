@@ -66,6 +66,11 @@ export const MENU_CONFIG = {
       permission: 'manage_roles'
     },
     {
+      route: '/chats',
+      title: 'Chats',
+      permission: 'manage_chats'
+    },
+    {
       route: '/faqs',
       title: 'FAQs',
       permission: 'manage_faqs'

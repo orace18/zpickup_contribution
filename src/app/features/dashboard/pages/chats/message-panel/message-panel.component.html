@@ -1,0 +1,44 @@
+<div class="d-flex flex-column h-100">
+  <!-- En-tête fixe -->
+  <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-shrink-0">
+    <h2 class="h5 mb-0">{{ conversationTitle }}</h2>
+  </div>
+
+  <!-- Zone de messages scrollable -->
+  <div class="flex-grow-1 p-3 overflow-auto" #scrollContainer>
+    <div *ngFor="let message of messages" 
+         [ngClass]="isCurrentUser(message.sender.userId) ? 'text-end' : 'text-start'">
+      <div class="d-inline-block max-w-75 mb-3"
+           [ngClass]="isCurrentUser(message.sender.userId) ? 'bg-primary text-white' : 'bg-light'"
+           class="rounded p-3">
+        <!-- Contenu du message -->
+        <div class="message-content">{{ message.content }}</div>
+        
+        <!-- Horodatage -->
+        <small [ngClass]="isCurrentUser(message.sender.userId) ? 'text-white-50' : 'text-muted'">
+          {{ message.timestamp | date:'short' }}
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone de saisie fixe -->
+  <div class="p-3 border-top flex-shrink-0">
+    <div class="input-group">
+      <textarea 
+        class="form-control custom-textarea"
+        [(ngModel)]="newMessage"
+        (input)="autoResize($event)"
+        (keydown.enter)="$event.preventDefault(); send()"
+        [disabled]="loading"
+        rows="1"
+        placeholder="Écrivez votre message..."></textarea>
+      
+      <button class="btn btn-primary"
+              (click)="send()"
+              [disabled]="loading">
+        <i class="bi bi-send"></i>
+      </button>
+    </div>
+  </div>
+</div>

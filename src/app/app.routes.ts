@@ -54,7 +54,7 @@ export const routes: Routes = [
         path: 'chats',
         loadComponent: () => import('./features/dashboard/pages/chats/chats.component')
           .then(m => m.ChatsComponent),
-        data: { permission: 'view_chat' }
+        data: { permission: 'manage_chats' }
       },
       {
         path: 'finance',

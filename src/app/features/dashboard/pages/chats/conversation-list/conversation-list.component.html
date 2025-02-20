@@ -1,0 +1,38 @@
+<div class="conversation-list">
+  <div *ngFor="let conversation of conversations"
+       class="conversation-item"
+       [class.active]="conversation.id === selectedId"
+       (click)="onSelect(conversation.id)">
+    
+    <!-- Partie principale (gauche) -->
+    <div class="conversation-main">
+      <div class="conversation-title">
+        <i class="bi bi-chat-left-text me-2"></i>
+        {{ conversation.title }}
+      </div>
+      
+      <div class="conversation-preview">
+        <i class="bi bi-check2-all me-1" 
+           [class.text-primary]="isRead(conversation)"></i>
+        {{ conversation.lastMessage || 'Aucun message' }}
+      </div>
+    </div>
+
+    <!-- Métadonnées (droite) -->
+    <div class="conversation-meta">
+      <small class="conversation-time">
+        {{ formatDate(conversation.lastMessageDate) }}
+      </small>
+      
+      <div class="d-flex align-items-center">
+        <span *ngIf="conversation.unreadCount" class="unread-badge">
+          {{ conversation.unreadCount }}
+        </span>
+        <!-- <div class="status-indicator" 
+             [class.online]="conversation.status === 'active'"
+             [class.offline]="conversation.status !== 'active'">
+        </div> -->
+      </div>
+    </div>
+  </div>
+</div>

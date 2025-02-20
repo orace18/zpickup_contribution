@@ -1,0 +1,126 @@
+/* Conteneur principal */
+.chat-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  height: calc(100vh - 60px);
+  background-color: #f8f9fa;
+  gap: 1rem;
+  padding: 1rem;
+  overflow: hidden; /* Empêche le défilement du conteneur principal */
+}
+
+/* Conteneur de la liste des conversations */
+.conversation-list-container {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  overflow: hidden; /* Cache tout débordement */
+}
+
+.conversation-list-container h2 {
+  padding: 1rem;
+  margin: 0;
+  border-bottom: 1px solid #dee2e6;
+  font-size: 1.25rem;
+  font-weight: 500;
+  flex-shrink: 0; /* Empêche le titre de rétrécir */
+}
+
+/* La liste des conversations elle-même sera scrollable */
+app-conversation-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Conteneur du panel de messages */
+.message-panel-container {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+/* Pour le message-panel lui-même */
+app-message-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Style pour le message de "pas de conversation" */
+.no-conversation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  color: #6c757d;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Styles pour les écrans mobiles */
+@media (max-width: 768px) {
+  .chat-container {
+    grid-template-columns: 1fr;
+    height: calc(100vh - 56px);
+  }
+
+  .conversation-list-container {
+    display: none;
+  }
+
+  .conversation-list-container.active {
+    display: flex;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+  }
+}
+
+/* Styles pour la barre de défilement personnalisée */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.custom-textarea {
+  min-height: 38px;
+  max-height: 150px;
+  resize: none;
+  overflow-y: hidden;
+  line-height: 1.5;
+}
+
+/* Styles pour le contenu des messages */
+.message-content {
+  white-space: pre-wrap;
+  word-break: break-word;
+}

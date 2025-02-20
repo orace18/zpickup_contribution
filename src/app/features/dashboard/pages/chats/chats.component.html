@@ -1,1 +1,27 @@
-<p>chats works!</p>
+<div class="chat-container">
+  <div class="conversation-list-container">
+    <h2>Conversations</h2>
+    <app-conversation-list
+      [conversations]="conversations"
+      [selectedId]="selectedConversationId"
+      (selectConversation)="selectConversation($event)">
+    </app-conversation-list>
+  </div>
+
+  <div class="message-panel-container" *ngIf="selectedConversationId; else noConversation">
+    <app-message-panel
+  *ngIf="selectedConversationId"
+  [messages]="getConversationMessage(selectedConversationId)"
+  [conversationTitle]="getConversationTitle()"
+  [loading]="loading"
+  [error]="error"
+  (sendMessage)="sendMessage($event)">
+</app-message-panel>
+  </div>
+
+  <ng-template #noConversation>
+    <div class="no-conversation">
+      <p>Sélectionnez une conversation pour afficher les messages</p>
+    </div>
+  </ng-template>
+</div>
