@@ -1,6 +1,7 @@
+<div class="container">
+  <h1>Chats</h1>
 <div class="chat-container">
   <div class="conversation-list-container">
-    <h2>Conversations</h2>
     <app-conversation-list
       [conversations]="conversations"
       [selectedId]="selectedConversationId"
@@ -8,20 +9,25 @@
     </app-conversation-list>
   </div>
 
-  <div class="message-panel-container" *ngIf="selectedConversationId; else noConversation">
-    <app-message-panel
-  *ngIf="selectedConversationId"
-  [messages]="getConversationMessage(selectedConversationId)"
-  [conversationTitle]="getConversationTitle()"
-  [loading]="loading"
-  [error]="error"
-  (sendMessage)="sendMessage($event)">
-</app-message-panel>
-  </div>
-
-  <ng-template #noConversation>
-    <div class="no-conversation">
-      <p>Sélectionnez une conversation pour afficher les messages</p>
+  <div class="chat-body ms-15">
+    <!-- Message view when a conversation is selected -->
+    <div class="message-view" *ngIf="selectedConversationId; else noConversation">
+      <!-- Message panel component -->
+      <app-message-panel
+        [messages]="getConversationMessage(selectedConversationId)"
+        [conversationTitle]="getConversationTitle()"
+        [loading]="loading"
+        [error]="error"
+        (sendMessage)="sendMessage($event)">
+      </app-message-panel>
     </div>
-  </ng-template>
+
+    <!-- Template for when no conversation is selected -->
+    <ng-template #noConversation>
+      <div class="no-conversation">
+        <p>Sélectionnez une conversation pour afficher les messages</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
 </div>

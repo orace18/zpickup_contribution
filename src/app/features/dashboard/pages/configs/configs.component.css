@@ -3,14 +3,14 @@
 }
 
 .card-header:hover {
-  background-color: #f8f9fa !important;
+  /*background-color: #f8f9fa !important;*/
 }
 
 .collapse {
   transition: all 0.3s ease;
 }
 
-.form-control:focus, 
+.form-control:focus,
 .form-check-input:focus {
   box-shadow: none;
   border-color: #0d6efd;

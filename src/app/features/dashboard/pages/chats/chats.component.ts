@@ -1,17 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import {Conversation} from './models/conversation';
-import {Message} from './models/message';
-import {MessagePanelComponent} from './message-panel/message-panel.component';
-import {NgIf} from '@angular/common';
-import {ConversationListComponent} from './conversation-list/conversation-list.component';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import { Conversation } from './models/conversation';
+import { Message } from './models/message';
+import { MessagePanelComponent } from './message-panel/message-panel.component';
+import {DatePipe, NgClass, NgIf} from '@angular/common';
+import { ConversationListComponent } from './conversation-list/conversation-list.component';
 import { ChatService } from './services/chat.service';
+import {FormsModule} from '@angular/forms';
+import {map, Observable, tap} from 'rxjs';
+import { UsersService } from '../users/services/users.service';
 
 @Component({
   selector: 'app-chats',
   imports: [
-    MessagePanelComponent,
     NgIf,
-    ConversationListComponent
+    FormsModule,
+    ConversationListComponent,
+    MessagePanelComponent
   ],
   templateUrl: './chats.component.html',
   standalone: true,
@@ -23,8 +27,9 @@ export class ChatsComponent implements OnInit {
   messages: Message[] = [];
   loading = false;
   error: string | null = null;
+  contactNames$: Observable<string[]> = new Observable<string[]>();
 
-  constructor(private chatService: ChatService) {}
+  constructor(private chatService: ChatService, private userService: UsersService) {}
 
   ngOnInit(): void {
     this.loadConversations();
@@ -63,12 +68,19 @@ export class ChatsComponent implements OnInit {
     );
   }
 
+   getUserName(userId: string): Observable<string> {  
+      return this.userService.getUserById(userId).pipe(
+        tap(user => console.log(`Retrieved user data:`, user)),
+        map(data => data.firstname + ' ' + data.lastname),
+        tap(fullName => console.log(`Formatted full name: ${fullName}`))
+      );
+    }
+
   getConversationMessage(selectedConversationId: string): Message[] {
     const conversation = this.conversations.find(c => c.id === selectedConversationId);
     return conversation ? conversation.messages.map(
       messageId => this.messages.find(m => m.id === messageId)
     ).filter((message): message is Message => message !== undefined) : [];
-
   }
 
   getConversationTitle(): string {
@@ -99,7 +111,7 @@ export class ChatsComponent implements OnInit {
             lastMessageDate: new Date(newMessage.created_at),
             messages: [
               ...this.conversations[conversationIndex].messages,
-              newMessage.id
+              newMessage.id!
             ]
           };
         }
@@ -110,5 +122,34 @@ export class ChatsComponent implements OnInit {
     );
   }
 
-  
+  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+
+  // Vos autres propriétés et méthodes existantes...
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+    } catch(err) { }
+  }
+
+  // Fonction pour redimensionner automatiquement la zone de texte
+  autoResize(event: any): void {
+    const textarea = event.target;
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+
+    // Limiter la hauteur maximale
+    if (textarea.scrollHeight > 100) {
+      textarea.style.overflowY = 'auto';
+    } else {
+      textarea.style.overflowY = 'hidden';
+    }
+  }
+
+
+
 }

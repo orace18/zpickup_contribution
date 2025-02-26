@@ -6,7 +6,7 @@ export interface UserMetrics {
     monthlyRegistrations: number;
   }
   
-  export  interface AppMetrics {
+  export interface AppMetrics {
     totalDownloads: number;
     androidDownloads: number;
     iosDownloads: number;

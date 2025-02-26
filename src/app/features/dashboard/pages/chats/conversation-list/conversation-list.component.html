@@ -1,37 +1,77 @@
-<div class="conversation-list">
-  <div *ngFor="let conversation of conversations"
-       class="conversation-item"
-       [class.active]="conversation.id === selectedId"
-       (click)="onSelect(conversation.id)">
-    
-    <!-- Partie principale (gauche) -->
-    <div class="conversation-main">
-      <div class="conversation-title">
-        <i class="bi bi-chat-left-text me-2"></i>
-        {{ conversation.title }}
-      </div>
-      
-      <div class="conversation-preview">
-        <i class="bi bi-check2-all me-1" 
-           [class.text-primary]="isRead(conversation)"></i>
-        {{ conversation.lastMessage || 'Aucun message' }}
-      </div>
+<div class="conversation-list-container">
+  <!-- Barre de recherche (fixe en haut) -->
+  <div class="search-container">
+    <div class="input-with-icon">
+      <input type="text"
+             class="search-input ps-10"
+             placeholder="Rechercher un nom"
+             [formControl]="searchControl">
+      <button *ngIf="searchControl.value"
+              class="clear-search"
+              (click)="clearSearch()">
+        <i class="ki-duotone ki-cross fs-2">
+          <span class="path1"></span>
+          <span class="path2"></span>
+        </i>
+      </button>
     </div>
+    <div class="search-icon">
+      <i class="ki-duotone ki-magnifier fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i>
+    </div>
+  </div>
+  
+  <!-- Indicateur de chargement -->
+  <div *ngIf="loading" class="loading-indicator">
+    Chargement des conversations...
+  </div>
 
-    <!-- Métadonnées (droite) -->
-    <div class="conversation-meta">
-      <small class="conversation-time">
-        {{ formatDate(conversation.lastMessageDate) }}
-      </small>
+  <!-- Message aucun résultat -->
+  <div *ngIf="!loading && filteredConversations.length === 0" class="no-results">
+    Aucune conversation ne correspond à votre recherche
+  </div>
+
+  <!-- Liste des conversations (avec défilement) -->
+  <div class="scrollable-list">
+    <div *ngFor="let conversation of filteredConversations"
+         class="conversation-item"
+         [class.active]="conversation.id === selectedId"
+         (click)="onSelect(conversation.id)">
       
-      <div class="d-flex align-items-center">
-        <span *ngIf="conversation.unreadCount" class="unread-badge">
-          {{ conversation.unreadCount }}
-        </span>
-        <!-- <div class="status-indicator" 
-             [class.online]="conversation.status === 'active'"
-             [class.offline]="conversation.status !== 'active'">
-        </div> -->
+      <!-- Avatar -->
+      <div class="avatar-container">
+        <ng-container *ngIf="conversation.avatar; else initialAvatar">
+          <img [src]="conversation.avatar" class="avatar" alt="Contact avatar">
+        </ng-container>
+        <ng-template #initialAvatar>
+          <div class="initial-avatar" [style.background-color]="getAvatarColor(conversation.title)">
+            {{ getInitials(creatorNames[conversation.creator]) }}
+          </div>
+        </ng-template>
+      </div>
+      
+      <!-- Informations principales -->
+      <div class="conversation-info">
+        <div class="conversation-header">
+          <div class="conversation-title">
+            {{ creatorNames[conversation.creator] || 'Chargement...' }}
+          </div>
+          <div class="conversation-time">{{ formatDate(conversation.lastMessageDate!) }}</div>
+        </div>
+        
+        <!-- Email -->
+        <div class="conversation-email" *ngIf="conversation.email">{{ conversation.email }}</div>
+        
+        <div class="conversation-content">
+          <div class="conversation-preview" *ngIf="conversation.lastMessage">
+            {{ conversation.lastMessage }}
+          </div>
+          <div class="unread-badge" *ngIf="conversation.unreadCount" [class]="getBadgeClass(conversation.unreadCount)">
+            {{ conversation.unreadCount }}
+          </div>
+        </div>
       </div>
     </div>
   </div>

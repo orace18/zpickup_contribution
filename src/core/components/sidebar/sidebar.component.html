@@ -92,7 +92,7 @@
             <div class="menu-item" *ngIf="authService.hasPermission('view_courses')">
               <a class="menu-link" routerLink="/finance/courses" routerLinkActive="active">
                 <span class="menu-bullet">
-                  <i class="ki-duotone ki-basket fs-2">
+                  <i class="ki-duotone ki-delivery-time fs-2">
                     <span class="path1"></span>
                     <span class="path2"></span>
 
@@ -170,12 +170,12 @@
           <!-- Chat -->
           <div class="menu-item" *ngIf="authService.hasPermission('manage_chats')">
             <a class="menu-link" routerLink="/chats" routerLinkActive="active">
-              <span class="menu-icon">
-                <i class="bi bi-chat-dots-fill fs-2">
-                  <span class="path1"></span>
-                  <span class="path2"></span>
-                </i>
-              </span>
+             <span class="menu-icon">
+              <i class="ki-duotone ki-messages fs-2">
+                <span class="path1"></span>
+                <span class="path2"></span>
+              </i>
+            </span>
               <span class="menu-title">Chats</span>
             </a>
           </div>
@@ -212,7 +212,7 @@
             <div class="menu-item" *ngIf="authService.hasPermission('view_policy')">
               <a class="menu-link" routerLink="/parametre/politique" routerLinkActive="active">
                 <span class="menu-bullet">
-                  <i class="bi bi-shield-check fs-2">
+                  <i class="ki-duotone ki-key fs-2">
                     <span class="path1"></span>
                     <span class="path2"></span>
                   </i>
@@ -224,7 +224,7 @@
             <div class="menu-item" *ngIf="authService.hasPermission('view_cgu')">
               <a class="menu-link" routerLink="/parametre/cgus" routerLinkActive="active">
                 <span class="menu-bullet">
-                  <i class="bi bi-gear-wide-connected fs-2">
+                  <i class="ki-duotone ki-shield-tick fs-2">
                     <span class="path1"></span>
                     <span class="path2"></span>
 
@@ -238,7 +238,7 @@
             <div class="menu-item" *ngIf="authService.hasPermission('view_configs')">
               <a class="menu-link" routerLink="/parametre/configs" routerLinkActive="active">
                 <span class="menu-bullet">
-                  <i class="bi bi-wrench fs-2">
+                  <i class="ki-duotone ki-wrench fs-2">
                     <span class="path1"></span>
                     <span class="path2"></span>
 

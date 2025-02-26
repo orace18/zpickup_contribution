@@ -241,6 +241,7 @@ import { Race } from '../../users/models/race.model';
   providedIn: 'root'
 })
 export class UserService {
+ 
   private apiUrl = environment.apiUrl;
   private monthNames = [
     'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
@@ -251,6 +252,10 @@ export class UserService {
 
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users`);
+  }
+
+  getUserById(userId: string) {
+    return this.http.get<User>(`${this.apiUrl}/users/${userId}`);
   }
 
   getRaces(): Observable<Race[]> {

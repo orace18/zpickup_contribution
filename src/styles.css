@@ -8,3 +8,11 @@ body {
   margin: 0;
   font-family: 'Roboto', sans-serif;
 }
+
+.ki {
+  font-family: "keenicons-duotone" !important;
+}
+
+.ki-duotone {
+  font-family: "keenicons-duotone" !important;
+}

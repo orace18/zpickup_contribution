@@ -2,7 +2,9 @@ export interface Conversation {
   id: string;
   title: string;
   creator: string;
-  messages: string[]; 
+  email?: string;
+  avatar?: string;
+  messages: string[];
   created_at: string;
   updated_at: string;
   lastMessage?: string;
@@ -10,9 +12,5 @@ export interface Conversation {
   unreadCount?: number;
 }
 
-export interface MessageSender {
-  userId: string;
-  user_type: string;
-}
 
 

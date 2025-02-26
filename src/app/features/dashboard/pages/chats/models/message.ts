@@ -1,11 +1,15 @@
-import { MessageSender } from "./conversation";
-
 export interface Message {
-  id: string;
+  id?: string;
   content: string;
-  discussion: string;
-  sender: MessageSender;
+  timestamp: Date;
+  sender: {
+    userId: string;
+    name: string;
+    avatar?: string;
+    user_type: string;
+  };
   created_at: string;
   updated_at: string;
-  timestamp?: Date;
 }
+
+

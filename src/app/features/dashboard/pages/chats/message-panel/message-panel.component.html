@@ -1,44 +1,98 @@
-<div class="d-flex flex-column h-100">
-  <!-- En-tête fixe -->
-  <div class="p-3 border-bottom d-flex justify-content-between align-items-center flex-shrink-0">
-    <h2 class="h5 mb-0">{{ conversationTitle }}</h2>
-  </div>
-
-  <!-- Zone de messages scrollable -->
-  <div class="flex-grow-1 p-3 overflow-auto" #scrollContainer>
-    <div *ngFor="let message of messages" 
-         [ngClass]="isCurrentUser(message.sender.userId) ? 'text-end' : 'text-start'">
-      <div class="d-inline-block max-w-75 mb-3"
-           [ngClass]="isCurrentUser(message.sender.userId) ? 'bg-primary text-white' : 'bg-light'"
-           class="rounded p-3">
-        <!-- Contenu du message -->
-        <div class="message-content">{{ message.content }}</div>
-        
-        <!-- Horodatage -->
-        <small [ngClass]="isCurrentUser(message.sender.userId) ? 'text-white-50' : 'text-muted'">
-          {{ message.timestamp | date:'short' }}
-        </small>
+<div class="chat-container">
+  <!-- En-tête avec le nom et statut du contact -->
+  <div class="chat-header">
+    <div class="user-info">
+<!--       <img [src]="contactAvatar" class="user-avatar" alt="User avatar" />
+ -->      <div class="user-details">
+        <div class="user-name">{{ conversationTitle }}</div>
+        <div class="user-status">
+          <span class="status-indicator" [ngClass]="{'online': contactIsOnline}"></span>
+          <span class="status-text">{{ contactStatus }}</span>
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- Zone de saisie fixe -->
-  <div class="p-3 border-top flex-shrink-0">
-    <div class="input-group">
-      <textarea 
-        class="form-control custom-textarea"
-        [(ngModel)]="newMessage"
-        (input)="autoResize($event)"
-        (keydown.enter)="$event.preventDefault(); send()"
-        [disabled]="loading"
-        rows="1"
-        placeholder="Écrivez votre message..."></textarea>
-      
-      <button class="btn btn-primary"
-              (click)="send()"
-              [disabled]="loading">
-        <i class="bi bi-send"></i>
+    <div class="header-actions">
+      <button class="action-button">
+        <i class="bi bi-three-dots"></i>
       </button>
     </div>
+  </div>
+
+  <!-- Séparateur -->
+  <div class="separator"></div>
+
+  <!-- Zone de messages scrollable -->
+  <div class="message-list" #scrollContainer>
+    <ng-container *ngFor="let message of messages; let i = index">
+      <!-- Séparateur de date si nécessaire -->
+      <div class="message-date-separator" *ngIf="isFirstMessageOfDate(i)">
+        {{ getMessageDate(message) }}
+      </div>
+
+      <div class="message-row" [ngClass]="isAdmin(message.sender.user_type) ? 'own-message' : 'other-message'">
+        <!-- Avatar pour les messages d'utilisateurs non-admin -->
+        <div class="avatar-container" *ngIf="!isAdmin(message.sender.user_type)">
+          <!-- <img [src]="message.sender.avatar || '/assets/avatar-placeholder.png'" class="avatar" alt="Avatar"> -->
+          <ng-container *ngIf="message.sender.avatar; else initialAvatar">
+            <img [src]="message.sender.avatar" class="avatar" alt="Contact avatar">
+          </ng-container>
+          <ng-template #initialAvatar>
+            <div class="initial-avatar" >
+              {{ getInitials(creatorNames[message.sender.userId]) }}
+            </div>
+          </ng-template>
+        </div>
+
+        <div class="message-container">
+          <!-- Info expéditeur (uniquement pour les messages reçus des non-admin) -->
+          <div class="message-header" *ngIf="!isAdmin(message.sender.user_type)">
+            <span class="sender-name">{{ message.sender.name }}</span>
+            <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
+          </div>
+
+          <!-- Contenu du message -->
+          <div class="message-bubble">
+            <div class="message-content">{{ message.content }}</div>
+          </div>
+
+          <!-- Horodatage (pour tous les messages) -->
+          <div class="message-footer">
+            <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Message d'erreur -->
+    <div class="error-message" *ngIf="error">{{ error }}</div>
+  </div>
+
+  <!-- Zone de saisie de message -->
+  <div class="message-composer">
+    <button class="action-button">
+      <i class="bi bi-paperclip"></i>
+    </button>
+
+    <button class="action-button">
+      <i class="bi bi-arrow-up-square"></i>
+    </button>
+
+    <div class="composer-input-container">
+      <textarea
+        class="composer-input"
+        [(ngModel)]="newMessage"
+        (input)="autoResize($event)"
+        [disabled]="loading"
+        rows="1"
+        placeholder="Type a message"></textarea>
+    </div>
+
+    <button class="send-button" [disabled]="loading || !newMessage?.trim()" (click)="send()">
+      Envoyer
+      <!-- <i class="ki-duotone ki-send fs-2">
+        <span class="path1"></span>
+        <span class="path2"></span>
+      </i> -->
+    </button>
   </div>
 </div>
