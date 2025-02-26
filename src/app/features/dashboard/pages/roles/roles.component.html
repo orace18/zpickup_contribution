@@ -1,5 +1,10 @@
 <div class="content fs-6 d-flex flex-column flex-column-fluid" id="kt_content">
   <!--begin::Toolbar-->
+  <app-loading
+    *ngIf="isLoading"
+    [message]="loadingMessage"
+    [overlay]="true"
+  ></app-loading>
   <div class="toolbar" id="kt_toolbar">
     <div class=" container-fluid  d-flex flex-stack flex-wrap flex-sm-nowrap">
       <!--begin::Info-->

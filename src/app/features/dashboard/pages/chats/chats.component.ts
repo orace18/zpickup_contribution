@@ -8,6 +8,7 @@ import { ChatService } from './services/chat.service';
 import {FormsModule} from '@angular/forms';
 import {map, Observable, tap} from 'rxjs';
 import { UsersService } from '../users/services/users.service';
+import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 
 @Component({
   selector: 'app-chats',
@@ -15,8 +16,9 @@ import { UsersService } from '../users/services/users.service';
     NgIf,
     FormsModule,
     ConversationListComponent,
-    MessagePanelComponent
-  ],
+    MessagePanelComponent,
+    LoadingComponent
+],
   templateUrl: './chats.component.html',
   standalone: true,
   styleUrl: './chats.component.css'
@@ -27,12 +29,19 @@ export class ChatsComponent implements OnInit {
   messages: Message[] = [];
   loading = false;
   error: string | null = null;
+  isLoading: boolean = false;
+  loadingMessage: string = 'Chargement des données...';
+  
   contactNames$: Observable<string[]> = new Observable<string[]>();
 
   constructor(private chatService: ChatService, private userService: UsersService) {}
 
   ngOnInit(): void {
-    this.loadConversations();
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+      this.loadConversations();
+    }, 1000);
   }
 
   loadConversations(): void {

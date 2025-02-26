@@ -1,4 +1,9 @@
 <div class="container my-5">
+  <app-loading
+    *ngIf="isLoading"
+    [message]="loadingMessage"
+    [overlay]="true"
+  ></app-loading>
   <div class="accordion" id="configAccordion">
     <h1> Configurations</h1>
     <div class="card border-0 shadow-sm mb-3 rounded-3" *ngFor="let config of configs; let i = index">

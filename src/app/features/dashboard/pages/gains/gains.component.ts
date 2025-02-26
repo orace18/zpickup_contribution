@@ -11,6 +11,7 @@ import * as XLSX from 'xlsx';
 import * as Papa from 'papaparse';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 
 @Component({
   selector: 'app-gains',
@@ -20,8 +21,9 @@ import autoTable from 'jspdf-autotable';
     FormsModule,
     CardModule,
     TableModule,
-    NgbDropdownModule
-  ],
+    NgbDropdownModule,
+    LoadingComponent
+],
   templateUrl: './gains.component.html',
   styleUrl: './gains.component.css',
 })
@@ -33,6 +35,8 @@ export class GainsComponent implements OnInit {
   private modalRef: NgbModalRef | null = null;
   private gainsSubject = new BehaviorSubject<GainHistory[]>([]);
   today: string = new Date().toISOString().split('T')[0];
+  isLoading: boolean = false;
+  loadingMessage: string = 'Chargement des données...';
 
   @ViewChild('periodModal') periodModal!: ElementRef;
 
@@ -65,29 +69,35 @@ export class GainsComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    //console.log('Gains component initialized');
-    
-    // Chargement initial des données
-    this.gainsService.getGains().subscribe(data => {
-     // console.log('Données reçues:', data);
-      this.originalData = data;
-      this.gainsSubject.next(data);
-    });
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+      this.gainsService.getGains().subscribe(data => {
+      // console.log('Données reçues:', data);
+        this.originalData = data;
+        this.gainsSubject.next(data);
+      });
+    }, 2000);
 
-    this.gainsService.getZemRaces().subscribe(
-      gains => {
-        if (gains && typeof gains === 'object') {
-          this.cards[0].amount = Number(gains.customer_bonus) || 0;
-          this.cards[2].amount = Number(gains.zem_bonus) || 0;
-          this.cards[1].amount = Number(gains.admin_bonus) || 0;
-        } else {
-         // console.error('Invalid gains data:', gains);
+      this.gainsService.getZemRaces().subscribe(
+        gains => {
+          //this.isLoading = true;
+          if (gains && typeof gains === 'object') {
+            //setTimeout(() => {
+             // this.isLoading = false;
+              this.cards[0].amount = Number(gains.customer_bonus) || 0;
+            this.cards[2].amount = Number(gains.zem_bonus) || 0;
+            this.cards[1].amount = Number(gains.admin_bonus) || 0;
+            //}, 10000);
+          
+          } else {
+          // console.error('Invalid gains data:', gains);
+          }
+        },
+        error => {
+          //console.error('Error in ngOnInit:', error);
         }
-      },
-      error => {
-        //console.error('Error in ngOnInit:', error);
-      }
-    );
+      );
   }
 
   openModal(content: TemplateRef<any>) {

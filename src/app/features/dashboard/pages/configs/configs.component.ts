@@ -5,6 +5,7 @@ import { ConfigService } from './services/config.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 
 interface ConfigWithState extends Config {
   originalValue?: string;
@@ -13,7 +14,7 @@ interface ConfigWithState extends Config {
 
 @Component({
   selector: 'app-configs',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoadingComponent],
   standalone: true,
   templateUrl: './configs.component.html',
   styleUrl: './configs.component.css'
@@ -21,22 +22,28 @@ interface ConfigWithState extends Config {
 export class ConfigsComponent implements OnInit {
   configs: ConfigWithState[] = [];
   selectedIndex: number = -1;
+  isLoading: boolean = false;
+  loadingMessage: string = 'Chargement des données...';
 
   constructor(private configService: ConfigService, private toast: ToastrService) {}
 
   ngOnInit() {
-    this.configService.getConfig().subscribe({
-      next: (response: any) => {
-        this.configs = response.map((config: Config) => ({
-          ...config,
-          originalValue: config.value,
-          isDirty: false
-        }));
-      },
-      error: (error) => {
-        console.error('Erreur lors de la récupération des configurations:', error);
-      }
-    });
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+      this.configService.getConfig().subscribe({
+        next: (response: any) => {
+          this.configs = response.map((config: Config) => ({
+            ...config,
+            originalValue: config.value,
+            isDirty: false
+          }));
+        },
+        error: (error) => {
+          console.error('Erreur lors de la récupération des configurations:', error);
+        }
+      });
+    }, 2000);
   }
 
   toggleItem(index: number) {

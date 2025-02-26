@@ -1,4 +1,9 @@
 <div class="container mx-auto p-4">
+  <app-loading
+    *ngIf="isLoading"
+    [message]="loadingMessage"
+    [overlay]="true"
+  ></app-loading>
     <form *ngIf="termsCondition" (ngSubmit)="onSubmit()" class="mb-4" #policyForm="ngForm">
       <div class="card shadow-sm">
         <div class="text-white p-4">

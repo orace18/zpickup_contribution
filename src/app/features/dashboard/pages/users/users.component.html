@@ -1,6 +1,12 @@
 <div class="content fs-6 d-flex flex-column flex-column-fluid" id="kt_content">
+ 
   <!-- Card -->
   <div class="card">
+    <app-loading
+    *ngIf="isLoading"
+    [message]="loadingMessage"
+    [overlay]="true"
+  ></app-loading>
     <h1>Utilisateurs</h1>
     <!-- Tabs navigation -->
     <div class="card-header border-0 pt-6">

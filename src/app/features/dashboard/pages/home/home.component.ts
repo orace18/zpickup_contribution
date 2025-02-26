@@ -11,6 +11,7 @@ import * as Papa from 'papaparse';
 import 'jspdf-autotable';
 import { InsuranceMetrics, PendingValidations, UserActivity } from '../../../../../shared/layouts/graphiques/models/metric.model';
 import { UserService } from './services/home.service';
+import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 
 
 interface UserMetrics {
@@ -39,7 +40,7 @@ interface AppMetrics {
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  imports: [CommonModule, RouterModule, GraphiquesComponent, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, RouterModule, GraphiquesComponent, ReactiveFormsModule, FormsModule, LoadingComponent],
   standalone: true
 })
 
@@ -55,6 +56,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   insuranceMetrics!: InsuranceMetrics;
   pendingValidations!: PendingValidations;
   userActivity!: UserActivity;
+  isLoading: boolean = false;
+  loadingMessage: string = 'Chargement des données...';
 
   constructor(
     private analyticsService: AnalyticsService,
@@ -72,9 +75,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit() {
-    this.loadAllMetrics();
-    this.loadDashboardData();
-    this.loadData();
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+      this.loadAllMetrics();
+      this.loadDashboardData();
+      this.loadData();
+    }, 2000);
+  
 
     /* this.userService.getUsers().subscribe(users => {
       const monthlyData = this.userService.getMonthlyRegistrations(users);

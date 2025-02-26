@@ -10,11 +10,12 @@ import { EDITOR_CONFIG } from '../../../../../shared/functions/editor.config.fun
 import { ToastrService } from 'ngx-toastr';
 import { Condition } from './models/terms_condition.model';
 import { ConditionService } from './services/terms_condition.service';
+import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 
 @Component({
   selector: 'app-confidentialite',
   standalone: true,
-  imports: [CommonModule, EditorModule, HttpClientModule, FormsModule],
+  imports: [CommonModule, EditorModule, HttpClientModule, FormsModule, LoadingComponent],
   templateUrl: './terms_condition.component.html',
   styleUrl: './terms_condition.component.css',
   providers: [
@@ -28,15 +29,23 @@ export class ConfidentialiteComponent implements OnInit, OnDestroy{
     successMessage: string | null = null;
     isSaving = false;
     editorConfig = EDITOR_CONFIG;
+    isLoading: boolean = false;
+    loadingMessage: string = 'Chargement des données...';
   
     constructor(private termCondition: ConditionService, private toost: ToastrService) {}
   
     ngOnInit() {
-      this.loadtermsCondition();
+      this.isLoading = true;
+      setTimeout(() => {
+        this.isLoading = false;
+        this.loadtermsCondition();
+      }, 2000);
     }
   
     ngOnDestroy() {
+    
       tinymce.remove();
+
     }
   
     private loadtermsCondition() {

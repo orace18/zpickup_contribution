@@ -8,12 +8,13 @@ import { finalize } from 'rxjs/operators';
 import {CommonModule} from '@angular/common';
 import {Role} from './models/role.model';
 import { Modal } from 'bootstrap';
+import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 declare const bootstrap: any;
 
 @Component({
   selector: 'app-roles',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoadingComponent],
   templateUrl: './roles.component.html'
 })
 export class RolesComponent implements OnInit, AfterViewInit {
@@ -28,6 +29,8 @@ export class RolesComponent implements OnInit, AfterViewInit {
   permissionsByKey: Map<string, string> = new Map();
   private accordions: Map<string, any> = new Map();
   dropdowns: any[] = [];
+  isLoading: boolean = false;
+  loadingMessage: string = 'Chargement des données...';
 
   constructor(
     private fb: FormBuilder,
@@ -98,6 +101,10 @@ export class RolesComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loading = true;
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+    
 
     this.roleService.getAllRoles()
       .pipe(finalize(() => (this.loading = false)))
@@ -144,7 +151,7 @@ export class RolesComponent implements OnInit, AfterViewInit {
       this.initializeAccordions();
       this.initializeDropdowns();
     }, 100);
-
+  }, 1000);
   }
 
   private initializeAccordions(): void {

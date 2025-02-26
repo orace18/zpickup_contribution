@@ -30,6 +30,11 @@
       </div>
     </div>
   </div>
+      <app-loading
+      *ngIf="isLoading"
+      [message]="loadingMessage"
+      [overlay]="true"
+    ></app-loading>
 
   <ng-template #periodModal let-modal>
     <div class="modal-header">

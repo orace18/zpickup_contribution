@@ -36,8 +36,8 @@ import { BehaviorSubject, Observable, shareReplay, take, tap, throwError } from 
 import {Router} from '@angular/router';
 import {map} from 'rxjs/operators';
 import { ConfirmationDialogComponent } from "../../../../../shared/layouts/confirmation-dialog/confirmation-dialog.component";
-import { LoadingComponent } from '../../../../../shared/layouts/loading/loading.component';
 import { state } from '@angular/animations';
+import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 declare var bootstrap: any;
 
 @Pipe({
@@ -111,6 +111,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   referenceFilter: string = '';
   isModalOpen: boolean = this.loading;
   isLoading: boolean = false;
+  loadingMessage: string = 'Chargement des données...';
   
   /* birthday: '',
     address: '', */
@@ -815,13 +816,16 @@ loadUserRaces(userId: string): void {
   }
 
   async ngOnInit(): Promise<void> {
-    this.loadUsers();
-    this.loadRoles();
-    await this.loadUserStatuses();
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading  = false;
+      this.loadUsers();
+      this.loadRoles();
+     
 
-    this.userRaces.forEach(race => {
-      this.collapsedSections[race._id] = true;
-    });
+      this.userRaces.forEach(race => {
+        this.collapsedSections[race._id] = true;
+      });
 
 
     
@@ -829,7 +833,8 @@ loadUserRaces(userId: string): void {
     this.editModal = new Modal(document.getElementById('kt_modal_edit_user')!);
     this.detailsModal = new Modal(document.getElementById('kt_modal_user_details')!);
     this.addModal = new Modal(document.getElementById('kt_modal_add_user')!);
-
+  }, 2000);
+  await this.loadUserStatuses();
   }
 
   setInitialCollapseState(userRaces: Race[]): void {

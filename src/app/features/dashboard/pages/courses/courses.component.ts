@@ -9,11 +9,12 @@ import { jsPDF } from "jspdf";
 import  'jspdf-autotable';
 import { map } from 'rxjs';
 import { TableModule } from 'primeng/table';
+import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 
 @Component({
   selector: 'app-courses',
   standalone: true,
-  imports: [CommonModule, NgbModule, NgbModalModule ,FormsModule, DetailsComponentComponent, TableModule],
+  imports: [CommonModule, NgbModule, NgbModalModule, FormsModule, DetailsComponentComponent, TableModule, LoadingComponent],
   templateUrl: './courses.component.html',
   styleUrl: './courses.component.css'
 })
@@ -29,6 +30,7 @@ export class CoursesComponent implements OnInit {
   startDate: Date | null = null;
   endDate: Date | null = null;
   today: string = new Date().toISOString().split('T')[0];
+  loadingMessage: string = 'Chargement des données...';
 
   constructor(
     private raceHistoryService: RaceHistoryService,
@@ -36,7 +38,11 @@ export class CoursesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadRaceHistory();
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+      this.loadRaceHistory();
+    }, 2000);
   }
 
   loadRaceHistory() {

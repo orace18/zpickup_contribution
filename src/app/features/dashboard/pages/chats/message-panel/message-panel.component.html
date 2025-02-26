@@ -87,7 +87,7 @@
         placeholder="Type a message"></textarea>
     </div>
 
-    <button class="send-button" [disabled]="loading || !newMessage?.trim()" (click)="send()">
+    <button class="send-button" [disabled]="loading || !newMessage.trim()" (click)="send()">
       Envoyer
       <!-- <i class="ki-duotone ki-send fs-2">
         <span class="path1"></span>

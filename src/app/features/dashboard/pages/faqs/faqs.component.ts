@@ -8,6 +8,7 @@ import {Modal} from 'bootstrap';
 import {ToastrService} from 'ngx-toastr';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import { ConfirmationDialogComponent } from "../../../../../shared/layouts/confirmation-dialog/confirmation-dialog.component";
+import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 
 @Component({
   selector: 'app-faqs',
@@ -17,7 +18,8 @@ import { ConfirmationDialogComponent } from "../../../../../shared/layouts/confi
     ReactiveFormsModule,
     NgIf,
     NgForOf,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    LoadingComponent
 ],
   templateUrl: './faqs.component.html',
   styleUrl: './faqs.component.css'
@@ -33,6 +35,8 @@ export class FaqsComponent implements OnInit {
   modal: Modal | null = null;
   editingFaq: FAQ | null = null;
   editModal: Modal | null = null;
+  isLoading: boolean = false;
+  loadingMessage: string = 'Chargement des données...';
 
   constructor(
     private faqService: FaqService,
@@ -48,7 +52,11 @@ export class FaqsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadFaqs();
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+      this.loadFaqs();
+    }, 2000);
   }
 
   loadFaqs() {

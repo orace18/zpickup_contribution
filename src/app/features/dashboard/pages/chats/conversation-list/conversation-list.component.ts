@@ -13,8 +13,6 @@ import { ReactiveFormsModule } from '@angular/forms';
   imports: [
     NgForOf,
     NgIf,
-    AsyncPipe,
-    DatePipe,
     ReactiveFormsModule,
     CommonModule
   ],

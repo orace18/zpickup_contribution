@@ -10,10 +10,11 @@ import tinymce from 'tinymce';
 import { FormsModule} from '@angular/forms';
 import { EDITOR_CONFIG } from '../../../../../shared/functions/editor.config.function';
 import { ToastrService } from 'ngx-toastr';
+import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 
 @Component({
   selector: 'app-cgus',
-  imports: [CommonModule, EditorModule, HttpClientModule, FormsModule],
+  imports: [CommonModule, EditorModule, HttpClientModule, FormsModule, LoadingComponent],
   standalone: true,
   templateUrl: './private_polity.component.html',
   styleUrl: './private_polity.component.css',
@@ -27,11 +28,18 @@ export class CgusComponent implements OnInit, OnDestroy {
   successMessage: string | null = null;
   isSaving = false;
   editorConfig = EDITOR_CONFIG;
+  isLoading: boolean = false;
+  loadingMessage: string = 'Chargement des données...';
 
   constructor(private privacyPolicyService: PrivacyPolicyService, private toost: ToastrService) {}
 
   ngOnInit() {
-    this.loadPrivacyPolicy();
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+      this.loadPrivacyPolicy();
+    }, 2000);
+  
   }
 
   ngOnDestroy() {

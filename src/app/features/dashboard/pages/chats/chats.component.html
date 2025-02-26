@@ -1,4 +1,9 @@
 <div class="container">
+  <app-loading
+    *ngIf="isLoading"
+    [message]="loadingMessage"
+    [overlay]="true"
+  ></app-loading>
   <h1>Chats</h1>
 <div class="chat-container">
   <div class="conversation-list-container">

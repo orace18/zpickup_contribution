@@ -1,5 +1,10 @@
 <div class="container mt-4">
   <!-- Modal de filtrage (à ajouter) -->
+  <app-loading
+  *ngIf="isLoading"
+  [message]="loadingMessage"
+  [overlay]="true"
+></app-loading>
   <ng-template #periodModal let-modal>
     <div class="modal-header">
       <h4 class="modal-title" id="modal-basic-title">Filtrer par période</h4>
