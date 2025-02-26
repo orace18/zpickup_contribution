@@ -1,9 +1,9 @@
 <div class="container-fluid p-4">
   <app-loading
-  *ngIf="isLoading"
-  [message]="loadingMessage"
-  [overlay]="true"
-></app-loading>
+    *ngIf="isLoading"
+    [message]="loadingMessage"
+    [overlay]="true"
+  ></app-loading>
   <!-- Header Toolbar -->
   <div class="mb-4 d-flex justify-content-between align-items-center">
     <div class="mb-0">
@@ -42,15 +42,15 @@
           </div>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <small class="text-muted">Total:</small>
-            <span class="badge badge-light-primary">{{userMetrics?.totalUsers || 0}}</span>
+            <span class="badge badge-light-primary">{{totalUsers}}</span>
           </div>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <small class="text-muted">Transporteurs:</small>
-            <span class="badge badge-light-primary">{{userMetrics?.totalZem || 0}}</span>
+            <span class="badge badge-light-primary">{{totalZem}}</span>
           </div>
           <div class="d-flex justify-content-between align-items-center">
             <small class="text-muted">Clients:</small>
-            <span class="badge badge-light-primary">{{userMetrics?.totalClients || 0}}</span>
+            <span class="badge badge-light-primary">{{totalClients}}</span>
           </div>
         </div>
       </div>
@@ -68,15 +68,15 @@
           </div>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <small class="text-muted">Total:</small>
-            <span class="badge badge-light-primary">{{appMetrics?.totalDownloads || 0}}</span>
+            <span class="badge badge-light-primary">{{totalDownloads}}</span>
           </div>
           <div class="d-flex justify-content-between align-items-center mb-2">
             <small class="text-muted">Android:</small>
-            <span class="badge badge-light-primary">{{appMetrics?.androidDownloads || 0}}</span>
+            <span class="badge badge-light-primary">{{androidDownloads}}</span>
           </div>
           <div class="d-flex justify-content-between align-items-center">
             <small class="text-muted">iOS:</small>
-            <span class="badge badge-light-primary">{{appMetrics?.iosDownloads || 0}}</span>
+            <span class="badge badge-light-primary">{{iosDownloads}}</span>
           </div>
         </div>
       </div>
@@ -89,15 +89,15 @@
           <h5 class="card-title mb-4">État des Assurances</h5>
           <div class="d-flex justify-content-between align-items-center mb-3">
             <span>Assurances valides</span>
-            <span class="badge badge-light-success">{{insuranceMetrics?.valid || 0}}</span>
+            <span class="badge badge-light-success">{{validInsurance}}</span>
           </div>
           <div class="d-flex justify-content-between align-items-center mb-3">
             <span>Assurances expirées</span>
-            <span class="badge badge-light-danger">{{insuranceMetrics?.expired || 0}}</span>
+            <span class="badge badge-light-danger">{{expiredInsurance}}</span>
           </div>
           <div class="d-flex justify-content-between align-items-center">
             <span>Expiration proche</span>
-            <span class="badge badge-light-warning">{{insuranceMetrics?.expiringSoon || 0}}</span>
+            <span class="badge badge-light-warning">{{expiringSoonInsurance}}</span>
           </div>
         </div>
       </div>
@@ -111,15 +111,15 @@
           <div class="list-group list-group-flush">
             <div class=" d-flex justify-content-between align-items-center mb-2">
               <span>Comptes Transporteurs</span>
-              <span class="badge badge-light-primary ">{{pendingValidations?.zem || 0}}</span>
+              <span class="badge badge-light-primary ">{{pendingZem}}</span>
             </div>
             <div class=" d-flex justify-content-between align-items-center mb-2">
               <span>Documents</span>
-              <span class="badge badge-light-info ">{{pendingValidations?.documents || 0}}</span>
+              <span class="badge badge-light-info ">{{pendingDocuments}}</span>
             </div>
             <div class=" d-flex justify-content-between align-items-center mb-2">
               <span>Total</span>
-              <span class="badge badge-light-info ">{{pendingValidations?.total || 0}}</span>
+              <span class="badge badge-light-info ">{{pendingTotal}}</span>
             </div>
           </div>
         </div>
@@ -133,15 +133,15 @@
           <h5 class="card-title mb-4">Activité Utilisateurs</h5>
           <div class="d-flex justify-content-between align-items-center mb-3">
             <span>Utilisateurs actifs</span>
-            <span class="badge badge-light-success">{{userActivity?.active || 0}}</span>
+            <span class="badge badge-light-success">{{activeUsers}}</span>
           </div>
           <div class="d-flex justify-content-between align-items-center mb-3">
             <span>Inactifs (30j+)</span>
-            <span class="badge badge-light-warning">{{userActivity?.inactive || 0}}</span>
+            <span class="badge badge-light-warning">{{inactiveUsers}}</span>
           </div>
           <div class="progress mt-3" style="height: 8px;">
             <div class="progress-bar badge-light-success"
-                 [style.width]="(userActivity?.engagementRate || 0) + '%'">
+                 [style.width]="engagementRate + '%'">
             </div>
           </div>
         </div>
