@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -8,6 +8,9 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideToastr } from 'ngx-toastr';
 import { authInterceptor } from '../core/services/api.service';
 import { TINYMCE_SCRIPT_SRC } from '@tinymce/tinymce-angular';
+import { environment } from '../environments/environment';
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireMessagingModule } from '@angular/fire/compat/messaging';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,6 +30,10 @@ export const appConfig: ApplicationConfig = {
     { 
       provide: TINYMCE_SCRIPT_SRC, 
       useValue: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js'
-    }
+    },
+    importProvidersFrom(
+      AngularFireModule.initializeApp(environment.firebase),
+      AngularFireMessagingModule
+    )
   ]
 };

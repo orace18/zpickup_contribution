@@ -28,7 +28,8 @@
                 "glob": "**/*",
                 "input": "node_modules/tinymce",
                 "output": "/tinymce/"
-              }
+              },
+              "src/firebase-messaging-sw.js"
             ],
             "styles": [
               "node_modules/ngx-toastr/toastr.css",

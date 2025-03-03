@@ -29,9 +29,9 @@
   </div>
 
   <!-- Message aucun résultat -->
-  <div *ngIf="!loading && filteredConversations.length === 0" class="no-results">
+ <!--  <div *ngIf="!loading && filteredConversations.length === 0" class="no-results">
     Aucune conversation ne correspond à votre recherche
-  </div>
+  </div> -->
 
   <!-- Liste des conversations (avec défilement) -->
   <div class="scrollable-list">
@@ -47,7 +47,7 @@
         </ng-container>
         <ng-template #initialAvatar>
           <div class="initial-avatar" [style.background-color]="getAvatarColor(conversation.title)">
-            {{ getInitials(creatorNames[conversation.creator]) }}
+            {{ getInitials(conversation.title) }}
           </div>
         </ng-template>
       </div>
@@ -56,7 +56,7 @@
       <div class="conversation-info">
         <div class="conversation-header">
           <div class="conversation-title">
-            {{ creatorNames[conversation.creator] || 'Chargement...' }}
+            {{ conversation.title }}
           </div>
           <div class="conversation-time">{{ formatDate(conversation.lastMessageDate!) }}</div>
         </div>
@@ -65,8 +65,11 @@
         <div class="conversation-email" *ngIf="conversation.email">{{ conversation.email }}</div>
         
         <div class="conversation-content">
-          <div class="conversation-preview" *ngIf="conversation.lastMessage">
+          <!-- <div class="conversation-preview" *ngIf="conversation.lastMessage">
             {{ conversation.lastMessage }}
+          </div> -->
+          <div class="conversation-preview" >
+            {{ creatorNames[conversation.creator] }}
           </div>
           <div class="unread-badge" *ngIf="conversation.unreadCount" [class]="getBadgeClass(conversation.unreadCount)">
             {{ conversation.unreadCount }}

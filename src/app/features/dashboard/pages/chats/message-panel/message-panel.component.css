@@ -197,8 +197,13 @@
   color: #94a3b8;
 }
 
-.own-message .message-time {
+.message-time {
   color: #94a3b8;
+}
+
+.own-message {
+  color: #796ce7;
+  justify-content: flex-end;
 }
 
 /* Message composer styles */
@@ -266,4 +271,54 @@
   background-color: #fee2e2;
   border-radius: 8px;
   font-size: 14px;
+}
+
+
+.new-messages-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0;
+  background-color: rgba(0, 123, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 123, 255, 0.2);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #007bff;
+  border-radius: 50%;
+  margin-right: 6px;
+  animation: pulse 1.5s infinite;
+}
+
+.new-messages-indicator small {
+  color: #007bff;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

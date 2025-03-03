@@ -354,23 +354,6 @@ export class RolesComponent implements OnInit, AfterViewInit {
     }
   }
 
- /*  ngAfterViewInit() {
-    // Initialiser les boutons de fermeture modaux
-    const closeButton = document.querySelector('[data-kt-roles-modal-action="close"]');
-    if (closeButton) {
-      closeButton.addEventListener('click', () => {
-        this.closeModal();
-      });
-    }
-
-
-    setTimeout(() => {
-      this.initializeDropdowns();
-    });
-  } */
-
-    
-
   private initializeDropdowns(): void {
     // Détruire les anciens dropdowns
     this.dropdowns.forEach(dropdown => dropdown.dispose());

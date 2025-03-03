@@ -1,2 +1,10 @@
-<router-outlet>
-</router-outlet>
+
+<router-outlet></router-outlet>
+<div class="snackbar" *ngIf="message">
+    
+    <div class="snackbar-content">
+        <div class="title">{{messageTitle}}</div>
+        <div class="message">{{ message }}</div> 
+    </div>
+    <button class="snackbar-close" (click)="message = ''">×</button>
+  </div>

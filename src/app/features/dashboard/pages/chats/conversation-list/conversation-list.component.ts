@@ -47,14 +47,14 @@ export class ConversationListComponent implements OnInit, OnChanges {
       this.filterConversations(searchTerm || '');
     });
     
-    // Initialiser les conversations filtrées
-    this.filteredConversations = [...this.conversations];
+    // Initialiser les conversations filtrées et les trier
+    this.filteredConversations = this.sortConversationsByDate([...this.conversations]);
   }
   
   ngOnChanges(changes: SimpleChanges) {
     // Recharger les noms si la liste des conversations change
     if (changes['conversations']) {
-      this.filteredConversations = [...this.conversations];
+      this.filteredConversations = this.sortConversationsByDate([...this.conversations]);
       this.filterConversations(this.searchControl.value || '');
       
       if (!changes['conversations'].firstChange) {
@@ -63,39 +63,54 @@ export class ConversationListComponent implements OnInit, OnChanges {
     }
   }
   
+  // Méthode pour trier les conversations par date du dernier message (la plus récente en premier)
+  sortConversationsByDate(conversations: Conversation[]): Conversation[] {
+    return conversations.sort((a, b) => {
+      // Si une des dates est undefined, la placer à la fin
+      if (!a.lastMessageDate) return 1;
+      if (!b.lastMessageDate) return -1;
+      
+      // Trier par ordre décroissant (du plus récent au plus ancien)
+      return new Date(b.lastMessageDate).getTime() - new Date(a.lastMessageDate).getTime();
+    });
+  }
+  
   filterConversations(searchTerm: string) {
     if (!searchTerm.trim()) {
-      // Si la recherche est vide, afficher toutes les conversations
-      this.filteredConversations = [...this.conversations];
+      // Si la recherche est vide, afficher toutes les conversations triées par date
+      this.filteredConversations = this.sortConversationsByDate([...this.conversations]);
       return;
     }
     
     const term = searchTerm.toLowerCase().trim();
     
-    this.filteredConversations = this.conversations.filter(conversation => {
-      // Rechercher dans le titre de la conversation
-      if (conversation.title.toLowerCase().includes(term)) {
-        return true;
-      }
-      
-      // Rechercher dans le nom du créateur
-      const creatorName = this.creatorNames[conversation.creator];
-      if (creatorName && creatorName.toLowerCase().includes(term)) {
-        return true;
-      }
-      
-      // Rechercher dans l'email
-      if (conversation.email && conversation.email.toLowerCase().includes(term)) {
-        return true;
-      }
-      
-      // Rechercher dans le dernier message
-      if (conversation.lastMessage && conversation.lastMessage.toLowerCase().includes(term)) {
-        return true;
-      }
-      
-      return false;
-    });
+    // Filtrer puis trier les résultats
+    this.filteredConversations = this.sortConversationsByDate(
+      this.conversations.filter(conversation => {
+        // Rechercher dans le titre de la conversation
+        if (conversation.title.toLowerCase().includes(term)) {
+          return true;
+        }
+        
+        // Rechercher dans le nom du créateur
+        const creatorName = this.creatorNames[conversation.creator];
+        if (creatorName && creatorName.toLowerCase().includes(term)) {
+          return true;
+        }
+        
+        // Rechercher dans l'email
+        if (conversation.email && conversation.email.toLowerCase().includes(term)) {
+          return true;
+        }
+        
+        // Rechercher dans le dernier message
+        if (conversation.lastMessage && conversation.lastMessage.toLowerCase().includes(term)) {
+          return true;
+        }
+        
+        return false;
+      })
+    );
   }
   
   loadCreatorNames() {
@@ -206,7 +221,7 @@ export class ConversationListComponent implements OnInit, OnChanges {
     if (!date) return '';
     
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
+    const diff = now.getTime() - new Date(date).getTime();
     const oneDay = 24 * 60 * 60 * 1000;
     const oneWeek = 7 * oneDay;
     

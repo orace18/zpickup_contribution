@@ -47,8 +47,8 @@
           <!-- Info expéditeur (uniquement pour les messages reçus des non-admin) -->
           <div class="message-header" *ngIf="!isAdmin(message.sender.user_type)">
             <span class="sender-name">{{ message.sender.name }}</span>
-            <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
-          </div>
+<!--             <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
+ -->          </div>
 
           <!-- Contenu du message -->
           <div class="message-bubble">
