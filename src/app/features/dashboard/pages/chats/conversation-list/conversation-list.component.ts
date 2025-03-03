@@ -1,12 +1,13 @@
-import { Component, EventEmitter, Input, Output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { Conversation } from '../models/conversation';
 import { AsyncPipe, DatePipe, NgForOf, NgIf } from '@angular/common';
-import { map, Observable, tap, forkJoin, of } from 'rxjs';
+import { map, Observable, tap, forkJoin, of, Subscription, interval } from 'rxjs';
 import { UsersService } from '../../users/services/users.service';
 import { FormControl } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ChatService } from '../services/chat.service';
 
 @Component({
   selector: 'app-conversation-list',
@@ -16,14 +17,14 @@ import { ReactiveFormsModule } from '@angular/forms';
     ReactiveFormsModule,
     CommonModule
   ],
-
   templateUrl: './conversation-list.component.html',
   styleUrl: './conversation-list.component.css'
 })
-export class ConversationListComponent implements OnInit, OnChanges {
+export class ConversationListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() conversations: Conversation[] = [];
   @Input() selectedId: string | null = null;
   @Output() selectConversation = new EventEmitter<string>();
+  @Output() conversationsRefreshed = new EventEmitter<Conversation[]>();
   
   // Dictionnaire pour stocker les noms des créateurs
   creatorNames: {[userId: string]: string} = {};
@@ -36,8 +37,16 @@ export class ConversationListComponent implements OnInit, OnChanges {
   
   // Conversations filtrées à afficher
   filteredConversations: Conversation[] = [];
+  
+  // Abonnements pour le rafraîchissement automatique
+  private refreshSubscription: Subscription | null = null;
+  // Intervalle de rafraîchissement en millisecondes (par défaut 30 secondes)
+  private refreshInterval = 30000;
 
-  constructor(private userService: UsersService) {}
+  constructor(
+    private userService: UsersService,
+    private chatService: ChatService
+  ) {}
   
   ngOnInit() {
     this.loadCreatorNames();
@@ -49,6 +58,9 @@ export class ConversationListComponent implements OnInit, OnChanges {
     
     // Initialiser les conversations filtrées et les trier
     this.filteredConversations = this.sortConversationsByDate([...this.conversations]);
+    
+    // Démarrer le rafraîchissement automatique
+    this.startAutoRefresh();
   }
   
   ngOnChanges(changes: SimpleChanges) {
@@ -61,6 +73,61 @@ export class ConversationListComponent implements OnInit, OnChanges {
         this.loadCreatorNames();
       }
     }
+  }
+  
+  ngOnDestroy(): void {
+    // Nettoyer les abonnements lors de la destruction du composant
+    this.stopAutoRefresh();
+  }
+  
+  // Démarrer le rafraîchissement automatique
+  startAutoRefresh(): void {
+    // Arrêter tout rafraîchissement existant
+    this.stopAutoRefresh();
+    
+    // Créer un nouvel abonnement d'intervalle
+    this.refreshSubscription = interval(this.refreshInterval).subscribe(() => {
+      this.refreshConversations(false); // Rafraîchir sans afficher l'indicateur de chargement
+    });
+  }
+  
+  // Arrêter le rafraîchissement automatique
+  stopAutoRefresh(): void {
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+      this.refreshSubscription = null;
+    }
+  }
+  
+  // Rafraîchir les conversations
+  refreshConversations(showLoading: boolean = true): void {
+    if (showLoading) {
+      this.loading = true;
+    }
+    
+    this.chatService.getConversations().subscribe({
+      next: (data) => {
+        // Mettre à jour les conversations localement
+        if (JSON.stringify(this.conversations) !== JSON.stringify(data)) {
+          this.conversations = data;
+          this.filteredConversations = this.sortConversationsByDate([...data]);
+          this.filterConversations(this.searchControl.value || '');
+          this.loadCreatorNames();
+          
+          // Notifier le composant parent que les conversations ont été mises à jour
+          this.conversationsRefreshed.emit(data);
+        }
+        if (showLoading) {
+          this.loading = false;
+        }
+      },
+      error: (err) => {
+        console.error('Erreur lors du rafraîchissement des conversations:', err);
+        if (showLoading) {
+          this.loading = false;
+        }
+      }
+    });
   }
   
   // Méthode pour trier les conversations par date du dernier message (la plus récente en premier)

@@ -10,7 +10,8 @@
     <app-conversation-list
       [conversations]="conversations"
       [selectedId]="selectedConversationId"
-      (selectConversation)="selectConversation($event)">
+      (selectConversation)="selectConversation($event)"
+      (conversationsRefreshed)="handleConversationsRefreshed($event)">
     </app-conversation-list>
   </div>
 

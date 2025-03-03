@@ -34,7 +34,7 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
   contactAvatar: string = '/assets/avatar-placeholder.png';
 
   // Pour le polling
-  private refreshInterval = 5000; // 5 secondes
+  private refreshInterval = 5000; 
   private refreshSubscription: Subscription | null = null;
   private lastMessageId: string | null = null;
 

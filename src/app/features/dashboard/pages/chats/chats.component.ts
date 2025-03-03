@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import { Conversation } from './models/conversation';
 import { Message } from './models/message';
 import { MessagePanelComponent } from './message-panel/message-panel.component';
@@ -6,7 +6,7 @@ import {DatePipe, NgClass, NgIf} from '@angular/common';
 import { ConversationListComponent } from './conversation-list/conversation-list.component';
 import { ChatService } from './services/chat.service';
 import {FormsModule} from '@angular/forms';
-import {map, Observable, tap} from 'rxjs';
+import {map, Observable, Subscription, tap} from 'rxjs';
 import { UsersService } from '../users/services/users.service';
 import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 
@@ -23,7 +23,7 @@ import { LoadingComponent } from "../../../../../core/components/loading/loading
   standalone: true,
   styleUrl: './chats.component.css'
 })
-export class ChatsComponent implements OnInit {
+export class ChatsComponent implements OnInit, OnDestroy {
   conversations: Conversation[] = [];
   selectedConversationId: string | null = null;
   messages: Message[] = [];
@@ -43,6 +43,11 @@ export class ChatsComponent implements OnInit {
       this.loadConversations();
     }, 1000);
   }
+  
+  ngOnDestroy(): void {
+    // Aucun abonnement à nettoyer ici car nous utilisons le rafraîchissement
+    // automatique dans le composant ConversationListComponent
+  }
 
   loadConversations(): void {
     this.loading = true;
@@ -61,6 +66,10 @@ export class ChatsComponent implements OnInit {
 
   selectConversation(conversationId: string): void {
     this.selectedConversationId = conversationId;
+    this.loadMessages(conversationId);
+  }
+
+  loadMessages(conversationId: string): void {
     this.loading = true;
     this.error = null;
 
@@ -76,14 +85,24 @@ export class ChatsComponent implements OnInit {
       }
     );
   }
-
-   getUserName(userId: string): Observable<string> {  
-      return this.userService.getUserById(userId).pipe(
-        tap(user => console.log(`Retrieved user data:`, user)),
-        map(data => data.firstname + ' ' + data.lastname),
-        tap(fullName => console.log(`Formatted full name: ${fullName}`))
-      );
+  
+  // Méthode pour gérer le rafraîchissement des conversations depuis le composant enfant
+  handleConversationsRefreshed(updatedConversations: Conversation[]): void {
+    this.conversations = updatedConversations;
+    
+    // Si une conversation est sélectionnée, recharger aussi ses messages
+    if (this.selectedConversationId) {
+      this.loadMessages(this.selectedConversationId);
     }
+  }
+
+  getUserName(userId: string): Observable<string> {  
+    return this.userService.getUserById(userId).pipe(
+      tap(user => console.log(`Retrieved user data:`, user)),
+      map(data => data.firstname + ' ' + data.lastname),
+      tap(fullName => console.log(`Formatted full name: ${fullName}`))
+    );
+  }
 
   getConversationMessage(selectedConversationId: string): Message[] {
     const conversation = this.conversations.find(c => c.id === selectedConversationId);
@@ -133,8 +152,6 @@ export class ChatsComponent implements OnInit {
 
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
-  // Vos autres propriétés et méthodes existantes...
-
   ngAfterViewChecked() {
     this.scrollToBottom();
   }
@@ -158,7 +175,4 @@ export class ChatsComponent implements OnInit {
       textarea.style.overflowY = 'hidden';
     }
   }
-
-
-
 }
