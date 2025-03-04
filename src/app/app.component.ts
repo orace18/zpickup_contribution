@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
     this.messagingService.initializeMessaging();
     
     // Écouter les messages
-    this.messagingService.currentMessage.subscribe(
+    /* this.messagingService.currentMessage.subscribe(
       (message) => {
         if(message != null) {
           const title = message?.notification?.title || '';
@@ -39,7 +39,7 @@ export class AppComponent implements OnInit {
           this.message = body;
           this.messageTitle = title;
           
-          // Masquer le snackbar après 5 secondes
+         
           setTimeout(() => {
             if (this.message === body) {
               this.message = "";
@@ -52,7 +52,7 @@ export class AppComponent implements OnInit {
           }
         }
       }
-    );
+    ); */
   
     this.autoLogoutService.initializeAutoLogout();
   }

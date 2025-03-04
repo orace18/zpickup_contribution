@@ -15,6 +15,14 @@
   margin-bottom: 16px;
   position: relative;
   flex-shrink: 0; /* Empêche la barre de recherche de rétrécir */
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Espace entre le champ et l'icône */
+}
+
+.input-with-icon {
+  position: relative;
+  flex-grow: 1;
 }
 
 .search-input {
@@ -25,6 +33,13 @@
   border-radius: 8px;
   font-size: 14px;
   color: #758195;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(121, 108, 231, 0.2);
 }
 
 .search-icon {
@@ -34,6 +49,24 @@
   transform: translateY(-50%);
   color: #758195;
 }
+
+.clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+/* .clear-search:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+} */
 
 /* Zone de défilement - prend tout l'espace restant */
 .scrollable-list {
@@ -73,6 +106,7 @@
   border-radius: 8px;
   cursor: pointer;
   margin-bottom: 8px;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
 .conversation-item.active {
@@ -81,11 +115,13 @@
 
 .conversation-item:hover {
   background-color: #f8fafc;
+  transform: translateX(2px);
 }
 
 /* Avatar */
 .avatar-container {
   margin-right: 12px;
+  position: relative;
 }
 
 .initial-avatar {
@@ -98,6 +134,7 @@
   color: #ffffff;
   font-weight: bold;
   font-size: 18px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .avatar {
@@ -105,6 +142,20 @@
   height: 48px;
   border-radius: 50%;
   object-fit: cover;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Style pour indiquer une conversation avec des messages non lus */
+.conversation-item:not(.read) .avatar-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background-color: #4ade80;
+  border-radius: 50%;
+  border: 2px solid white;
 }
 
 /* Info de conversation */
@@ -129,6 +180,12 @@
   text-overflow: ellipsis;
 }
 
+/* Style pour le titre des conversations non lues */
+.conversation-item:not(.read) .conversation-title {
+  font-weight: 700;
+  color: #0f172a;
+}
+
 .conversation-time {
   font-size: 12px;
   color: #94a3b8;
@@ -150,25 +207,10 @@
   max-width: 70%;
 }
 
-.unread-badge {
-  background-color: #4ade80;
-  color: #ffffff;
-  font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 12px;
-  min-width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.unread-badge.medium {
-  background-color: #facc15;
-}
-
-.unread-badge.urgent {
-  background-color: #f87171;
+/* Style pour le texte des conversations non lues */
+.conversation-item:not(.read) .conversation-preview {
+  font-weight: 500;
+  color: #334155;
 }
 
 /* Email styles */
@@ -182,38 +224,71 @@
   margin-bottom: 2px;
 }
 
-
-.search-container {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Espace entre le champ et l'icône */
-}
-
-.input-with-icon {
-  position: relative;
-  flex-grow: 1;
-}
-
-.search-input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.clear-search {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.search-icon {
+/* Badges pour les messages non lus avec animation */
+.unread-badge {
+  background-color: #4ade80;
+  color: #ffffff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  min-width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.unread-badge:hover {
+  transform: scale(1.1);
+}
+
+.unread-badge.low {
+  background-color: #4ade80; /* vert */
+}
+
+.unread-badge.medium {
+  background-color: #facc15; /* jaune */
+}
+
+.unread-badge.urgent {
+  background-color: #f87171; /* rouge */
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Indicateur de message récent */
+.conversation-time.recent {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+/* Indicateur de chargement */
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  color: #94a3b8;
+}
+
+/* Message "aucun résultat" */
+.no-results {
+  text-align: center;
+  padding: 20px;
+  color: #94a3b8;
 }

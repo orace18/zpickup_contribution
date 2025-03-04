@@ -23,7 +23,7 @@ import { LoadingComponent } from "../../../../../core/components/loading/loading
   standalone: true,
   styleUrl: './chats.component.css'
 })
-export class ChatsComponent implements OnInit, OnDestroy {
+export class ChatsComponent implements OnInit {
   conversations: Conversation[] = [];
   selectedConversationId: string | null = null;
   messages: Message[] = [];
@@ -44,10 +44,7 @@ export class ChatsComponent implements OnInit, OnDestroy {
     }, 1000);
   }
   
-  ngOnDestroy(): void {
-    // Aucun abonnement à nettoyer ici car nous utilisons le rafraîchissement
-    // automatique dans le composant ConversationListComponent
-  }
+
 
   loadConversations(): void {
     this.loading = true;

@@ -34,7 +34,7 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
   contactAvatar: string = '/assets/avatar-placeholder.png';
 
   // Pour le polling
-  private refreshInterval = 5000; 
+  private refreshInterval = 1000; 
   private refreshSubscription: Subscription | null = null;
   private lastMessageId: string | null = null;
 
@@ -134,7 +134,7 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
       }
       
       // Vérifier les nouveaux messages immédiatement après l'envoi
-      setTimeout(() => this.checkForNewMessages(), 500);
+      setTimeout(() => this.checkForNewMessages(), 50);
     }
   }
 

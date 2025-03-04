@@ -41,7 +41,7 @@ export class ConversationListComponent implements OnInit, OnChanges, OnDestroy {
   // Abonnements pour le rafraîchissement automatique
   private refreshSubscription: Subscription | null = null;
   // Intervalle de rafraîchissement en millisecondes (par défaut 30 secondes)
-  private refreshInterval = 30000;
+  private refreshInterval = 1000;
 
   constructor(
     private userService: UsersService,
@@ -300,7 +300,7 @@ export class ConversationListComponent implements OnInit, OnChanges, OnDestroy {
       return `${Math.round(diff / oneDay)} day${Math.round(diff / oneDay) > 1 ? 's' : ''}`;
     } else if (diff < 2 * oneWeek) {
       // Plus d'une semaine
-      return '1 week';
+      return '1 Semaine';
     } else {
       // Plus de deux semaines
       return `${Math.round(diff / oneWeek)} weeks`;

@@ -35,10 +35,16 @@
 
   <!-- Liste des conversations (avec défilement) -->
   <div class="scrollable-list">
-    <div *ngFor="let conversation of filteredConversations"
+   <!--  <div *ngFor="let conversation of filteredConversations"
          class="conversation-item"
          [class.active]="conversation.id === selectedId"
-         (click)="onSelect(conversation.id)">
+         (click)="onSelect(conversation.id)"> -->
+
+         <div *ngFor="let conversation of filteredConversations"
+     class="conversation-item"
+     [class.active]="conversation.id === selectedId"
+     [class.read]="isRead(conversation)"
+     (click)="onSelect(conversation.id)">
       
       <!-- Avatar -->
       <div class="avatar-container">
