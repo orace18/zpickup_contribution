@@ -22,6 +22,16 @@
             Clients
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" id="tsd-tab" data-bs-toggle="tab" href="#tab_tsd" (click)="onTabChange($event)">
+            Transporteurs sans document
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="ta-tab" data-bs-toggle="tab" href="#tab_ta" (click)="onTabChange($event)">
+            Transporteurs Ambassadeur
+          </a>
+        </li>
       </ul>
 
       <!-- Search and Toolbar -->
@@ -195,6 +205,121 @@
           </table>
         </div>
       </div>
+
+
+      <!-- TSD Users Tab -->
+      <div class="tab-pane fade" id="tab_tsd">
+        <div class="card-body">
+          <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_mobile_users">
+            <thead>
+              <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                <th>Utilisateurs</th>
+                <th>Type</th>
+                <th>Date d'ajout</th>
+                <th>Status</th>
+                <th>Durée restante</th>
+                <th class="text-end">Détails</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-600 fw-semibold">
+              <tr *ngFor="let user of filteredUsers">
+                <td class="d-flex align-items-center" style="cursor: pointer" (click)="showUserDetails(user)">
+                  <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
+                    <div class="symbol-label">
+                      <img *ngIf="user.profile_picture" [src]="user.profile_picture"
+                        alt="{{ user.firstname }} {{ user.lastname }}" class="w-100" />
+                      <span *ngIf="!user.profile_picture" class="fs-3 bg-light-primary text-primary">
+                        {{ getInitials(user) }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="d-flex flex-column">
+                    <span>{{ user.firstname }} {{ user.lastname }}</span>
+                    <span>{{ user.email_address }}</span>
+                  </div>
+                </td>
+                <td>
+                  {{ user.user_type === 'zem' ? 'Transporteur' : (user.user_type === 'customer' ? 'Client' : 'N/A') }}
+                </td>
+                <td>{{ user.created_at | date: 'medium' }}</td>
+                <td>
+                  <span class="badge badge-light-primary">
+                    {{ user.validated_at ? 'Validé' : 'Non validé' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge badge-light-primary">
+                    45 jours
+                    <!-- {{ user.validated_at ? 'Validé' : 'Non validé' }} -->
+                  </span>
+                </td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-light" (click)="showUserDetails(user)">
+                    Voir détails
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="filteredUsers.length === 0">
+                <td colspan="4" class="text-center">Aucun utilisateur trouvé</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- TA Users Tab -->
+      <div class="tab-pane fade" id="tab_ta">
+        <div class="card-body">
+          <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_mobile_users">
+            <thead>
+              <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                <th>Utilisateurs</th>
+                <th>Type</th>
+                <th>Date d'ajout</th>
+                <th>Status</th>
+                <th class="text-end">Détails</th>
+              </tr>
+            </thead>
+            <tbody class="text-gray-600 fw-semibold">
+              <tr *ngFor="let user of filteredUsers">
+                <td class="d-flex align-items-center" style="cursor: pointer" (click)="showUserDetails(user)">
+                  <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
+                    <div class="symbol-label">
+                      <img *ngIf="user.profile_picture" [src]="user.profile_picture"
+                        alt="{{ user.firstname }} {{ user.lastname }}" class="w-100" />
+                      <span *ngIf="!user.profile_picture" class="fs-3 bg-light-primary text-primary">
+                        {{ getInitials(user) }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="d-flex flex-column">
+                    <span>{{ user.firstname }} {{ user.lastname }}</span>
+                    <span>{{ user.email_address }}</span>
+                  </div>
+                </td>
+                <td>
+                  {{ user.user_type === 'zem' ? 'Transporteur' : (user.user_type === 'customer' ? 'Client' : 'N/A') }}
+                </td>
+                <td>{{ user.created_at | date: 'medium' }}</td>
+                <td>
+                  <span class="badge badge-light-primary">
+                    {{ user.validated_at ? 'Validé' : 'Non validé' }}
+                  </span>
+                </td>
+                
+                <td class="text-end">
+                  <button class="btn btn-sm btn-light" (click)="showUserDetails(user)">
+                    Voir détails
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="filteredUsers.length === 0">
+                <td colspan="4" class="text-center">Aucun utilisateur trouvé</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -216,9 +341,15 @@
                   {{ getInitials(selectedUser) }}
                 </span>
               </div>
-
+          
               <div class="d-flex flex-column">
-                <h3 class="mb-1">{{ selectedUser.firstname }} {{ selectedUser.lastname }}</h3>
+                <div class="d-flex align-items-center">
+                  <h3 class="mb-1">{{ selectedUser.firstname }} {{ selectedUser.lastname }}</h3>
+                  <!-- Badge ambassadeur -->
+                  <div *ngIf="newStatus && selectedUser.user_type === 'zem' " class="badge badge-light-success ms-2">
+                    Ambassadeur
+                  </div>
+                </div>
                 <div class="text-muted">{{ selectedUser.email_address }}</div>
                 <div class="badge-light-primary mt-2">
                   {{ selectedUser.user_type === 'zem' ? 'Transporteur' :
@@ -227,16 +358,17 @@
                 </div>
               </div>
             </div>
-
+          
             <div class="d-flex flex-column">
               <div class="d-flex flex-column align-items-end">
                 <div class="badge" [ngClass]="statusClass">
                   {{ statusText }}
                 </div>
+                <!-- Boutons de validation/rejet existants -->
                 <button *ngIf="canValidate" class="btn btn-sm btn-primary mt-2" (click)="openValidationDialog()">
                   Valider
                 </button>
-
+            
                 <app-confirmation-dialog [isOpen]="showValidationDialog"
                   [title]="'Êtes-vous sûr de vouloir valider ce compte ?'" [confirmText]="'Oui, valider'"
                   [cancelText]="'Non, annuler'" (confirm)="confirmValidation()" (cancel)="closeValidationDialog()"
@@ -244,12 +376,57 @@
                 <button *ngIf="canValidate" class="btn btn-sm btn-primary mt-2" (click)="openRejetDialog()">
                   Rejeter
                 </button>
-
+            
                 <app-confirmation-dialog [isOpen]="showRejetDialog"
                   [title]="'Êtes-vous sûr de vouloir Rejeter ce compte ?'" [confirmText]="'Oui, Rejeter'"
                   [cancelText]="'Non, annuler'" (confirm)="confirmRejet()" (cancel)="closeRejetDialog()"
                   (closeDialog)="closeRejetDialog()"></app-confirmation-dialog>
-
+            
+                <!-- Bouton pour changer le statut d'ambassadeur -->
+                <button *ngIf="selectedUser?.user_type ==='zem' " class="btn btn-sm mt-2" 
+                        [ngClass]="newStatus ? 'btn-danger' : 'btn-success'"
+                        (click)="openAmbassadorDialog()">
+                  {{ newStatus ? 'Retirer ambassadeur' : 'Définir comme ambassadeur' }}
+                </button>
+            
+                <!-- Dialog de confirmation avec champ de fichier -->
+                <div *ngIf="showAmbassadorDialog" class="modal d-block" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">{{ newStatus ? 'Définir comme ambassadeur' : 'Retirer le statut d\'ambassadeur' }}</h5>
+                        <button type="button" class="close" (click)="closeAmbassadorDialog()">
+                          <span>&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>{{ newStatus ? 'Êtes-vous sûr de vouloir définir cet utilisateur comme ambassadeur ?' : 'Êtes-vous sûr de vouloir retirer le statut d\'ambassadeur à cet utilisateur ?' }}</p>
+                        
+                        <!-- Formulaire de téléchargement de fichier uniquement si on promeut comme ambassadeur -->
+                        <form [formGroup]="ambassadorForm" *ngIf="newStatus">
+                          <div class="form-group">
+                            <label for="contratDocument">Document de contrat (PDF requis)</label>
+                            <input type="file" 
+                                  class="form-control-file" 
+                                  id="contratDocument" 
+                                  formControlName="contratDocument"
+                                  (change)="onContractFileSelected($event)"
+                                  accept="application/pdf">
+                            <small class="form-text text-muted">Taille maximum: 5MB</small>
+                          </div>
+                          <div *ngIf="selectedContractFile" class="alert alert-info">
+                            Fichier sélectionné: {{ selectedContractFile.name }}
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" (click)="closeAmbassadorDialog()">{{ 'Non, annuler' }}</button>
+                        <button type="button" class="btn btn-primary" (click)="toggleAmbassadorStatus()">{{ 'Oui, confirmer' }}</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Fin du dialog de confirmation -->
               </div>
             </div>
           </div>
@@ -960,8 +1137,7 @@
                       </tr>
                       <tr>
                         <th scope="row">Date de validation</th>
-                        <td><span [ngClass]="'badge badge-light-success'">{{zem?.validated_at | date:'dd/MM/yyyy
-                            HH:mm'}}</span></td>
+                        <td><span [ngClass]="'badge badge-light-success'">{{zem?.validated_at | date:'dd/MM/yyyy HH:mm'}}</span></td>
                       </tr>
                       <tr>
                         <th scope="row">Statut de validation</th>

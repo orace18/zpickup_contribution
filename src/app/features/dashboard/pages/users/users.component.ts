@@ -20,6 +20,7 @@ import {
   NgForOf,
   NgIf
 } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import {FormsModule, NgForm} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import {Dropdown, Modal} from 'bootstrap';
@@ -38,6 +39,7 @@ import {map} from 'rxjs/operators';
 import { ConfirmationDialogComponent } from "../../../../../shared/layouts/confirmation-dialog/confirmation-dialog.component";
 import { state } from '@angular/animations';
 import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
+import { FormBuilder, FormGroup } from '@angular/forms';
 declare var bootstrap: any;
 
 @Pipe({
@@ -59,6 +61,7 @@ export class FilterByTypePipe implements PipeTransform {
   standalone: true,
   imports: [
     HttpClientModule,
+    ReactiveFormsModule,
     FormsModule,
     NgForOf,
     NgIf,
@@ -76,6 +79,9 @@ export class FilterByTypePipe implements PipeTransform {
 export class UsersComponent implements OnInit, AfterViewInit {
 
   today: string = new Date().toISOString().split('T')[0];
+  newStatus: boolean = false;
+  selectedContractFile: File | null = null;
+  ambassadorForm!: FormGroup;
   isCollapsed = true;
   collapsedSections: { [key: string]: boolean } = {};
   canValidate: boolean = false;
@@ -149,10 +155,15 @@ export class UsersComponent implements OnInit, AfterViewInit {
     private roleService: RoleService,
     private counterService: CounterService,
     private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private fb: FormBuilder,
   ) {
     this.userRaces.forEach(race => {
       this.collapsedSections[race._id] = true;
+    });
+
+    this.ambassadorForm = this.fb.group({
+      contratDocument: [null]
     });
   }
 
@@ -206,6 +217,14 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.detailsModal.show();
     this.canValidate = await this.canValidateZem();
     this.getZemStatusText();
+    if (this.selectedUser?.zem) {
+      const zemDetails = await this.getZemDetails(this.selectedUser?.zem!);
+      this.zem = zemDetails || null;
+      if(this.zem) {
+        this.newStatus  = this.zem?.is_ambassador;
+      }
+    }
+
   }
 
   showDetails(race: any) {
@@ -945,10 +964,10 @@ loadUserRaces(userId: string): void {
     //this.canValidate = await this.canValidateZem();
   }
 
-  activeTab: 'admin' | 'mobile' = 'admin';
+  activeTab: 'admin' | 'mobile' | 'tsd' |'ta' = 'admin';
   searchQuery: any;
 
-  applyFilters(): void {
+/*   applyFilters(): void {
     let filtered = [...this.users];
 
     if (this.searchQuery) {
@@ -968,6 +987,11 @@ loadUserRaces(userId: string): void {
         return user.user_type === 'admin';
       } else if (this.activeTab === 'mobile') {
         return user.user_type !== 'admin';
+      } else if (this.activeTab === 'tsd') {
+
+        return user.user_type !== 'admin' && user.user_type !== 'customer' && user?.zem != null;
+      } else if (this.activeTab === 'ta') {
+        return user.user_type === 'zem' && user?.zem != null && this.newStatus === true;
       }
       return true;
     });
@@ -1007,11 +1031,116 @@ loadUserRaces(userId: string): void {
   
       return matchesStatus && matchesDate;
     });
-  }
+  } */
+
+
+    async applyFilters(): Promise<void> {
+      let filtered = [...this.users];
+    
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase().trim();
+        filtered = filtered.filter(user =>
+          user.firstname?.toLowerCase().includes(query) ||
+          user.lastname?.toLowerCase().includes(query) ||
+          user.email_address?.toLowerCase().includes(query) ||
+          user.user_type?.toLowerCase().includes(query) ||
+          user.validated_at?.toLowerCase().includes(query)
+        );
+      }
+    
+      // Créer un tableau pour stocker les utilisateurs filtrés après traitement asynchrone
+      let tempFiltered: User[] = [];
+    
+      // Filtrage par onglet avec gestion asynchrone pour les types zem
+      for (const user of filtered) {
+        if (this.activeTab === 'admin') {
+          if (user.user_type === 'admin') {
+            tempFiltered.push(user);
+          }
+        } 
+        else if (this.activeTab === 'mobile') {
+          if (user.user_type !== 'admin') {
+            tempFiltered.push(user);
+          }
+        } 
+        else if (this.activeTab === 'tsd') {
+          if (user.user_type === 'zem' && user?.zem != null) {
+            const zemDetails = await this.getZemDetails(user.zem);
+            if (zemDetails && zemDetails.is_temporal === true) {
+              tempFiltered.push(user);
+            }
+          }
+        } 
+        else if (this.activeTab === 'ta') {
+          if (user.user_type === 'zem' && user?.zem != null) {
+            const zemDetails = await this.getZemDetails(user.zem);
+            if (zemDetails && zemDetails.is_ambassador === true) {
+              tempFiltered.push(user);
+            }
+          }
+        }
+        else {
+          tempFiltered.push(user);
+        }
+      }
+    
+      filtered = tempFiltered;
+    
+      // Filtrage par type d'utilisateur
+      this.filteredUsers = filtered.filter(user => {
+        return (!this.filters.typeUtilisateur || user.user_type === this.filters.typeUtilisateur);
+      });
+    
+      // Filtrage par statut et date
+      this.filteredUsers = this.filteredUsers.filter(user => {
+        let matchesStatus = true;
+        let matchesDate = true;
+    
+        // Filtrage par statut
+        if (this.filters.status) {
+          const state = user.validated_at;
+          if (state !== null) {
+            user.validated_at = 'validated';
+            matchesStatus = user.validated_at === this.filters.status;
+          }
+          if (state === null) {
+            user.validated_at = 'pending';
+            matchesStatus = user.validated_at === this.filters.status;
+          }
+        }
+    
+        // Filtrage par date
+        if (this.filters.startDate || this.filters.endDate) {
+          const userDate = new Date(user.created_at);
+          const startDate = this.filters.startDate ? new Date(this.filters.startDate) : null;
+          const endDate = this.filters.endDate ? new Date(this.filters.endDate) : null;
+    
+          if (startDate && userDate < startDate) matchesDate = false;
+          if (endDate && userDate > endDate) matchesDate = false;
+        }
+    
+        return matchesStatus && matchesDate;
+      });
+    }
 
 
   onTabChange(event: any): void {
-    this.activeTab = event.target.id === 'admin-tab' ? 'admin' : 'mobile';
+    //this.activeTab = event.target.id === 'admin-tab' ? 'admin' : 'mobile' ;
+
+    switch (event.target.id) {
+      case 'admin-tab':
+          this.activeTab = 'admin';
+          break;
+      case 'mobile-tab':
+          this.activeTab = 'mobile';
+          break;
+      case 'tsd-tab':
+          this.activeTab = 'tsd';
+          break;
+      case 'ta-tab':
+          this.activeTab = 'ta';
+          break;
+  }
     this.applyFilters();
   }
 
@@ -1457,4 +1586,157 @@ loadUserRaces(userId: string): void {
     }
     this.cdr.detectChanges(); // Force la détection des changements
   }
+
+
+  onContractFileSelected(event: any) {
+    if (event.target.files.length > 0) {
+      const file = event.target.files[0];
+      // Vérifier si le fichier est un PDF
+      if (file.type !== 'application/pdf') {
+        this.toastr.error('Seuls les fichiers PDF sont acceptés');
+        return;
+      }
+      // Vérifier la taille du fichier (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        this.toastr.error('La taille du fichier ne doit pas dépasser 5MB');
+        return;
+      }
+      this.selectedContractFile = file;
+      this.ambassadorForm.get('contratDocument')?.setValue(file);
+    }
+  }
+
+  showAmbassadorDialog = false;
+ 
+
+openAmbassadorDialog() {
+  this.showAmbassadorDialog = true;
+}
+
+closeAmbassadorDialog() {
+  this.showAmbassadorDialog = false;
+}
+
+
+async toggleAmbassadorStatus() {
+  if (!this.selectedUser) return;
+  
+  const zemId = this.selectedUser.zem;
+  if (!zemId) return;
+  
+  if (!this.zem) {
+    if (zemId) {
+      const zemDetails = await this.getZemDetails(zemId);
+      this.zem = zemDetails || null;
+    }
+    if (!this.zem) {
+      this.toastr.error("Impossible de récupérer les détails du transporteur");
+      this.closeAmbassadorDialog();
+      return;
+    }
+  }
+
+  console.log("L'ancien statut", this.zem.is_ambassador);
+  
+  this.newStatus = !this.zem.is_ambassador;
+  console.log("Le nouveau statut", this.newStatus);
+  
+  // Si on promeut au statut d'ambassadeur et qu'aucun fichier n'est sélectionné
+  if (this.newStatus && !this.selectedContractFile) {
+    this.toastr.error("Veuillez sélectionner un document de contrat (PDF)");
+    return;
+  }
+  
+  if (this.newStatus) {
+    // Cas où on promeut l'utilisateur comme ambassadeur (avec fichier)
+    const formData = new FormData();
+    formData.append('contrat_document', this.selectedContractFile as File);
+    
+    this.usersService.makeAmbassador(zemId, formData).subscribe(
+      (response) => {
+        if (this.zem) {
+          this.zem.is_ambassador = true;
+        }
+        
+        this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} est maintenant ambassadeur`);
+        this.closeAmbassadorDialog();
+        this.selectedContractFile = null;
+        this.ambassadorForm.get('contratDocument')?.setValue(null);
+      },
+      (error) => {
+        this.toastr.error(error.error?.message || "Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
+        console.error(error);
+        this.closeAmbassadorDialog();
+      }
+    );
+  } else {
+    // Cas où on retire le statut d'ambassadeur (sans fichier)
+    this.usersService.updateAmbassadorStatus(zemId, "false").subscribe(
+      (response) => {
+        if (this.zem) {
+          this.zem.is_ambassador = false;
+        }
+        
+        this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} n'est plus ambassadeur`);
+        this.closeAmbassadorDialog();
+      },
+      (error) => {
+        this.toastr.error("Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
+        console.error(error);
+        this.closeAmbassadorDialog();
+      }
+    );
+  }
+}
+
+
+
+
+/* async toggleAmbassadorStatus() {
+  if (!this.selectedUser) return;
+  
+  const zemId = this.selectedUser.zem;
+  if (!zemId) return;
+  
+  if (!this.zem) {
+    if (zemId) {
+      const zemDetails = await this.getZemDetails(zemId);
+      this.zem = zemDetails || null;
+    }
+   // this.zem = await this.getZemDetails(zemId);
+    if (!this.zem) {
+      this.toastr.error("Impossible de récupérer les détails du transporteur");
+      this.closeAmbassadorDialog();
+      return;
+    }
+  }
+
+  console.log("L'ancien statut", this.zem.is_ambassador);
+  
+  this.newStatus = !this.zem.is_ambassador;
+  console.log("Le nouveau statut", this.newStatus);
+  
+ 
+  this.usersService.updateAmbassadorStatus(zemId, this.newStatus.toString()).subscribe(
+    (response) => {
+  
+      if (this.zem) {
+        this.zem.is_ambassador = this.newStatus;
+      }
+      
+     
+      this.toastr.success(
+        this.newStatus 
+          ? `${this.selectedUser?.firstname} ${this.selectedUser?.lastname} est maintenant ambassadeur` 
+          : `${this.selectedUser?.firstname} ${this.selectedUser?.lastname} n'est plus ambassadeur`
+      );
+    },
+    (error) => {
+      this.toastr.error("Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
+      console.error(error);
+    }
+  );
+  
+  this.closeAmbassadorDialog();
+} */
 }

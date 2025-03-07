@@ -1,4 +1,3 @@
-// services/role.service.ts
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Role} from '../models/role.model';

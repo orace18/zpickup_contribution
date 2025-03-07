@@ -91,7 +91,8 @@ export interface Zem extends User{
   service_latitude: number | null;
   service_longitude: number | null;
   ray?: string | null;
- // zemData?: ZemUser;
+  is_ambassador: boolean;
+  is_temporal: boolean;
 }
 
 

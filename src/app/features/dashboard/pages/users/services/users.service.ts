@@ -79,4 +79,39 @@ export class UsersService {
       })
     );
   }
+
+  updateAmbassadorStatus(userId: string, status: string): Observable<Zem> {
+    const token = this.authService.getToken();
+
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
+
+    return this.http.patch<Zem>(`${this.zemUrl}/make_ambassador/${userId}`, {status}, {headers})
+      .pipe(
+        catchError(error => {
+          return throwError(() => error);
+        })
+      );
+  }
+
+  // Dans votre service
+makeAmbassador(userId: string, formData: FormData): Observable<Zem> {
+  const token = this.authService.getToken();
+
+  const headers = new HttpHeaders()
+    .set('Authorization', `Bearer ${token}`);
+  
+  // Pas besoin de définir Content-Type car Angular le fait automatiquement
+  // pour FormData avec la boundary appropriée
+
+  return this.http.patch<Zem>(`${this.zemUrl}/make_ambassador/${userId}`, formData, {headers})
+    .pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
+}
+
+  
 }
