@@ -277,6 +277,7 @@
                 <th>Type</th>
                 <th>Date d'ajout</th>
                 <th>Status</th>
+                <th>Créditer le compteur km</th>
                 <th class="text-end">Détails</th>
               </tr>
             </thead>
@@ -306,6 +307,20 @@
                     {{ user.validated_at ? 'Validé' : 'Non validé' }}
                   </span>
                 </td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-primary" (click)="openCreditConfirmDialog(user?.zem!)">
+                    Créditer
+                  </button>
+                </td>
+                <app-confirmation-dialog 
+                  [isOpen]="showValidationDialog"
+                  [title]="'Êtes-vous sûr de vouloir Créditer le compte km de cet Ambassadeur?'" 
+                  [confirmText]="'Oui, valider'"
+                  [cancelText]="'Non, annuler'" 
+                  (confirm)="confirmValidationCredit()" 
+                  (cancel)="closeValidationDialog()"
+                  (closeDialog)="closeValidationDialog()">
+                </app-confirmation-dialog>
                 
                 <td class="text-end">
                   <button class="btn btn-sm btn-light" (click)="showUserDetails(user)">
@@ -346,7 +361,7 @@
                 <div class="d-flex align-items-center">
                   <h3 class="mb-1">{{ selectedUser.firstname }} {{ selectedUser.lastname }}</h3>
                   <!-- Badge ambassadeur -->
-                  <div *ngIf="newStatus && selectedUser.user_type === 'zem' " class="badge badge-light-success ms-2">
+                  <div *ngIf="newStatus && selectedUser.user_type === 'zem' " class="badge badge-light-warning ms-2">
                     Ambassadeur
                   </div>
                 </div>
@@ -1135,6 +1150,15 @@
                           </span>
                         </td>
                       </tr>
+                     <!--  <tr ngIf="zem?.is_ambassador">
+                        <th scope="row">Document Ambassadeur</th>
+                        <td>
+                          <span [ngClass]="'badge badge-light-primary cursor-pointer'"
+                            (click)="openPhotoModal('doc_ambassador')">
+                            Voir le document
+                          </span>
+                        </td>
+                      </tr> -->
                       <tr>
                         <th scope="row">Date de validation</th>
                         <td><span [ngClass]="'badge badge-light-success'">{{zem?.validated_at | date:'dd/MM/yyyy HH:mm'}}</span></td>

@@ -1,3 +1,4 @@
+
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -127,7 +128,6 @@ export class UsersComponent implements OnInit, AfterViewInit {
     email_address: '',
     firstname: '',
     lastname: '',
-    
     user_type: 'admin',
     role: '',
     created_at: new Date().toISOString(),
@@ -1518,6 +1518,9 @@ loadUserRaces(userId: string): void {
       case 'ifu_photo':
         this.currentPhoto = this.zem?.ifu_number_image || '';
         break;
+      case 'doc_ambassador':
+        this.currentPhoto = this.zem?.contrat_document || '';
+        break;
     }
     const photoModal = new bootstrap.Modal(document.getElementById('photoModal')!);
     photoModal.show();
@@ -1688,6 +1691,40 @@ async toggleAmbassadorStatus() {
     );
   }
 }
+
+
+  async crediteKmAccount(ambassadorId: string) {
+      const zemDetails = await this.getZemDetails( ambassadorId);
+      this.zem = zemDetails || null;
+      if (!this.zem) {
+        this.toastr.error("Impossible de récupérer les détails du transporteur");
+        return;
+      }
+      this.usersService.creditKmAccount(this.zem?._id).subscribe(
+        (response) => {
+          //console.log("Réponse de crédit du compte", response);
+          this.toastr.success(response.message);
+        },
+        (error) => {
+          this.toastr.error('Erreur lors du crédit du compte');
+          console.error(error);
+        }
+      );
+    }
+
+    currentZem: any;
+    openCreditConfirmDialog(zem: any) {
+      this.currentZem = zem;
+      this.showValidationDialog = true;
+    }
+    
+
+    confirmValidationCredit() {
+      if (this.currentZem) {
+        this.crediteKmAccount(this.currentZem);
+      }
+      this.closeValidationDialog();
+    }
 
 
 

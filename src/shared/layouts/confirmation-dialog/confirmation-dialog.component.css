@@ -90,3 +90,8 @@
   .confirm-btn:hover {
     background-color: #0284c7;
   }
+
+  .btn-custom {
+    background-color: #8a2be2; 
+    color: white;
+  }

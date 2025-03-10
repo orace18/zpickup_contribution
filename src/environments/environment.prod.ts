@@ -1,8 +1,9 @@
-import {APIURL, FIREBASE_API_KEY, FIREBASE_APP_ID, FIREBASE_AUTH_DOMAIN, FIREBASE_MESSAGING_SENDER_ID, FIREBASE_PROJECT_ID, FIREBASE_STORAGE_BUCKET, TINYKEY} from '../shared/constant/constant';
+import {APIURL, FIREBASE_API_KEY, FIREBASE_APP_ID, FIREBASE_AUTH_DOMAIN, FIREBASE_MESSAGING_SENDER_ID, FIREBASE_PROJECT_ID, FIREBASE_STORAGE_BUCKET, IMAGE_BASE_URL, TINYKEY} from '../shared/constant/constant';
 
 export const environment = {
     production: true,
     apiUrl: APIURL,
+    imageUrl: IMAGE_BASE_URL,
     tiny_api_key: TINYKEY,
     firebase: {
         apiKey: FIREBASE_API_KEY,

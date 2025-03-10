@@ -93,6 +93,7 @@ export interface Zem extends User{
   ray?: string | null;
   is_ambassador: boolean;
   is_temporal: boolean;
+  contrat_document: string;
 }
 
 

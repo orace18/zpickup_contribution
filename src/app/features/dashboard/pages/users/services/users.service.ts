@@ -113,5 +113,19 @@ makeAmbassador(userId: string, formData: FormData): Observable<Zem> {
     );
 }
 
+creditKmAccount(userId: string) {
+  const token = this.authService.getToken();
+
+  const headers = new HttpHeaders()
+    .set('Authorization', `Bearer ${token}`);
+  
+  return this.http.post<any>(`${this.zemUrl}/add-manual-km/${userId}`,  {headers})
+    .pipe(
+      catchError(error => {
+        return throwError(() => error); 
+      })
+    );
+  }
+
   
 }
