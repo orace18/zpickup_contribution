@@ -263,8 +263,8 @@
                 </td>
                 <td>{{ user.created_at | date: 'medium' }}</td>
                 <td>
-                  <span class="badge badge-light-warning">
-                    En attente
+                  <span *ngIf="userStatusMap.size > 0" [class]="getUserStatusClass(user._id)" class="badge">
+                    {{ getUserStatusDisplay(user._id) }}
                   </span>
                 </td>
                 <td>
@@ -296,7 +296,7 @@
                 <th>Type</th>
                 <th>Date d'ajout</th>
                 <th>Status</th>
-                <th>Créditer le compteur km</th>
+                <th>Compteur km</th>
                 <th class="text-end">Détails</th>
               </tr>
             </thead>

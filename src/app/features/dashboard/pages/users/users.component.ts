@@ -1870,7 +1870,11 @@ async toggleAmbassadorStatus() {
         if (u.zem) {
           const zemDetails = await this.getZemDetails(u.zem);
           if (zemDetails && zemDetails.validated_at !== null && zemDetails.validated_at !== undefined) {
-            return 'Validé';
+            if(zemDetails.is_temporal === true) {
+              return 'En attente';
+            }else{
+              return 'Validé';
+            }
           } else {
             return 'Non validé';
           }
