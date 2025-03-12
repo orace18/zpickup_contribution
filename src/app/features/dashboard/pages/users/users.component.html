@@ -53,7 +53,7 @@
             <select class="form-control me-3" [(ngModel)]="filters.status" (change)="applyFilters()">
               <option value="">Tous</option>
               <option value="validated">Validé</option>
-              <option value="pending">En attente</option>
+              <option value="in_progress">En attente</option>
               <option value="rejected">Rejeté</option>
             </select>
           </div>
@@ -77,14 +77,14 @@
         <div class="card-toolbar" *ngIf="activeTab === 'ta'">
 
           <button class="btn btn-primary" (click)="openCreditConfirmDialog('')">
-            <i class="ki-duotone ki-plus fs-2"></i> Créditer tous les ambassadeurs
+             Créditer tous
           </button>
            
           <app-confirmation-dialog 
             [isOpen]="showValidationDialog"
             [title]="'Êtes-vous sûr de vouloir créditer le compte km des Ambassadeur?'" 
             [confirmText]="'Oui, Confirmer'"
-            [cancelText]="'Non, annuler'" 
+            [cancelText]="'Non, Annuler'" 
             (confirm)="confirmValidationCredit('2')" 
             (cancel)="closeValidationDialog()"
             (closeDialog)="closeValidationDialog()">
@@ -128,7 +128,7 @@
                 <td>{{ user.created_at | date: 'medium' }}</td>
                 <td class="text-end">
                   <div class="dropdown" *ngIf="activeTab === 'admin'">
-                    <button class="btn btn-light btn-active-light-primary btn-sm dropdown-toggle" type="button"
+                    <button class="btn btn-light-primary btn-active-light-primary btn-sm dropdown-toggle" type="button"
                       [id]="'dropdownMenu' + user._id" data-bs-toggle="dropdown" aria-expanded="false">
                       Actions
                       <span class="svg-icon svg-icon-5 m-0">
@@ -152,7 +152,7 @@
                       </li>
                     </ul>
                   </div>
-                  <button *ngIf="activeTab === 'mobile'" class="btn btn-sm btn-light" (click)="showUserDetails(user)">
+                  <button *ngIf="activeTab === 'mobile'" class="btn btn-sm btn-light-primary" (click)="showUserDetails(user)">
                     Voir détails
                   </button>
                 </td>
@@ -213,7 +213,7 @@
                   </span>
                 </td>
                 <td class="text-end">
-                  <button class="btn btn-sm btn-light" (click)="showUserDetails(user)">
+                  <button class="btn btn-sm btn-light-primary" (click)="showUserDetails(user)">
                     Voir détails
                   </button>
                 </td>
@@ -273,7 +273,7 @@
                   </span>
                 </td>
                 <td class="text-end">
-                  <button class="btn btn-sm btn-light" (click)="showUserDetails(user)">
+                  <button class="btn btn-sm btn-light-primary" (click)="showUserDetails(user)">
                     Voir détails
                   </button>
                 </td>
@@ -345,7 +345,7 @@
                 </app-confirmation-dialog>
                 
                 <td class="text-end">
-                  <button class="btn btn-sm btn-light" (click)="showUserDetails(user)">
+                  <button class="btn btn-sm btn-light-primary" (click)="showUserDetails(user)">
                     Voir détails
                   </button>
                 </td>
@@ -1095,7 +1095,7 @@
             <!-- Header -->
             <div class="d-flex align-items-center mb-3">
               <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
-              <h3 class="mb-0">Information compte Zem</h3>
+              <h3 class="mb-0">Information compte Transporteur</h3>
             </div>
 
             <div class="container mt-4">
@@ -1172,15 +1172,15 @@
                           </span>
                         </td>
                       </tr>
-                     <!--  <tr ngIf="zem?.is_ambassador">
+                      <tr *ngIf="zem?.is_ambassador">
                         <th scope="row">Document Ambassadeur</th>
                         <td>
-                          <span [ngClass]="'badge badge-light-primary cursor-pointer'"
-                            (click)="openPhotoModal('doc_ambassador')">
+                          <span class="badge badge-light-primary cursor-pointer"
+                            (click)="openPdfModal('doc_ambassador')">
                             Voir le document
                           </span>
                         </td>
-                      </tr> -->
+                      </tr>
                       <tr>
                         <th scope="row">Date de validation</th>
                         <td><span [ngClass]="'badge badge-light-success'">{{zem?.validated_at | date:'dd/MM/yyyy HH:mm'}}</span></td>
@@ -1238,6 +1238,23 @@
               <!-- Error message -->
               <div *ngIf="!loading && !zem" class="alert alert-danger">
                 Impossible de charger les détails du Zem.
+              </div>
+            </div>
+
+
+            <div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="pdfModalLabel">Document PDF</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body text-center">
+                    <object [data]="currentPdf" type="application/pdf" class="w-100" style="height: 75vh;">
+                      <p>Votre navigateur ne peut pas afficher ce PDF. <a [href]="currentPdf" target="_blank">Cliquez ici pour le télécharger</a>.</p>
+                    </object>
+                  </div>
+                </div>
               </div>
             </div>
 

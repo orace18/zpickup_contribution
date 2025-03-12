@@ -1134,7 +1134,7 @@ loadUserRaces(userId: string): void {
             matchesStatus = user.validated_at === this.filters.status;
           }
           if (state === null) {
-            user.validated_at = 'pending';
+            user.validated_at = 'in_progress';
             matchesStatus = user.validated_at === this.filters.status;
           }
         }
@@ -1556,6 +1556,31 @@ loadUserRaces(userId: string): void {
     photoModal.show();
   }
 
+  currentPdf: string = '';
+
+  openPdfModal(pdfType: string) {
+    switch (pdfType) {
+      case 'doc_ambassador':
+        this.currentPdf = this.zem?.contrat_document || '';
+        break;
+      /* case 'plate_photo':
+        this.currentPhoto = this.zem?.plate_picture || '';
+        break;
+      case 'residence_photo':
+        this.currentPhoto = this.zem?.image_of_residence_certificate || '';
+        break;
+      case 'ifu_photo':
+        this.currentPhoto = this.zem?.ifu_number_image || '';
+        break;
+      case 'doc_ambassador':
+        this.currentPhoto = this.zem?.contrat_document || '';
+        break; */
+    }
+    const PdfModal = new bootstrap.Modal(document.getElementById('pdfModal')!);
+    PdfModal.show();
+  }
+
+
   openLocationModal() {
     const locationModal = new bootstrap.Modal(document.getElementById('locationModal')!);
     locationModal.show();
@@ -1764,61 +1789,63 @@ async toggleAmbassadorStatus() {
    
 
 
-getJoursBadgeClass(userId: string): string {
-  if (!this.joursRestantsMap.has(userId)) {
-    return 'badge badge-light-info'; // Chargement
-  }
-  
-  const jours = this.joursRestantsMap.get(userId);
-  if (typeof jours === 'number') {
-    if (jours < 0) {
-      return 'badge badge-light-danger'; // Expiré
-    } else if (jours < 7) {
-      return 'badge badge-light-warning'; // Expiration proche
-    } else {
-      return 'badge badge-light-primary'; // Normal
-    }
-  }
-  
-  return 'badge badge-light-secondary'; // Non trouvé ou erreur
-}
-
-async loadJoursRestants(userId: string) {
-  if (!userId) return;
-  
-  try {
-    const zemDetails = await this.getZemDetails(userId);
-    if (zemDetails && zemDetails.expired_at) {
-      const expiredDate = new Date(zemDetails.expired_at);
-      const aujourdhui = new Date();
-      const diffTime = expiredDate.getTime() - aujourdhui.getTime();
-      const jours = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    getJoursBadgeClass(userId: string): string {
+      if (!this.joursRestantsMap.has(userId)) {
+        return 'badge badge-light-info'; // Chargement
+      }
       
-      this.joursRestantsMap.set(userId, jours);
-    } else {
-      this.joursRestantsMap.set(userId, 'Non trouvé');
+      const jours = this.joursRestantsMap.get(userId);
+      if (typeof jours === 'number') {
+        if (jours < 0) {
+          return 'badge badge-light-danger'; // Expiré
+        } else if (jours < 7) {
+          return 'badge badge-light-warning'; // Expiration proche
+        } else {
+          return 'badge badge-light-primary'; // Normal
+        }
+      }
+      
+      return 'badge badge-light-secondary'; // Non trouvé ou erreur
     }
-  } catch (error) {
-    this.joursRestantsMap.set(userId, 'Erreur');
-  }
-}
 
-getJoursRestantsAffichage(userId: string): string {
-  if (!this.joursRestantsMap.has(userId)) {
-    return '...'; 
-  }
-  
-  const jours = this.joursRestantsMap.get(userId);
-  if (typeof jours === 'number') {
-    if (jours < 0) {
-      return 'Expiré';
-    } else {
-      return `${jours} jour${jours > 1 ? 's' : ''} restant${jours > 1 ? 's' : ''}`;
+    async loadJoursRestants(userId: string) {
+      if (!userId) return;
+      
+      try {
+        const zemDetails = await this.getZemDetails(userId);
+        if (zemDetails && zemDetails.expired_at) {
+          const expiredDate = new Date(zemDetails.expired_at);
+          const aujourdhui = new Date();
+          const diffTime = expiredDate.getTime() - aujourdhui.getTime();
+          const jours = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          this.joursRestantsMap.set(userId, jours);
+        } else {
+          this.joursRestantsMap.set(userId, 'Non trouvé');
+        }
+      } catch (error) {
+        this.joursRestantsMap.set(userId, 'Erreur');
+      }
     }
-  }
-  
-  return String(jours); 
-}
+
+    getJoursRestantsAffichage(userId: string): string {
+      if (!this.joursRestantsMap.has(userId)) {
+        return '...'; 
+      }
+      
+      const jours = this.joursRestantsMap.get(userId);
+      if (typeof jours === 'number') {
+        if (jours < 0) {
+          return 'Expiré';
+        } else {
+          return `${jours} jour${jours > 1 ? 's' : ''} restant${jours > 1 ? 's' : ''}`;
+        }
+      }
+      
+      return String(jours); 
+    }
+
+
     creditAllAmbassador() {
       this.usersService.creditAllAmbassador().subscribe(
         (response) => {
