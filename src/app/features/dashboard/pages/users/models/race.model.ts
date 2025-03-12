@@ -1,3 +1,4 @@
+import { DatePickerStyle } from 'primeng/datepicker';
 import {User} from './users.model';
 
 export interface Race {
@@ -94,6 +95,7 @@ export interface Zem extends User{
   is_ambassador: boolean;
   is_temporal: boolean;
   contrat_document: string;
+  expired_at: Date;
 }
 
 

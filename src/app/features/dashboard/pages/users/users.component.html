@@ -72,6 +72,23 @@
             (click)="showAddUserModal()">
             <i class="ki-duotone ki-plus fs-2"></i> Nouveau
           </button>
+
+        </div>
+        <div class="card-toolbar" *ngIf="activeTab === 'ta'">
+
+          <button class="btn btn-primary" (click)="openCreditConfirmDialog('')">
+            <i class="ki-duotone ki-plus fs-2"></i> Créditer tous les ambassadeurs
+          </button>
+           
+          <app-confirmation-dialog 
+            [isOpen]="showValidationDialog"
+            [title]="'Êtes-vous sûr de vouloir créditer le compte km des Ambassadeur?'" 
+            [confirmText]="'Oui, Confirmer'"
+            [cancelText]="'Non, annuler'" 
+            (confirm)="confirmValidationCredit('2')" 
+            (cancel)="closeValidationDialog()"
+            (closeDialog)="closeValidationDialog()">
+          </app-confirmation-dialog>
         </div>
       </div>
     </div>
@@ -188,8 +205,11 @@
                 </td>
                 <td>{{ user.created_at | date: 'medium' }}</td>
                 <td>
-                  <span class="badge badge-light-primary">
-                    {{ user.validated_at ? 'Validé' : 'Non validé' }}
+                  <span *ngIf="userStatusMap.size > 0" [class]="getUserStatusClass(user._id)" class="badge">
+                    {{ getUserStatusDisplay(user._id) }}
+                  </span>
+                  <span *ngIf="userStatusMap.size === 0" class="badge badge-light-info">
+                    Chargement...
                   </span>
                 </td>
                 <td class="text-end">
@@ -243,14 +263,13 @@
                 </td>
                 <td>{{ user.created_at | date: 'medium' }}</td>
                 <td>
-                  <span class="badge badge-light-primary">
-                    {{ user.validated_at ? 'Validé' : 'Non validé' }}
+                  <span class="badge badge-light-warning">
+                    En attente
                   </span>
                 </td>
                 <td>
-                  <span class="badge badge-light-primary">
-                    45 jours
-                    <!-- {{ user.validated_at ? 'Validé' : 'Non validé' }} -->
+                  <span [class]="getJoursBadgeClass(user?.zem!)">
+                    {{ getJoursRestantsAffichage(user?.zem!) }}
                   </span>
                 </td>
                 <td class="text-end">
@@ -303,8 +322,11 @@
                 </td>
                 <td>{{ user.created_at | date: 'medium' }}</td>
                 <td>
-                  <span class="badge badge-light-primary">
-                    {{ user.validated_at ? 'Validé' : 'Non validé' }}
+                  <span *ngIf="userStatusMap.size > 0" [class]="getUserStatusClass(user._id)" class="badge">
+                    {{ getUserStatusDisplay(user._id) }}
+                  </span>
+                  <span *ngIf="userStatusMap.size === 0" class="badge badge-light-info">
+                    Chargement...
                   </span>
                 </td>
                 <td class="text-center">
@@ -315,9 +337,9 @@
                 <app-confirmation-dialog 
                   [isOpen]="showValidationDialog"
                   [title]="'Êtes-vous sûr de vouloir Créditer le compte km de cet Ambassadeur?'" 
-                  [confirmText]="'Oui, valider'"
+                  [confirmText]="'Oui, Confirmer'"
                   [cancelText]="'Non, annuler'" 
-                  (confirm)="confirmValidationCredit()" 
+                  (confirm)="confirmValidationCredit('1')" 
                   (cancel)="closeValidationDialog()"
                   (closeDialog)="closeValidationDialog()">
                 </app-confirmation-dialog>
@@ -1315,7 +1337,7 @@
                       <div class="text-muted mb-1">Solde actuel</div>
                       <div class="fs-2 fw-bold" [class.text-danger]="counterData.currentBalance < 0"
                         [class.text-success]="counterData.currentBalance >= 0">
-                        {{ counterData.currentBalance | number:'1.2-2' }} XOF
+                        {{ counterData.currentBalance | number:'1.2-2' }} Km
                       </div>
                     </div>
 

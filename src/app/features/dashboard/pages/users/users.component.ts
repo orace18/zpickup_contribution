@@ -1,4 +1,3 @@
-
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -79,6 +78,8 @@ export class FilterByTypePipe implements PipeTransform {
 })
 export class UsersComponent implements OnInit, AfterViewInit {
 
+  userStatusCache: Map<string, string> = new Map();
+  userStatusMap: Map<string, string> = new Map();
   today: string = new Date().toISOString().split('T')[0];
   newStatus: boolean = false;
   selectedContractFile: File | null = null;
@@ -119,9 +120,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
   isModalOpen: boolean = this.loading;
   isLoading: boolean = false;
   loadingMessage: string = 'Chargement des données...';
+  joursRestantsMap = new Map<string, number | string>();
+
   
-  /* birthday: '',
-    address: '', */
   newUser = {
     phone_number: '',
     password: '',
@@ -217,6 +218,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.detailsModal.show();
     this.canValidate = await this.canValidateZem();
     this.getZemStatusText();
+
     if (this.selectedUser?.zem) {
       const zemDetails = await this.getZemDetails(this.selectedUser?.zem!);
       this.zem = zemDetails || null;
@@ -836,26 +838,54 @@ loadUserRaces(userId: string): void {
 
   async ngOnInit(): Promise<void> {
     this.isLoading = true;
-    setTimeout(() => {
-      this.isLoading  = false;
-      this.loadUsers();
-      this.loadRoles();
-     
-
-      this.userRaces.forEach(race => {
-        this.collapsedSections[race._id] = true;
-      });
-
-
     
-
-    this.editModal = new Modal(document.getElementById('kt_modal_edit_user')!);
-    this.detailsModal = new Modal(document.getElementById('kt_modal_user_details')!);
-    this.addModal = new Modal(document.getElementById('kt_modal_add_user')!);
-  }, 2000);
-  await this.loadUserStatuses();
+    // Utiliser une promesse au lieu de setTimeout
+    await new Promise<void>(resolve => {
+      setTimeout(() => {
+        this.isLoading = false;
+        
+        // Charger les utilisateurs UNE SEULE FOIS et attendre via une promesse
+        this.usersService.getUsers().toPromise()
+          .then(users => {
+            this.users = users ?? [];
+            console.log("Nombre d'utilisateurs chargés:", this.users.length);
+            
+            // Appliquer les filtres
+            this.applyFilters();
+            
+            // Initialiser la map des statuts
+            this.userStatusMap = new Map<string, string>();
+            
+            // Charger les statuts pour chaque utilisateur
+            this.users.forEach(async user => {
+              await this.loadUserStatus(user);
+              // Charger les jours restants si nécessaire
+              if (user.zem) {
+                this.loadJoursRestants(user.zem);
+              }
+            });
+            
+            // Initialiser les modaux
+            this.editModal = new Modal(document.getElementById('kt_modal_edit_user')!);
+            this.detailsModal = new Modal(document.getElementById('kt_modal_user_details')!);
+            this.addModal = new Modal(document.getElementById('kt_modal_add_user')!);
+            
+            resolve();
+          })
+          .catch(error => {
+            console.error("Erreur lors du chargement des utilisateurs:", error);
+            this.users = [];
+            resolve();
+          });
+          
+        this.loadRoles();
+        this.userRaces.forEach(race => {
+          this.collapsedSections[race._id] = true;
+        });
+      }, 2000);
+    });
   }
-
+  
   setInitialCollapseState(userRaces: Race[]): void {
     this.userRaces.forEach(race => {
       this.collapsedSections[race._id] = true;
@@ -1587,7 +1617,7 @@ loadUserRaces(userId: string): void {
     for (const user of this.users) {
       this.userStatus[user._id] = await this.statutOfUser(user);
     }
-    this.cdr.detectChanges(); // Force la détection des changements
+    this.cdr.detectChanges(); 
   }
 
 
@@ -1719,61 +1749,145 @@ async toggleAmbassadorStatus() {
     }
     
 
-    confirmValidationCredit() {
-      if (this.currentZem) {
-        this.crediteKmAccount(this.currentZem);
+    confirmValidationCredit(methode: string) {
+      if(methode === '1') {
+        if (this.currentZem) {
+          this.crediteKmAccount(this.currentZem);
+        }
+      }
+      if(methode === '2') {
+        this.creditAllAmbassador();
       }
       this.closeValidationDialog();
     }
 
+   
 
 
-
-/* async toggleAmbassadorStatus() {
-  if (!this.selectedUser) return;
+getJoursBadgeClass(userId: string): string {
+  if (!this.joursRestantsMap.has(userId)) {
+    return 'badge badge-light-info'; // Chargement
+  }
   
-  const zemId = this.selectedUser.zem;
-  if (!zemId) return;
-  
-  if (!this.zem) {
-    if (zemId) {
-      const zemDetails = await this.getZemDetails(zemId);
-      this.zem = zemDetails || null;
-    }
-   // this.zem = await this.getZemDetails(zemId);
-    if (!this.zem) {
-      this.toastr.error("Impossible de récupérer les détails du transporteur");
-      this.closeAmbassadorDialog();
-      return;
+  const jours = this.joursRestantsMap.get(userId);
+  if (typeof jours === 'number') {
+    if (jours < 0) {
+      return 'badge badge-light-danger'; // Expiré
+    } else if (jours < 7) {
+      return 'badge badge-light-warning'; // Expiration proche
+    } else {
+      return 'badge badge-light-primary'; // Normal
     }
   }
+  
+  return 'badge badge-light-secondary'; // Non trouvé ou erreur
+}
 
-  console.log("L'ancien statut", this.zem.is_ambassador);
+async loadJoursRestants(userId: string) {
+  if (!userId) return;
   
-  this.newStatus = !this.zem.is_ambassador;
-  console.log("Le nouveau statut", this.newStatus);
+  try {
+    const zemDetails = await this.getZemDetails(userId);
+    if (zemDetails && zemDetails.expired_at) {
+      const expiredDate = new Date(zemDetails.expired_at);
+      const aujourdhui = new Date();
+      const diffTime = expiredDate.getTime() - aujourdhui.getTime();
+      const jours = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      this.joursRestantsMap.set(userId, jours);
+    } else {
+      this.joursRestantsMap.set(userId, 'Non trouvé');
+    }
+  } catch (error) {
+    this.joursRestantsMap.set(userId, 'Erreur');
+  }
+}
+
+getJoursRestantsAffichage(userId: string): string {
+  if (!this.joursRestantsMap.has(userId)) {
+    return '...'; 
+  }
   
- 
-  this.usersService.updateAmbassadorStatus(zemId, this.newStatus.toString()).subscribe(
-    (response) => {
+  const jours = this.joursRestantsMap.get(userId);
+  if (typeof jours === 'number') {
+    if (jours < 0) {
+      return 'Expiré';
+    } else {
+      return `${jours} jour${jours > 1 ? 's' : ''} restant${jours > 1 ? 's' : ''}`;
+    }
+  }
   
-      if (this.zem) {
-        this.zem.is_ambassador = this.newStatus;
+  return String(jours); 
+}
+    creditAllAmbassador() {
+      this.usersService.creditAllAmbassador().subscribe(
+        (response) => {
+          //console.log("Réponse de crédit des comptes", response);
+          this.toastr.success(response.message);
+        },
+        (error) => {
+          this.toastr.error('Erreur lors du crédit des comptes');
+          console.error(error);
+        }
+      );
+
+    }
+
+    async getUserStatut(u: User) {
+      
+      if (u.user_type === 'customer') {
+        return u.validated_at ? 'Validé' : 'Non validé';
       }
       
-     
-      this.toastr.success(
-        this.newStatus 
-          ? `${this.selectedUser?.firstname} ${this.selectedUser?.lastname} est maintenant ambassadeur` 
-          : `${this.selectedUser?.firstname} ${this.selectedUser?.lastname} n'est plus ambassadeur`
-      );
-    },
-    (error) => {
-      this.toastr.error("Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
-      console.error(error);
+      if (u.user_type === 'zem') {
+        if (u.zem) {
+          const zemDetails = await this.getZemDetails(u.zem);
+          if (zemDetails && zemDetails.validated_at !== null && zemDetails.validated_at !== undefined) {
+            return 'Validé';
+          } else {
+            return 'Non validé';
+          }
+        } else {
+          return 'Non validé';
+        }
+      }
+      
+      return 'Non validé';
     }
-  );
+
+    async loadUserStatus(user: User) {
+      try {
+        console.log("Début loadUserStatus pour utilisateur:", user._id);
+        const status = await this.getUserStatut(user);
+        console.log("Statut obtenu pour", user._id, ":", status);
+        
+        if (!this.userStatusMap) {
+          this.userStatusMap = new Map<string, string>();
+        }
+        
+        this.userStatusMap.set(user._id, status);
+        console.log("Map après ajout:", [...this.userStatusMap.entries()]);
+        this.cdr.detectChanges();
+      } catch (error) {
+        console.error("Erreur lors du chargement du statut pour", user._id, ":", error);
+      }
+    }
+
+
   
-  this.closeAmbassadorDialog();
-} */
+  getUserStatusDisplay(userId: string): string {
+    console.log("Les valeurs de la map", this.userStatusMap);
+    return this.userStatusMap.get(userId) || '...';
+  }
+  
+  getUserStatusClass(userId: string): string {
+    const status = this.userStatusMap.get(userId);
+    if (status === 'Validé') {
+      return 'badge-light-success';
+    } else if (status === 'Non validé') {
+      return 'badge-light-danger';
+    }
+    return 'badge-light-info'; // Pour le statut "Chargement..."
+  }
+
 }
