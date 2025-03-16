@@ -5,7 +5,7 @@ export let FIREBASE_API_KEY = "AIzaSyAIbqvIy3x2sw5QECt1r6qaNeLmRBDBQd8";
 
 export let FIREBASE_AUTH_DOMAIN = "wt-zpickup.firebaseapp.com";
 export let FIREBASE_PROJECT_ID = "wt-zpickup";
-export let IMAGE_BASE_URL = APIURL;
+export let IMAGE_BASE_URL = APIURL + "/";
 
 export let FIREBASE_STORAGE_BUCKET = "wt-zpickup.firebasestorage.app";
 export let FIREBASE_MESSAGING_SENDER_ID = "631975086750";

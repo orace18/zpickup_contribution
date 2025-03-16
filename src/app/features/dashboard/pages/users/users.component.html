@@ -537,6 +537,152 @@
               <i class="bi bi-chevron-right fs-2"></i>
             </div>
 
+            <div *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador === true"
+              class="d-flex align-items-center p-3 rounded cursor-pointer hover-bg-light mt-3"
+              (click)="showUserSection('affiliations')">
+              <div class="symbol symbol-35px me-3">
+                <i class="bi bi-link fs-2"></i>
+              </div>
+              <div class="d-flex flex-column flex-grow-1">
+                <span class="fw-bold">Affiliations</span>
+                <span class="text-muted fs-7">Statistiques des affiliations</span>
+              </div>
+              <i class="bi bi-chevron-right fs-2"></i>
+            </div>
+
+          </div>
+
+          <div *ngIf="activeSection === 'affiliations'" class="mt-5">
+            <div class="d-flex align-items-center mb-3">
+              <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
+              <h3 class="mb-0">Programme d'affiliation</h3>
+            </div>
+          
+            <!-- Navigation par onglets -->
+            <ul class="nav nav-tabs mb-4">
+              <li class="nav-item">
+                <a class="nav-link" [class.active]="affiliationTab === 'referes'" (click)="affiliationTab = 'referes'">
+                  <i class="bi bi-people me-2"></i>Personne référés
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" [class.active]="affiliationTab === 'gains'" (click)="affiliationTab = 'gains'">
+                  <i class="bi bi-coin me-2"></i>Gains ambassadeur et historique
+                </a>
+              </li>
+            </ul>
+          
+            <!-- Contenu de l'onglet "Affichage des référés" -->
+            <div *ngIf="affiliationTab === 'referes'" class="border rounded p-4">
+              <h5 class="mb-3">Vos référés</h5>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Nom</th>
+                      <th>Date d'inscription</th>
+                      <th>Statut</th>
+                      <th>Achat effectué</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let refere of referesList">
+                      <td>{{ refere.name }}</td>
+                      <td>{{ refere.registration_date | date:'dd/MM/yyyy' }}</td>
+                      <td>
+                        <span [class]="'badge badge-light-' + getReferralStatusClass(refere.status)">
+                          {{ refere.status }}
+                        </span>
+                      </td>
+                      <td>{{ refere.has_purchased ? 'Oui' : 'Non' }}</td>
+                    </tr>
+                    <tr *ngIf="!referesList || referesList.length === 0">
+                      <td colspan="4" class="text-center py-3">Aucun référé trouvé</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          
+            <!-- Contenu de l'onglet "Gains ambassadeur et historique" -->
+            <div *ngIf="affiliationTab === 'gains'" class="border rounded p-4">
+              <!-- Solde -->
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">Solde actuel</h4>
+                <h2 class="text-primary mb-0">
+                  {{ walletBalance?.wallet_amount | number:'1.0-0' }} XOF
+                </h2>
+              </div>
+          
+              <!-- Résumé -->
+              <div class="row mb-4" *ngIf="walletHistory">
+                <div class="col-md-3">
+                  <div class="border rounded p-3 h-100">
+                    <div class="text-muted">Total Transactions</div>
+                    <div class="fw-bold fs-4">{{ walletHistory.total_transactions }}</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="border rounded p-3 h-100">
+                    <div class="text-muted">Total Crédits</div>
+                    <div class="fw-bold fs-4 text-success">{{ walletHistory.total_credits }}</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="border rounded p-3 h-100">
+                    <div class="text-muted">Total Retraits</div>
+                    <div class="fw-bold fs-4 text-danger">{{ walletHistory.total_withdrawals }}</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="border rounded p-3 h-100">
+                    <div class="text-muted">Montant Total Crédité</div>
+                    <div class="fw-bold fs-4">{{ walletHistory.total_credit_amount | number:'1.0-0' }} XOF</div>
+                  </div>
+                </div>
+              </div>
+          
+              <!-- Historique des transactions -->
+              <div>
+                <h5 class="mb-3">Historique des transactions</h5>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Montant</th>
+                        <th>Détails</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let transaction of walletHistory?.transactions">
+                        <td>{{ transaction.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                        <td>
+                          <span [class]="'badge badge-light-' + getTransactionClass(transaction.type)">
+                            {{ getTransactionLabel(transaction.type) }}
+                          </span>
+                        </td>
+                        <td [class]="getTransactionTextClass(transaction.type)">
+                          {{ transaction.amount | number:'1.0-0' }} XOF
+                        </td>
+                        <td>
+                          <ng-container *ngIf="transaction.transaction_type">
+                            <span class="text-muted">{{ transaction.transaction_type }}</span>
+                          </ng-container>
+                          <ng-container *ngIf="transaction.phone_number">
+                            <span class="text-muted">{{ transaction.phone_number }}</span>
+                          </ng-container>
+                        </td>
+                      </tr>
+                      <tr *ngIf="!walletHistory?.transactions || walletHistory?.transactions?.length === 0">
+                        <td colspan="4" class="text-center py-3">Aucune transaction trouvée</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
 
 
@@ -1251,7 +1397,7 @@
                   </div>
                   <div class="modal-body text-center">
                     <object [data]="currentPdf" type="application/pdf" class="w-100" style="height: 75vh;">
-                      <p>Votre navigateur ne peut pas afficher ce PDF. <a [href]="currentPdf" target="_blank">Cliquez ici pour le télécharger</a>.</p>
+                      <p>Votre navigateur ne peut pas afficher ce PDF. <a [href]="imageBase+currentPdf" target="_blank">Cliquez ici pour le télécharger</a>.</p>
                     </object>
                   </div>
                 </div>
@@ -1267,7 +1413,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body text-center">
-                    <img [src]="currentPhoto" class="img-fluid" alt="Photo">
+                    <img [src]="imageBase+currentPhoto" class="img-fluid" alt="Photo">
                   </div>
                 </div>
               </div>
@@ -1302,7 +1448,7 @@
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                  <img [src]="zem?.zem_profile_image" class="img-fluid" alt="Photo de profil">
+                  <img [src]="imageBase+zem?.zem_profile_image" class="img-fluid" alt="Photo de profil">
                 </div>
               </div>
             </div>
@@ -1317,7 +1463,7 @@
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                  <img [src]="zem?.card_image" class="img-fluid" alt="Photo de la carte">
+                  <img [src]="imageBase+ zem?.card_image" class="img-fluid" alt="Photo de la carte">
                 </div>
               </div>
             </div>

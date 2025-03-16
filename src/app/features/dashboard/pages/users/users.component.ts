@@ -40,6 +40,7 @@ import { ConfirmationDialogComponent } from "../../../../../shared/layouts/confi
 import { state } from '@angular/animations';
 import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { environment } from '../../../../../environments/environment';
 declare var bootstrap: any;
 
 @Pipe({
@@ -78,6 +79,7 @@ export class FilterByTypePipe implements PipeTransform {
 })
 export class UsersComponent implements OnInit, AfterViewInit {
 
+  imageBase: string = environment.imageUrl;
   userStatusCache: Map<string, string> = new Map();
   userStatusMap: Map<string, string> = new Map();
   today: string = new Date().toISOString().split('T')[0];
@@ -87,7 +89,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   isCollapsed = true;
   collapsedSections: { [key: string]: boolean } = {};
   canValidate: boolean = false;
-  activeSection: 'informations' | 'portefeuille' | 'courses' | 'compteur' | 'infoszem' | null = null;
+  activeSection: 'informations' | 'portefeuille' | 'courses' | 'compteur' | 'infoszem' | 'affiliations' | null = null;
   counterData: CounterData | null = null;
   userStatus: { [key: string]: string } = {};
   loading: boolean = false;
@@ -463,7 +465,7 @@ filterRaces(userID: string): void {
 
 
 
-  showUserSection(section: 'informations' | 'portefeuille' | 'courses' | 'compteur' | 'infoszem'): void {
+  showUserSection(section: 'informations' | 'portefeuille' | 'courses' | 'compteur' | 'infoszem' | 'affiliations'): void {
     console.log("Section changée vers:", section);
     this.activeSection = section;
     if (section === 'portefeuille' && this.selectedUser) {
@@ -1548,9 +1550,6 @@ loadUserRaces(userId: string): void {
       case 'ifu_photo':
         this.currentPhoto = this.zem?.ifu_number_image || '';
         break;
-      case 'doc_ambassador':
-        this.currentPhoto = this.zem?.contrat_document || '';
-        break;
     }
     const photoModal = new bootstrap.Modal(document.getElementById('photoModal')!);
     photoModal.show();
@@ -1563,18 +1562,6 @@ loadUserRaces(userId: string): void {
       case 'doc_ambassador':
         this.currentPdf = this.zem?.contrat_document || '';
         break;
-      /* case 'plate_photo':
-        this.currentPhoto = this.zem?.plate_picture || '';
-        break;
-      case 'residence_photo':
-        this.currentPhoto = this.zem?.image_of_residence_certificate || '';
-        break;
-      case 'ifu_photo':
-        this.currentPhoto = this.zem?.ifu_number_image || '';
-        break;
-      case 'doc_ambassador':
-        this.currentPhoto = this.zem?.contrat_document || '';
-        break; */
     }
     const PdfModal = new bootstrap.Modal(document.getElementById('pdfModal')!);
     PdfModal.show();
@@ -1628,7 +1615,12 @@ loadUserRaces(userId: string): void {
       try {
         const zemDetails = await this.getZemDetails(user.zem);
         console.log("Les détails du zem", zemDetails);
-        return zemDetails?.validated_at ? 'Validé' : 'Non validé';
+         if(zemDetails?.is_temporal === true) {
+          return "En attente";
+          }else {
+             return zemDetails?.validated_at ? 'Validé' : 'Non validé';
+
+          }
       } catch (error) {
         console.error('Erreur lors de la récupération des détails ZEM:', error);
         return 'Non validé';
@@ -1897,17 +1889,15 @@ async toggleAmbassadorStatus() {
         }
         
         this.userStatusMap.set(user._id, status);
-        console.log("Map après ajout:", [...this.userStatusMap.entries()]);
+        //console.log("Map après ajout:", [...this.userStatusMap.entries()]);
         this.cdr.detectChanges();
       } catch (error) {
         console.error("Erreur lors du chargement du statut pour", user._id, ":", error);
       }
     }
 
-
-  
   getUserStatusDisplay(userId: string): string {
-    console.log("Les valeurs de la map", this.userStatusMap);
+    //console.log("Les valeurs de la map", this.userStatusMap);
     return this.userStatusMap.get(userId) || '...';
   }
   
@@ -1918,7 +1908,23 @@ async toggleAmbassadorStatus() {
     } else if (status === 'Non validé') {
       return 'badge-light-danger';
     }
-    return 'badge-light-info'; // Pour le statut "Chargement..."
+    return 'badge-light-info'; 
+  }
+
+  affiliationTab: string = 'referes';
+  referesList: any[] = [];
+
+  getReferralStatusClass(status: string): string {
+    switch(status.toLowerCase()) {
+      case 'actif':
+        return 'success';
+      case 'en attente':
+        return 'warning';
+      case 'inactif':
+        return 'danger';
+      default:
+        return 'info';
+    }
   }
 
 }
