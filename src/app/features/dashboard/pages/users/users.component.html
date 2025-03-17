@@ -258,7 +258,7 @@
                     <span>{{ user.email_address }}</span>
                   </div>
                 </td>
-                <td>
+                <td >
                   {{ user.user_type === 'zem' ? 'Transporteur' : (user.user_type === 'customer' ? 'Client' : 'N/A') }}
                 </td>
                 <td>{{ user.created_at | date: 'medium' }}</td>
@@ -537,7 +537,7 @@
               <i class="bi bi-chevron-right fs-2"></i>
             </div>
 
-            <div *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador === true"
+            <div *ngIf="selectedUser.user_type === 'zem' || selectedUser.user_type === 'customer'"
               class="d-flex align-items-center p-3 rounded cursor-pointer hover-bg-light mt-3"
               (click)="showUserSection('affiliations')">
               <div class="symbol symbol-35px me-3">
@@ -567,123 +567,78 @@
               </li>
               <li class="nav-item">
                 <a class="nav-link" [class.active]="affiliationTab === 'gains'" (click)="affiliationTab = 'gains'">
-                  <i class="bi bi-coin me-2"></i>Gains ambassadeur et historique
+                  <i class="bi bi-coin me-2"></i>Gains sur affiliation
                 </a>
               </li>
             </ul>
-          
-            <!-- Contenu de l'onglet "Affichage des référés" -->
-            <div *ngIf="affiliationTab === 'referes'" class="border rounded p-4">
-              <h5 class="mb-3">Vos référés</h5>
-              <div class="table-responsive">
-                <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Nom</th>
-                      <th>Date d'inscription</th>
-                      <th>Statut</th>
-                      <th>Achat effectué</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let refere of referesList">
-                      <td>{{ refere.name }}</td>
-                      <td>{{ refere.registration_date | date:'dd/MM/yyyy' }}</td>
-                      <td>
-                        <span [class]="'badge badge-light-' + getReferralStatusClass(refere.status)">
-                          {{ refere.status }}
-                        </span>
-                      </td>
-                      <td>{{ refere.has_purchased ? 'Oui' : 'Non' }}</td>
-                    </tr>
-                    <tr *ngIf="!referesList || referesList.length === 0">
-                      <td colspan="4" class="text-center py-3">Aucun référé trouvé</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+
+
+          <div *ngIf="affiliationTab === 'referes'" class="border rounded p-4">
+            <h5 class="mb-3">Vos référés</h5>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Téléphone</th>
+                    <th>Type</th>
+                    <th>Date d'inscription</th>
+                    <th>Montant bonus</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let referral of referelList">
+                    <td>{{ referral.referred.firstname }} {{ referral.referred.lastname }}</td>
+                    <td>{{ referral.referred.phone_number }}</td>
+                    <td class ="badge-light-primary mt-2">{{ referral.referred.user_type === 'zem' ? 'Transporteur' : 'Client'}}</td>
+                    <td>{{ referral.referred.created_at | date:'dd/MM/yyyy' }}</td>
+                    <td>{{ referral.bonus_amount | number:'1.0-0' }} XOF</td>
+                    <td>
+                      <span [class]="'badge badge-light-' + (referral.zem_validation_bonus_paid ? 'success' : 'warning')">
+                        {{ referral.zem_validation_bonus_paid ? 'Bonus payé' : 'En attente' }}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!referelList || referelList.length === 0">
+                    <td colspan="5" class="text-center py-3">Aucun référé trouvé</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          
-            <!-- Contenu de l'onglet "Gains ambassadeur et historique" -->
-            <div *ngIf="affiliationTab === 'gains'" class="border rounded p-4">
-              <!-- Solde -->
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="mb-0">Solde actuel</h4>
-                <h2 class="text-primary mb-0">
-                  {{ walletBalance?.wallet_amount | number:'1.0-0' }} XOF
-                </h2>
-              </div>
-          
-              <!-- Résumé -->
-              <div class="row mb-4" *ngIf="walletHistory">
-                <div class="col-md-3">
-                  <div class="border rounded p-3 h-100">
-                    <div class="text-muted">Total Transactions</div>
-                    <div class="fw-bold fs-4">{{ walletHistory.total_transactions }}</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="border rounded p-3 h-100">
-                    <div class="text-muted">Total Crédits</div>
-                    <div class="fw-bold fs-4 text-success">{{ walletHistory.total_credits }}</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="border rounded p-3 h-100">
-                    <div class="text-muted">Total Retraits</div>
-                    <div class="fw-bold fs-4 text-danger">{{ walletHistory.total_withdrawals }}</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="border rounded p-3 h-100">
-                    <div class="text-muted">Montant Total Crédité</div>
-                    <div class="fw-bold fs-4">{{ walletHistory.total_credit_amount | number:'1.0-0' }} XOF</div>
+          </div>
+
+          <div *ngIf="affiliationTab === 'gains'" class="border rounded p-4">
+            <!-- Deux cartes centrées -->
+            <div class="row justify-content-center mb-4">
+              <!-- Première carte - Gain réalisé -->
+              <div class="col-md-5 mb-3">
+                <div class="card h-100">
+                  <div class="card-body text-center p-4">
+                    <h5 class="card-title text-muted mb-3">Gain réalisé</h5>
+                    <h2 class="text-primary mb-0">
+                      {{ referelMoneyList.totalBonus | number:'1.0-0' }} XOF
+                    </h2>
                   </div>
                 </div>
               </div>
-          
-              <!-- Historique des transactions -->
-              <div>
-                <h5 class="mb-3">Historique des transactions</h5>
-                <div class="table-responsive">
-                  <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Montant</th>
-                        <th>Détails</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let transaction of walletHistory?.transactions">
-                        <td>{{ transaction.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
-                        <td>
-                          <span [class]="'badge badge-light-' + getTransactionClass(transaction.type)">
-                            {{ getTransactionLabel(transaction.type) }}
-                          </span>
-                        </td>
-                        <td [class]="getTransactionTextClass(transaction.type)">
-                          {{ transaction.amount | number:'1.0-0' }} XOF
-                        </td>
-                        <td>
-                          <ng-container *ngIf="transaction.transaction_type">
-                            <span class="text-muted">{{ transaction.transaction_type }}</span>
-                          </ng-container>
-                          <ng-container *ngIf="transaction.phone_number">
-                            <span class="text-muted">{{ transaction.phone_number }}</span>
-                          </ng-container>
-                        </td>
-                      </tr>
-                      <tr *ngIf="!walletHistory?.transactions || walletHistory?.transactions?.length === 0">
-                        <td colspan="4" class="text-center py-3">Aucune transaction trouvée</td>
-                      </tr>
-                    </tbody>
-                  </table>
+              
+              <!-- Deuxième carte - Nombre d'affiliation -->
+              <div class="col-md-5 mb-3">
+                <div class="card h-100">
+                  <div class="card-body text-center p-4">
+                    <h5 class="card-title text-muted mb-3">Nombre d'affiliation</h5>
+                    <h2 class="text-success mb-0">
+                      {{ referelMoneyList.totalReferred }}
+                    </h2>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        
 
 
           <div *ngIf="activeSection === 'informations'" class="mt-5">
@@ -715,6 +670,7 @@
               </div>
             </div>
           </div>
+        
 
           <div *ngIf="activeSection === 'portefeuille'" class="mt-5">
             <div class="d-flex align-items-center mb-3">

@@ -41,6 +41,8 @@ import { state } from '@angular/animations';
 import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
+import { ReferelService } from './services/referel.service';
+import { MoneyRefferal, Referral } from './models/referel.model';
 declare var bootstrap: any;
 
 @Pipe({
@@ -100,6 +102,11 @@ export class UsersComponent implements OnInit, AfterViewInit {
   currentUser: User[] = [];
   userRaces: Race[] = [];
   roles: Role[] = [];
+  referelList: Referral[] = [];
+  referelMoneyList: MoneyRefferal = {
+    totalBonus: 0,
+    totalReferred: 0
+  };
   selectedUser: User | null = null;
   walletBalance?: WalletBalance;
   walletHistory?: WalletHistory;
@@ -157,6 +164,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     private raceService: RaceService,
     private roleService: RoleService,
     private counterService: CounterService,
+    private referelService: ReferelService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder,
@@ -282,8 +290,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.addModal.show();
   }
 
-  /* birthday: '',
-      address: '', */
+ 
   resetNewUser(): void {
     this.newUser = {
       phone_number: '',
@@ -500,6 +507,11 @@ filterRaces(userID: string): void {
         this.loadZemDetails(z);
         console.log("C'est après le if ", z);
       }
+    }
+
+    if(section === 'affiliations' && this.selectedUser) {
+      this.getUserRefer(this.selectedUser._id);
+      this.getReferesMoney(this.selectedUser._id);
     }
 
   }
@@ -1925,6 +1937,32 @@ async toggleAmbassadorStatus() {
       default:
         return 'info';
     }
+  }
+
+  getUserRefer(userId: string) {
+    this.referelService.getUserReferral(userId).subscribe(
+      (response) => {
+        this.referelList = response as Referral[];
+        console.log("Réponse de la liste des referes", response);
+      },
+      (error) => {
+        this.toastr.error('Erreur lors du chargement des referes');
+        console.error(error);
+      }
+    );
+  }
+
+  getReferesMoney(userId: string) {
+    this.referelService.getMoneyReferral(userId).subscribe(
+      (response) => {
+        this.referelMoneyList = response as MoneyRefferal;
+        console.log("Réponse de la liste des referes", response);
+      },
+      (error) => {
+        this.toastr.error('Erreur lors du chargement des referes');
+        console.error(error);
+      }
+    );
   }
 
 }
