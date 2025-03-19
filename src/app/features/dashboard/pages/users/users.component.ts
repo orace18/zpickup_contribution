@@ -485,7 +485,8 @@ filterRaces(userID: string): void {
         if (typeof z === "string") {
           this.loadUserRaces(z);
         }
-      } else {
+      } 
+      if(this.selectedUser.user_type === 'customer') {
         this.loadUserRaces(this.selectedUser._id);
       }
     }
@@ -694,7 +695,7 @@ loadUserRaces(userId: string): void {
 
   service.pipe(
     map(races => {
-      this.userRaces = [...races]; // Stocker toutes les courses
+      this.userRaces = [...races]; 
       if(this.startDate || this.endDate) {
         this.showAllRaces = true;
       } 

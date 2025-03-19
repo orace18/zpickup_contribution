@@ -19,7 +19,7 @@ export class RaceService {
 
   getUserRaces(userId: string | undefined): Observable<Race[]> {
     return this.getRaces().pipe(
-      map(races => races.filter(race => race.user._id === userId))
+      map(races => races.filter(race => race.user?._id === userId))
     );
   }
 
