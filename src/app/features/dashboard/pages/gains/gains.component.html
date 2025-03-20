@@ -2,7 +2,7 @@
   <!-- En-tête avec titre et actions -->
   <div class="mb-4 d-flex justify-content-between align-items-center">
     <div class="mb-0">
-      <h1>Gains</h1>
+      <h1>Gains du mois en cours</h1>
     </div>
     <div class="d-flex gap-3">
       <button class="btn btn-primary" (click)="openModal(periodModal)">
@@ -118,10 +118,10 @@
         </ng-template>
         <ng-template pTemplate="body" let-race>
           <tr>
-            <td class="p-3">{{ race.date }}</td>
-            <td class="p-3 text-success">{{ race.zem_bonus | number:'1.0-0' }} FCFA</td>
+            <td class="p-3 text-primary">{{ race.date }}</td>
+            <td class="p-3 text-warning">{{ race.zem_bonus | number:'1.0-0' }} FCFA</td>
             <td class="p-3 text-primary">{{ race.customer_bonus | number:'1.0-0' }} FCFA</td>
-            <td class="p-3 text-warning">{{ race.admin_bonus | number:'1.0-0' }} FCFA</td>
+            <td class="p-3 text-success">{{ race.admin_bonus | number:'1.0-0' }} FCFA</td>
             <td class="p-3 fw-bold text-primary">{{ race.total | number:'1.0-0' }} FCFA</td>
           </tr>
         </ng-template>

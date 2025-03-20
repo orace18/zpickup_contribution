@@ -39,6 +39,17 @@
       <h1>Courses</h1>
     </div>
     <div class="d-flex gap-3">
+      <!-- Barre de recherche -->
+      <div class="input-group" style="width: 300px;">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control" placeholder="Rechercher..." 
+               [(ngModel)]="searchTerm" (keyup)="applySearch()">
+        <button *ngIf="searchTerm" class="btn btn-outline-secondary" type="button" 
+                (click)="clearSearch()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+
       <button class="btn btn-primary" (click)="openModal(periodModal)">
         <i class="bi bi-calendar me-2"></i>
         Filtrer
@@ -67,78 +78,184 @@
     {{ error }}
   </div>
 
-  <div class="card border-0 shadow-sm rounded-3">
-    <div class="card-header bg-white border-0 py-4">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0 fw-bold">Liste des courses</h5>
+  <!-- Système d'onglets -->
+  <ul class="nav nav-tabs mb-3" id="coursesTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" [class.active]="activeTab === 'all-courses'" id="all-courses-tab" 
+              (click)="changeTab('all-courses')" type="button" role="tab" 
+              aria-controls="all-courses" [attr.aria-selected]="activeTab === 'all-courses'">
+        Toutes les courses
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" [class.active]="activeTab === 'pending-courses'" id="pending-courses-tab" 
+              (click)="changeTab('pending-courses')" type="button" role="tab" 
+              aria-controls="pending-courses" [attr.aria-selected]="activeTab === 'pending-courses'">
+        Courses non terminées
+      </button>
+    </li>
+  </ul>
+  
+  <div class="tab-content" id="coursesTabContent">
+    <!-- Onglet "Toutes les courses" -->
+    <div class="tab-pane fade" [class.show]="activeTab === 'all-courses'" [class.active]="activeTab === 'all-courses'" 
+         id="all-courses" role="tabpanel" aria-labelledby="all-courses-tab">
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white border-0 py-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0 fw-bold">Liste des courses</h5>
+            <div *ngIf="filteredRaces.length !== originalRaces.length" class="badge bg-info text-white">
+              {{ filteredRaces.length }} résultat(s) trouvé(s)
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <p-table
+            [value]="filteredRaces"
+            [paginator]="false"
+            [rows]="10"
+            [showCurrentPageReport]="false"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+            [rowsPerPageOptions]="[10,25,50]"
+            styleClass="p-datatable-striped">
+            <ng-template pTemplate="header">
+              <tr>
+                <th class="fw-bold text-primary p-3">Référence</th>
+                <th class="fw-bold text-primary p-3">Statut</th>
+                <th class="fw-bold text-primary p-3">Rue</th>
+                <th class="fw-bold text-primary p-3">Localité</th>
+                <th class="fw-bold text-primary p-3">Date</th>
+                <th class="fw-bold text-primary p-3">Pays</th>
+                <th class="fw-bold text-primary p-3">Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-race let-i="rowIndex">
+              <tr>
+                <td class="p-3"><span class="badge badge-light-primary">{{ race.reference }}</span></td>
+                <td class="p-3">
+                  <span class="badge"
+                    [ngClass]="{
+                      'badge-light-info': race.status === 'accepted',
+                      'badge-light-warning': race.status === 'pending',
+                      'badge-light-danger': race.status === 'stopped',
+                      'badge-light-primary': race.status === 'start',
+                      'badge-light-success': race.status === 'end'
+                    }">
+                    {{ getLabel(race.status) }}
+                  </span>
+                </td>
+                <td class="p-3"><span class="badge badge-light-primary">{{ race.street }}</span></td>
+                <td class="p-3"><span class="badge badge-light-primary">{{ race.locality }}</span></td>
+                <td class="p-3"><span class="badge badge-light-primary">{{ race.created_at | date:'dd MMMM yyyy' }} à {{ race.created_at | date:'HH:mm'}}</span></td>
+                <td class="p-3"><span class="badge badge-light-primary">{{ race.country }}</span></td>
+                <td class="p-3">
+                  <button pButton
+                    class="btn btn-primary"
+                    (click)="selectedRace = race; openModal(historyModal)">
+                    <div class="d-flex mm"><span class="text-sm">Détails</span>
+                      <i class="bi bi-info-circle ms-1 small"></i></div>
+                  </button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7" class="text-center p-3">Aucune course trouvée.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
       </div>
     </div>
-    <div class="card-body p-0">
-      <p-table
-        [value]="races"
-        [paginator]="false"
-        [rows]="10"
-        [showCurrentPageReport]="true"
-        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-        [rowsPerPageOptions]="[10,25,50]"
-        styleClass="p-datatable-striped">
-        <ng-template pTemplate="header">
-          <tr>
-       
-            <th class="fw-bold text-primary p-3">Référence</th>
-            <th class="fw-bold text-primary p-3">Statut</th>
-            <th class="fw-bold text-primary p-3">Rue</th>
-            <th class="fw-bold text-primary p-3">Localité</th>
-            <th class="fw-bold text-primary p-3">Date</th>
-            <th class="fw-bold text-primary p-3">Pays</th>
-            <th class="fw-bold text-primary p-3">Actions</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-race let-i="rowIndex">
-          <tr>
-            <td class="p-3">{{ race.reference }}</td>
-            <td class="p-3">
-              <span class="badge"
-                [ngClass]="{
-                  'badge-light-info': race.status === 'accepted',
-                  'badge-light-warning': race.status === 'pending',
-                  'badge-light-danger': race.status === 'stopped',
-                  'badge-light-primary': race.status === 'start',
-                  'badge-light-success': race.status === 'end'
-                }">
-                {{ getLabel(race.status) }}
-              </span>
-            </td>
-            <td class="p-3">{{ race.street }}</td>
-            <td class="p-3">{{ race.locality }}</td>
-            <td class="p-3">{{ race.created_at | date:'dd MMMM yyyy' }} à {{ race.created_at | date:'HH:mm'}}</td>
-            <td class="p-3">{{ race.country }}</td>
-            <td class="p-3">
-              <button pButton
-                class="btn btn-primary"
-                (click)="selectedRace = race; openModal(historyModal)">
-                <div class="d-flex mm"><span class="text-sm">Détails</span>
-                  <i class="bi bi-info-circle ms-1 small"></i></div>
-                
-              </button>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+    
+    <!-- Onglet "Courses non terminées" -->
+    <div class="tab-pane fade" [class.show]="activeTab === 'pending-courses'" [class.active]="activeTab === 'pending-courses'" 
+         id="pending-courses" role="tabpanel" aria-labelledby="pending-courses-tab">
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white border-0 py-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0 fw-bold">Courses non terminées</h5>
+            <div *ngIf="isRaceCountChanged()" class="badge bg-info text-white">
+              {{ getNonCompletedRaces().length }} résultat(s) trouvé(s)
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <p-table
+            [value]="getNonCompletedRaces()"
+            [paginator]="false"
+            [rows]="10"
+            [showCurrentPageReport]="false"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+            [rowsPerPageOptions]="[10,25,50]"
+            styleClass="p-datatable-striped">
+            <ng-template pTemplate="header">
+              <tr>
+                <th class="fw-bold text-primary p-3">Référence</th>
+                <th class="fw-bold text-primary p-3">Statut</th>
+                <th class="fw-bold text-primary p-3">Rue</th>
+                <th class="fw-bold text-primary p-3">Localité</th>
+                <th class="fw-bold text-primary p-3">Date</th>
+                <th class="fw-bold text-primary p-3">Pays</th>
+                <th class="fw-bold text-primary p-3">Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-race let-i="rowIndex">
+              <tr >
+                <td class="p-3"><span class="badge badge-light-primary">{{ race.reference }}</span></td>
+                <td class="p-3">
+                  <span class="badge"
+                    [ngClass]="{
+                      'badge-light-info': race.status === 'accepted',
+                      'badge-light-warning': race.status === 'pending',
+                      'badge-light-danger': race.status === 'stopped',
+                      'badge-light-primary': race.status === 'start',
+                      'badge-light-success': race.status === 'end'
+                    }">
+                    {{ getLabel(race.status) }}
+                  </span>
+                </td>
+                <td class="p-3"><span class="badge badge-light-primary">{{ race.street }}</span></td>
+                <td class="p-3"><span class="badge badge-light-primary">{{ race.locality }}</span></td>
+                <td class="p-3"><span class="badge badge-light-primary">{{ race.created_at | date:'dd MMMM yyyy' }} à {{ race.created_at | date:'HH:mm'}}</span></td>
+                <td class="p-3"><span class="badge badge-light-primary">{{ race.country }}</span></td>
+                <td class="p-3">
+                  <button pButton
+                    class="btn btn-primary"
+                    (click)="selectedRace = race; openModal(historyModal)">
+                    <div class="d-flex mm"><span class="text-sm">Détails</span>
+                      <i class="bi bi-info-circle ms-1 small"></i></div>
+                  </button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7" class="text-center p-3">Aucune course non terminée trouvée.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Composant de détails conditionnel -->
-   <ng-template #historyModal let-modal>
-    <div *ngIf="selectedRace" class="mt-3">
-      <app-details-component
-          [race]="selectedRace"
-          [selectedUser]="userType">
-      </app-details-component>
+  <!-- Modal de détails -->
+  <ng-template #historyModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title">Détails de la course</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
     </div>
-   </ng-template>
-
-  <p *ngIf="!isLoading && races.length === 0" class="alert alert-info">
-    Aucune course trouvée.
-  </p>
+    <div class="modal-body">
+      <div *ngIf="selectedRace">
+        <app-details-component
+            [race]="selectedRace"
+            [selectedUser]="userType">
+        </app-details-component>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Fermer</button>
+    </div>
+  </ng-template>
 </div>

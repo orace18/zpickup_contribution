@@ -19,21 +19,22 @@ import { LoadingComponent } from "../../../../../core/components/loading/loading
   styleUrl: './courses.component.css'
 })
 export class CoursesComponent implements OnInit {
-getNonCompletedRaces(): any[] {
+hasFilteredResults(): any {
 throw new Error('Method not implemented.');
 }
-
   races: Race[] = [];
   originalRaces: Race[] = [];
+  filteredRaces: Race[] = []; // Nouveau tableau pour les résultats filtrés
   isLoading = false;
   error: string | null = null;
   selectedRace: any;
   userType: any;
-  searchQuery: any;
+  searchTerm: string = ''; // Terme de recherche
   startDate: Date | null = null;
   endDate: Date | null = null;
   today: string = new Date().toISOString().split('T')[0];
   loadingMessage: string = 'Chargement des données...';
+  activeTab: string = 'all-courses'; // Pour suivre l'onglet actif
 
   @ViewChild('historyModal') historyModal: any;
   @ViewChild('periodModal') periodModal: any;
@@ -55,8 +56,9 @@ throw new Error('Method not implemented.');
     this.isLoading = true;
     this.raceHistoryService.getRaces().subscribe({
       next: (data: Race[]) => {
-        this.races = data;
         this.originalRaces = data;
+        this.races = data;
+        this.filteredRaces = data; // Initialiser filteredRaces avec toutes les courses
         this.isLoading = false;
       },
       error: (err: any) => {
@@ -65,6 +67,73 @@ throw new Error('Method not implemented.');
         console.error('Erreur de chargement', err);
       }
     });
+  }
+
+  // Méthode pour filtrer les courses selon le terme de recherche
+  applySearch(): void {
+    this.filterRaces();
+  }
+
+  // Méthode pour effacer la recherche
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.filterRaces();
+  }
+
+  // Méthode combinée pour filtrer selon la date et le terme de recherche
+  filterRaces(): void {
+    // Début avec toutes les courses originales
+    let result = [...this.originalRaces];
+    
+    // Appliquer le filtre de date si défini
+    if (this.startDate || this.endDate) {
+      const startDateUTC = this.startDate ? new Date(this.startDate + 'T00:00:00') : null;
+      const endDateUTC = this.endDate ? new Date(this.endDate + 'T23:59:59.999Z') : null;
+      
+      result = result.filter((race: Race) => {
+        if (!race.created_at) return false;
+        
+        const raceDate = new Date(race.created_at);
+        if (isNaN(raceDate.getTime())) return false;
+        
+        const meetsStartCondition = !startDateUTC || raceDate >= startDateUTC;
+        const meetsEndCondition = !endDateUTC || raceDate <= endDateUTC;
+        
+        return meetsStartCondition && meetsEndCondition;
+      });
+    }
+    
+    // Appliquer le filtre de recherche si défini
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      const term = this.searchTerm.toLowerCase().trim();
+      result = result.filter(race => 
+        (race.reference && race.reference.toLowerCase().includes(term)) ||
+        (race.street && race.street.toLowerCase().includes(term)) ||
+        (race.locality && race.locality.toLowerCase().includes(term)) ||
+        (race.country && race.country.toLowerCase().includes(term)) ||
+        this.getLabel(race.status).toLowerCase().includes(term)
+      );
+    }
+    
+    // Mettre à jour les courses filtrées
+    this.filteredRaces = result;
+    console.log(`🔍 Filtrage: ${this.filteredRaces.length} courses trouvées`);
+  }
+
+  // Méthode pour obtenir les courses non terminées
+  getNonCompletedRaces(): Race[] {
+    return this.filteredRaces.filter(race => 
+      race.status !== 'end' && race.status !== 'stopped'
+    );
+  }
+
+  isRaceCountChanged(): boolean {
+    return this.getNonCompletedRaces().length !== this.originalRaces.filter(r => r.status !== 'end' && r.status !== 'stopped').length;
+  }
+
+  // Méthode pour changer d'onglet
+  changeTab(tabId: string) {
+    this.activeTab = tabId;
   }
 
   voirDetails(race: Race) {
@@ -85,50 +154,21 @@ throw new Error('Method not implemented.');
   }
 
   applyDateFilter() {
-    if (!this.startDate && !this.endDate) {
-      this.races = [...this.originalRaces]; // Reset si aucune date
-      return;
-    }
+    this.filterRaces(); // Utiliser la méthode combinée
+  }
 
-    console.log('🚀 Début du filtrage');
-    console.log('Start Date:', this.startDate);
-    console.log('End Date:', this.endDate);
-
-    // Conversion correcte des dates
-    const startDateUTC = this.startDate ? new Date(this.startDate + 'T00:00:00') : null;
-    const endDateUTC = this.endDate ? new Date(this.endDate + 'T23:59:59.999Z') : null;
-
-    console.log('Start Date (UTC):', startDateUTC ? startDateUTC.toISOString() : 'Non défini');
-    console.log('End Date (UTC):', endDateUTC ? endDateUTC.toISOString() : 'Non défini');
-
-    this.races = this.originalRaces.filter((race: Race) => {
-      if (!race.created_at) {
-        console.warn('⚠️ Course sans date:', race);
-        return false;
-      }
-
-      const raceDate = new Date(race.created_at);
-      if (isNaN(raceDate.getTime())) {
-        console.warn('❌ Date invalide:', race.created_at);
-        return false;
-      }
-
-      console.log('📅 Race Date:', raceDate.toISOString());
-
-      const meetsStartCondition = !startDateUTC || raceDate >= startDateUTC;
-      const meetsEndCondition = !endDateUTC || raceDate <= endDateUTC;
-
-      console.log(`✅ ${raceDate.toISOString()} passe ?`, meetsStartCondition, meetsEndCondition);
-
-      return meetsStartCondition && meetsEndCondition;
-    });
-
-    console.log('🎯 Courses après filtrage:', this.races.length);
+  resetDateFilter() {
+    this.startDate = null;
+    this.endDate = null;
+    this.filterRaces(); // Réappliquer les filtres (juste la recherche maintenant)
   }
 
   exportToExcel() {
+    // Déterminer quelles données exporter selon l'onglet actif
+    const dataToExport = this.activeTab === 'all-courses' ? this.filteredRaces : this.getNonCompletedRaces();
+    
     // Convertir les données en format Excel
-    const dataToExport = this.races.map(race => ({
+    const mappedData = dataToExport.map(race => ({
       'Référence': race.reference,
       'Statut': this.getLabel(race.status),
       'Rue': race.street,
@@ -138,7 +178,7 @@ throw new Error('Method not implemented.');
     }));
   
     // Création du workbook et worksheet
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const worksheet = XLSX.utils.json_to_sheet(mappedData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Courses');
     
@@ -156,7 +196,11 @@ throw new Error('Method not implemented.');
     // Enregistrer le fichier avec BOM UTF-8 pour les caractères accentués
     XLSX.writeFile(workbook, 'courses.xlsx', { bookType: 'xlsx', type: 'buffer' });
   }
+
   exportToPdf() {
+    // Déterminer quelles données exporter selon l'onglet actif
+    const dataToExport = this.activeTab === 'all-courses' ? this.filteredRaces : this.getNonCompletedRaces();
+    
     // Créer un document PDF avec encodage correct
     const doc = new jsPDF({
       orientation: 'portrait',
@@ -167,9 +211,10 @@ throw new Error('Method not implemented.');
     });
     
     // Ajouter un titre
+    const title = this.activeTab === 'all-courses' ? "Liste des courses" : "Liste des courses non terminées";
     doc.setFont("helvetica"); // Police supportant mieux les caractères accentués
     doc.setFontSize(16);
-    doc.text("Liste des courses", 14, 15);
+    doc.text(title, 14, 15);
     
     // Définir les colonnes et les données
     const columns = [
@@ -180,7 +225,7 @@ throw new Error('Method not implemented.');
       { header: 'Pays', dataKey: 'country' }
     ];
     
-    const data = this.races.map(race => ({
+    const data = dataToExport.map(race => ({
       ref: race.reference,
       status: this.getLabel(race.status),
       street: race.street,
@@ -211,16 +256,22 @@ throw new Error('Method not implemented.');
       }
     });
     
+    // Nom du fichier PDF selon l'onglet actif
+    const fileName = this.activeTab === 'all-courses' ? 'courses.pdf' : 'courses-non-terminees.pdf';
+    
     // Enregistrer le PDF avec encodage UTF-8
-    doc.save('courses.pdf');
+    doc.save(fileName);
   }
 
   exportToCsv() {
+    // Déterminer quelles données exporter selon l'onglet actif
+    const dataToExport = this.activeTab === 'all-courses' ? this.filteredRaces : this.getNonCompletedRaces();
+    
     // Générer un fichier CSV
     const headers = ['Référence', 'Statut', 'Rue', 'Localité', 'Pays'].join(',');
     
     // Échapper les virgules dans les données et remplacer les caractères qui peuvent causer des problèmes
-    const csvData = this.races.map(race => {
+    const csvData = dataToExport.map(race => {
       return [
         this.escapeCSVField(race.reference),
         this.escapeCSVField(this.getLabel(race.status)),
@@ -237,11 +288,14 @@ throw new Error('Method not implemented.');
     // Créer le blob avec l'encodage UTF-8
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     
+    // Nom du fichier CSV selon l'onglet actif
+    const fileName = this.activeTab === 'all-courses' ? 'courses.csv' : 'courses-non-terminees.csv';
+    
     // Créer et déclencher le téléchargement
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', 'courses.csv');
+    link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
     
@@ -252,7 +306,6 @@ throw new Error('Method not implemented.');
     }, 100);
   }
   
-
   private escapeCSVField(field: any): string {
     if (field === null || field === undefined) {
       return '';
@@ -267,14 +320,7 @@ throw new Error('Method not implemented.');
     return stringField;
   }
 
-
   openModal(template: any) {
     this.modalService.open(template, { centered: true, size: 'lg' });
-  }
-
-  resetDateFilter() {
-    this.startDate = null;
-    this.endDate = null;
-    this.races = [...this.originalRaces]; 
   }
 }
