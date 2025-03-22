@@ -4,6 +4,7 @@ import { Routes } from '@angular/router';
 import {MainLayoutComponent} from '../core/layouts/main-layout/main-layout.component';
 import {authGuard} from '../core/services/auth.guard';
 import {PermissionDeniedComponent} from './permission-denied/permission-denied.component';
+import { RaceHistoryViewComponent } from './features/dashboard/pages/courses/race-history-view/race-history-view.component';
 
 export const routes: Routes = [
   {
@@ -22,6 +23,10 @@ export const routes: Routes = [
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
+      {
+        path: 'race-details/:id',
+        component:  RaceHistoryViewComponent
+      },
       {
         path: '',
         redirectTo: 'dashboard',
@@ -136,4 +141,5 @@ export const routes: Routes = [
     path: '**',
     redirectTo: ''
   },
+  
 ];

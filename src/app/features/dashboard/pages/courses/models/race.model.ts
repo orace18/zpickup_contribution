@@ -1,13 +1,19 @@
-import { Race } from "../../users/models/race.model";
-
-export interface RaceHistory{
+export interface RaceHistory {
     _id: string;
+    user: string;
+    race: {
+        _id: string;
+        reference: string;
+        longitude_start: number;
+        latitude_start: number;
+    };
     status: string;
+    latitude: number;
+    longitude: number;
     street: string;
     locality: string;
     country: string;
-    race:string;
-    otherRaceData: Race;
     created_at: Date;
     updated_at: Date;
+
 }

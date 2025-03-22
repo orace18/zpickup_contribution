@@ -323,4 +323,11 @@ throw new Error('Method not implemented.');
   openModal(template: any) {
     this.modalService.open(template, { centered: true, size: 'lg' });
   }
+
+
+
+  openDetailsInNewTab(race: Race) {
+    const url = `/race-details/${race._id}`;
+    window.open(url, '_blank');
+  }
 }
