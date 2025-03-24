@@ -2,8 +2,7 @@
   <!-- En-tête avec le nom et statut du contact -->
   <div class="chat-header">
     <div class="user-info">
-<!--       <img [src]="contactAvatar" class="user-avatar" alt="User avatar" />
- -->      <div class="user-details">
+      <div class="user-details">
         <div class="user-name">{{ conversationTitle }}</div>
         <div class="user-status">
           <span class="status-indicator" [ngClass]="{'online': contactIsOnline}"></span>
@@ -32,7 +31,6 @@
       <div class="message-row" [ngClass]="isAdmin(message.sender.user_type) ? 'own-message' : 'other-message'">
         <!-- Avatar pour les messages d'utilisateurs non-admin -->
         <div class="avatar-container" *ngIf="!isAdmin(message.sender.user_type)">
-          <!-- <img [src]="message.sender.avatar || '/assets/avatar-placeholder.png'" class="avatar" alt="Avatar"> -->
           <ng-container *ngIf="message.sender.avatar; else initialAvatar">
             <img [src]="message.sender.avatar" class="avatar" alt="Contact avatar">
           </ng-container>
@@ -47,12 +45,13 @@
           <!-- Info expéditeur (uniquement pour les messages reçus des non-admin) -->
           <div class="message-header" *ngIf="!isAdmin(message.sender.user_type)">
             <span class="sender-name">{{ message.sender.name }}</span>
-<!--             <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
- -->          </div>
+          </div>
 
           <!-- Contenu du message -->
           <div class="message-bubble">
             <div class="message-content">{{ message.content }}</div>
+            <!-- Affichage de l'image si présente -->
+            <img *ngIf="message.imageUrl" [src]="message.imageUrl" class="message-image" alt="Message image">
           </div>
 
           <!-- Horodatage (pour tous les messages) -->
@@ -67,15 +66,35 @@
     <div class="error-message" *ngIf="error">{{ error }}</div>
   </div>
 
-  <!-- Zone de saisie de message -->
+  <!-- Zone de saisie de message améliorée -->
   <div class="message-composer">
-<!--     <button class="action-button">
-      <i class="bi bi-paperclip"></i>
+    <!-- Input de fichier caché pour sélectionner les images -->
+    <input 
+      type="file" 
+      id="imageUpload" 
+      (change)="handleImageSelect($event)" 
+      accept="image/*" 
+      style="display: none;" />
+    
+    <!-- Bouton pour sélectionner une image -->
+    <button class="action-button file-button" (click)="triggerFileInput()" title="Ajouter une image">
+      <i class="bi bi-image style='color: #FFF;'"></i>
     </button>
-
-    <button class="action-button">
-      <i class="bi bi-arrow-up-square"></i>
+    
+    <!-- Bouton pour autres pièces jointes -->
+    <!-- <button class="action-button" title="Ajouter une pièce jointe">
+      <i class="bi bi-paperclip"></i>
     </button> -->
+
+    <!-- Conteneur d'aperçu d'image sélectionnée -->
+    <div class="selected-image-preview" *ngIf="selectedImage">
+      <div class="preview-container">
+        <img [src]="selectedImagePreview" alt="Image à envoyer" class="preview-image">
+        <button class="remove-image-btn" (click)="removeSelectedImage()">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
+      </div>
+    </div>
 
     <div class="composer-input-container">
       <textarea
@@ -84,15 +103,16 @@
         (input)="autoResize($event)"
         [disabled]="loading"
         rows="1"
-        placeholder="Type a message"></textarea>
+        placeholder="Tapez un message"></textarea>
     </div>
 
-    <button class="send-button" [disabled]="loading || !newMessage.trim()" (click)="send()">
-      Envoyer
-      <!-- <i class="ki-duotone ki-send fs-2">
-        <span class="path1"></span>
-        <span class="path2"></span>
-      </i> -->
+    <!-- Bouton d'envoi amélioré -->
+    <button 
+      class="send-button" 
+      [disabled]="loading || (!newMessage.trim() && !selectedImage)" 
+      (click)="send()" 
+      title="Envoyer">
+      <i class="bi bi-send-fill"></i>
     </button>
   </div>
 </div>

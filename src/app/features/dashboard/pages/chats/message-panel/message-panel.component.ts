@@ -27,6 +27,8 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
   creatorNames: {[userId: string]: string} = {};
 
   newMessage: string = '';
+  selectedImage: File | null = null;
+  selectedImagePreview: string | null = null;
 
   // Informations sur le contact
   contactStatus: string = 'Active';
@@ -48,6 +50,11 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
   ngOnDestroy() {
     // Arrêter le polling lorsque le composant est détruit
     this.stopMessagePolling();
+  }
+
+  removeSelectedImage(): void {
+    this.selectedImage = null;
+    this.selectedImagePreview = null;
   }
 
   private startMessagePolling() {
@@ -120,6 +127,27 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
       .join('')
       .toUpperCase()
       .substring(0, 2);
+  }
+
+  triggerFileInput(): void {
+    document.getElementById('imageUpload')?.click();
+  }
+  
+
+  handleImageSelect(event: any): void {
+    const files = event.target.files;
+    if (files.length > 0) {
+      this.selectedImage = files[0];
+      
+      // Créer un aperçu de l'image
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.selectedImagePreview = e.target.result;
+      };
+      if (this.selectedImage) {
+        reader.readAsDataURL(this.selectedImage);
+      }
+    }
   }
 
   send(): void {

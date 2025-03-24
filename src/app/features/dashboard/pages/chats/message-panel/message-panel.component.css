@@ -287,14 +287,14 @@
 .indicator-dot {
   width: 8px;
   height: 8px;
-  background-color: #007bff;
+  background-color: #796ce7;
   border-radius: 50%;
   margin-right: 6px;
   animation: pulse 1.5s infinite;
 }
 
 .new-messages-indicator small {
-  color: #007bff;
+  color: #796ce7;
   font-size: 12px;
   font-weight: 500;
 }
@@ -321,4 +321,78 @@
   to {
     opacity: 1;
   }
+}
+
+.selected-image-preview {
+  position: absolute;
+  bottom: 65px;
+  left: 15px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 8px;
+  max-width: 200px;
+}
+
+.preview-container {
+  position: relative;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 150px;
+  border-radius: 8px;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: white;
+  border: none;
+  border-radius: 50%;
+  color: #dc3545;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* Styles pour les images dans les messages */
+.message-image {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.send-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #796ce7;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.send-button:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.send-button:not(:disabled):hover {
+  background-color: #796ce7;
+}
+
+.send-button i {
+  font-size: 18px;
 }

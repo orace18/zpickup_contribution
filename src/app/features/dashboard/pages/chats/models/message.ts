@@ -1,6 +1,7 @@
 export interface Message {
   id?: string;
   content: string;
+  imageUrl?: string | null;
   timestamp: Date;
   sender: {
     userId: string;
