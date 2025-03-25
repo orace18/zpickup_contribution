@@ -78,20 +78,52 @@
 
 @media (max-width: 991.98px) {
   .aside {
-    transform: translateX(-100%);
-
-    &.show {
-      transform: translateX(0);
+    width: 70px; /* Taille réduite au lieu de transformer */
+    transform: translateX(0); /* Ne pas cacher le menu */
+    
+    /* Appliquer les mêmes styles que .collapsed */
+    .menu-title,
+    .menu-arrow {
+      display: none;
+    }
+    
+    .menu-icon {
+      margin-right: 0;
+    }
+    
+    /* Centrer les icônes */
+    .menu-link {
+      justify-content: center;
+    }
+    
+    /* Ajouter un tooltip au survol */
+    .menu-item {
+      position: relative;
+      
+      &:hover::after {
+        content: attr(data-title);
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+        font-size: 14px;
+        z-index: 101;
+      }
     }
   }
-
+  
   .wrapper {
-    margin-left: 0;
-    width: 100%;
-
+    margin-left: 70px; /* Marge réduite pour s'adapter à la sidebar */
+    width: calc(100% - 70px);
+    
     &.collapsed {
-      margin-left: 0;
-      width: 100%;
+      margin-left: 70px; /* Garder la même marge */
+      width: calc(100% - 70px); /* Garder la même largeur */
     }
   }
 }

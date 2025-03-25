@@ -62,27 +62,57 @@
 /* Media query pour le responsive */
 @media (max-width: 991.98px) {
   .sidebar {
-    width: 0;
-    transform: translateX(-100%);
-    height: 100vh; /* Maintien de la hauteur en mobile */
+    width: 60px;
+    transform: translateX(0);
+    overflow-x: hidden;
   }
 
   .right-content {
-    margin-left: 0;
-    height: 100vh; /* Maintien de la hauteur en mobile */
+    margin-left: 60px;
+  }
+
+  .header {
+    left: 60px;
   }
 
   .toto {
     height: 100px;
   }
-
-  .header {
-    left: 0;
+  
+  /* Cacher les textes dans la sidebar */
+  .sidebar .menu-text {
+    display: none;
   }
-
-  /* Classe pour afficher le sidebar en mobile */
-  .sidebar.show {
-    width: 280px;
-    transform: translateX(0);
+  
+  /* Centrer les icônes */
+  .sidebar .menu-item {
+    justify-content: center;
+    padding: 12px 0;
+  }
+  
+  /* Ajuster la taille des icônes si nécessaire */
+  .sidebar .menu-icon {
+    margin-right: 0;
+    font-size: 20px; /* Augmenter légèrement la taille pour une meilleure visibilité */
+  }
+  
+  /* Ajouter des tooltips au survol pour afficher le nom de l'option */
+  .sidebar .menu-item {
+    position: relative;
+  }
+  
+  .sidebar .menu-item:hover::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 14px;
+    z-index: 101;
   }
 }

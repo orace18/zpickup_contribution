@@ -1,6 +1,6 @@
 export interface Message {
   id?: string;
-  content: string;
+  content?: string;
   imageUrl?: string | null;
   timestamp: Date;
   sender: {
@@ -12,5 +12,3 @@ export interface Message {
   created_at: string;
   updated_at: string;
 }
-
-

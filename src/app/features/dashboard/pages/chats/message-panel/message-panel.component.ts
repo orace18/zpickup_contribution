@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { interval, Subscription } from 'rxjs';
 import { ChatService } from '../services/chat.service';
+import { Observable, tap, switchMap } from 'rxjs';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-message-panel',
@@ -34,9 +36,10 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
   contactStatus: string = 'Active';
   contactIsOnline: boolean = true;
   contactAvatar: string = '/assets/avatar-placeholder.png';
+  imageURI: string = environment.apiUrl;
 
   // Pour le polling
-  private refreshInterval = 1000; 
+  private refreshInterval = 30000; 
   private refreshSubscription: Subscription | null = null;
   private lastMessageId: string | null = null;
 
@@ -91,7 +94,7 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
         }
       },
       error: (err) => {
-        console.error('Erreur lors de la récupération des nouveaux messages:', err);
+       // console.error('Erreur lors de la récupération des nouveaux messages:', err);
       }
     });
   }
@@ -150,7 +153,42 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
     }
   }
 
+
   send(): void {
+    // Envoi avec image
+    if (this.selectedImage) {
+      this.chatService.uploadImage(this.selectedImage)
+      .subscribe({
+        next: (response) => {
+          // Émettre le message avec l'URL de l'image
+          this.sendMessage.emit(response.imageUrl);
+          this.newMessage = '';
+          this.removeSelectedImage();
+          setTimeout(() => this.checkForNewMessages(), 50);
+        },
+        error: (error) => console.error("Erreur lors de l'envoi avec image:", error)
+      });
+      return;
+    }
+  
+    // Envoi de message texte
+    if (this.newMessage?.trim()) {
+      this.sendMessage.emit(this.newMessage);
+      this.newMessage = '';
+  
+      // Réinitialiser la hauteur du textarea après l'envoi
+      const textarea = document.querySelector('.composer-input') as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.style.height = 'auto';
+      }
+  
+      // Vérifier les nouveaux messages immédiatement après l'envoi
+      setTimeout(() => this.checkForNewMessages(), 10);
+    }
+  }
+
+
+  /* send(): void {
     if (this.newMessage?.trim()) {
       this.sendMessage.emit(this.newMessage);
       this.newMessage = '';
@@ -164,9 +202,11 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
       // Vérifier les nouveaux messages immédiatement après l'envoi
       setTimeout(() => this.checkForNewMessages(), 50);
     }
-  }
+  } */
 
-  // Méthode pour obtenir le groupe de messages par date
+
+  
+    // Méthode pour obtenir le groupe de messages par date
   getMessageDate(message: Message): string {
     const today = new Date();
     const messageDate = new Date(message.timestamp);
@@ -176,15 +216,15 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
       messageDate.getMonth() === today.getMonth() &&
       messageDate.getFullYear() === today.getFullYear()
     ) {
-      return 'Today';
+      return 'Aujourd\'hui';
     } else if (
       messageDate.getDate() === today.getDate() - 1 &&
       messageDate.getMonth() === today.getMonth() &&
       messageDate.getFullYear() === today.getFullYear()
     ) {
-      return 'Yesterday';
+      return 'Hier';
     } else {
-      // Format: Jan 12, 2023
+     
       return messageDate.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -201,5 +241,20 @@ export class MessagePanelComponent implements AfterViewChecked, OnInit, OnDestro
     const previousMessage = this.messages[index - 1];
 
     return this.getMessageDate(currentMessage) !== this.getMessageDate(previousMessage);
+  }
+
+  isImageUrl(content: string): boolean {
+    if (!content) return false;
+    
+    // Liste des extensions d'image courantes
+    const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.svg'];
+    
+    // Vérifier si l'URL se termine par une extension d'image
+    const isImageExtension = imageExtensions.some(ext => content.toLowerCase().endsWith(ext));
+    
+    // Vérifier si l'URL commence par http ou https   || content.startsWith('https://')
+    const isValidUrl = content.startsWith('/uploads/');
+    
+    return isValidUrl && isImageExtension;
   }
 }

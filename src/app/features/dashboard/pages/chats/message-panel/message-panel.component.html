@@ -35,7 +35,7 @@
             <img [src]="message.sender.avatar" class="avatar" alt="Contact avatar">
           </ng-container>
           <ng-template #initialAvatar>
-            <div class="initial-avatar" >
+            <div class="initial-avatar">
               {{ getInitials(creatorNames[message.sender.userId]) }}
             </div>
           </ng-template>
@@ -49,8 +49,16 @@
 
           <!-- Contenu du message -->
           <div class="message-bubble">
-            <div class="message-content">{{ message.content }}</div>
-            <!-- Affichage de l'image si présente -->
+            <div class="message-content">
+              <!-- Vérifier si le contenu est une URL d'image -->
+              <ng-container *ngIf="message.content && isImageUrl(message.content); else textContent">
+                <img [src]="imageURI + message.content" class="message-image" alt="Uploaded image">
+              </ng-container>
+              <ng-template #textContent>
+                {{ message.content }}
+              </ng-template>
+            </div>
+            <!-- Affichage de l'image si présente (gardez cette ligne si nécessaire) -->
             <img *ngIf="message.imageUrl" [src]="message.imageUrl" class="message-image" alt="Message image">
           </div>
 
@@ -69,18 +77,13 @@
   <!-- Zone de saisie de message améliorée -->
   <div class="message-composer">
     <!-- Input de fichier caché pour sélectionner les images -->
-    <input 
-      type="file" 
-      id="imageUpload" 
-      (change)="handleImageSelect($event)" 
-      accept="image/*" 
-      style="display: none;" />
-    
+    <input type="file" id="imageUpload" (change)="handleImageSelect($event)" accept="image/*" style="display: none;" />
+
     <!-- Bouton pour sélectionner une image -->
     <button class="action-button file-button" (click)="triggerFileInput()" title="Ajouter une image">
       <i class="bi bi-image style='color: #FFF;'"></i>
     </button>
-    
+
     <!-- Bouton pour autres pièces jointes -->
     <!-- <button class="action-button" title="Ajouter une pièce jointe">
       <i class="bi bi-paperclip"></i>
@@ -97,20 +100,12 @@
     </div>
 
     <div class="composer-input-container">
-      <textarea
-        class="composer-input"
-        [(ngModel)]="newMessage"
-        (input)="autoResize($event)"
-        [disabled]="loading"
-        rows="1"
-        placeholder="Tapez un message"></textarea>
+      <textarea class="composer-input" [(ngModel)]="newMessage" (input)="autoResize($event)" [disabled]="loading"
+        rows="1" placeholder="Tapez un message"></textarea>
     </div>
 
     <!-- Bouton d'envoi amélioré -->
-    <button 
-      class="send-button" 
-      [disabled]="loading || (!newMessage.trim() && !selectedImage)" 
-      (click)="send()" 
+    <button class="send-button" [disabled]="loading || (!newMessage.trim() && !selectedImage)" (click)="send()"
       title="Envoyer">
       <i class="bi bi-send-fill"></i>
     </button>
