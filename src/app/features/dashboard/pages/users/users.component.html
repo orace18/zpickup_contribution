@@ -1,12 +1,8 @@
 <div class="content fs-6 d-flex flex-column flex-column-fluid" id="kt_content">
- 
+
   <!-- Card -->
   <div class="card">
-    <app-loading
-    *ngIf="isLoading"
-    [message]="loadingMessage"
-    [overlay]="true"
-  ></app-loading>
+    <app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading>
     <h1>Utilisateurs</h1>
     <!-- Tabs navigation -->
     <div class="card-header border-0 pt-6">
@@ -46,23 +42,51 @@
             <!-- Filtre par date -->
             <input type="date" class="form-control" [(ngModel)]="filters.startDate" (change)="applyFilters()"
               placeholder="Date de début" [max]="today">
-            <input type="date" class="form-control" [(ngModel)]="filters.endDate" (change)="applyFilters()"
+            <input type="date" class="form-control me-3" [(ngModel)]="filters.endDate" (change)="applyFilters()"
               placeholder="Date de fin" [max]="today">
 
             <!-- Filtre par statut -->
-            <select class="form-control me-3" [(ngModel)]="filters.status" (change)="applyFilters()">
+            <!--  <select class="form-control me-3" [(ngModel)]="filters.status" (change)="applyFilters()">
               <option value="">Tous</option>
               <option value="validated">Validé</option>
               <option value="in_progress">En attente</option>
               <option value="rejected">Rejeté</option>
-            </select>
+            </select> -->
           </div>
 
+          <!-- Bouton principal d'exportation -->
           <button type="button" class="btn btn-light-primary me-1" data-bs-toggle="modal"
             data-bs-target="#kt_modal_export_users">
             <i class="ki-duotone ki-exit-up fs-2"><span class="path1"></span><span class="path2"></span></i>
-            Export
+            Exporter
           </button>
+
+          <!-- Modal pour choisir le format -->
+          <div class="modal fade" id="kt_modal_export_users" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Exporter les utilisateurs</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <p>Choisissez un format d'exportation :</p>
+                  <div class="d-flex justify-content-between">
+                    <button class="btn btn-primary" (click)="exportToCSV()" data-bs-dismiss="modal">
+                      Exporter en CSV
+                    </button>
+                    <button class="btn btn-success" (click)="exportToExcel()" data-bs-dismiss="modal">
+                      Exporter en Excel
+                    </button>
+                    <button class="btn btn-danger" (click)="exportToPDF()" data-bs-dismiss="modal">
+                      Exporter en PDF
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- Toolbar -->
@@ -77,16 +101,12 @@
         <div class="card-toolbar" *ngIf="activeTab === 'ta'">
 
           <button class="btn btn-primary" (click)="openCreditConfirmDialog('')">
-             Créditer tous
+            Créditer tous
           </button>
-           
-          <app-confirmation-dialog 
-            [isOpen]="showValidationDialog"
-            [title]="'Êtes-vous sûr de vouloir créditer le compte km des Ambassadeur?'" 
-            [confirmText]="'Oui, Confirmer'"
-            [cancelText]="'Non, Annuler'" 
-            (confirm)="confirmValidationCredit('2')" 
-            (cancel)="closeValidationDialog()"
+
+          <app-confirmation-dialog [isOpen]="showValidationDialog"
+            [title]="'Êtes-vous sûr de vouloir créditer le compte km des Ambassadeur?'" [confirmText]="'Oui, Confirmer'"
+            [cancelText]="'Non, Annuler'" (confirm)="confirmValidationCredit('2')" (cancel)="closeValidationDialog()"
             (closeDialog)="closeValidationDialog()">
           </app-confirmation-dialog>
         </div>
@@ -152,7 +172,8 @@
                       </li>
                     </ul>
                   </div>
-                  <button *ngIf="activeTab === 'mobile'" class="btn btn-sm btn-light-primary" (click)="showUserDetails(user)">
+                  <button *ngIf="activeTab === 'mobile'" class="btn btn-sm btn-light-primary"
+                    (click)="showUserDetails(user)">
                     Voir détails
                   </button>
                 </td>
@@ -229,6 +250,10 @@
 
       <!-- TSD Users Tab -->
       <div class="tab-pane fade" id="tab_tsd">
+        <div v-if="isLoading" class="loader-container">
+          <div class="loader">
+          </div>
+        </div>
         <div class="card-body">
           <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_mobile_users">
             <thead>
@@ -258,7 +283,7 @@
                     <span>{{ user.email_address }}</span>
                   </div>
                 </td>
-                <td >
+                <td>
                   {{ user.user_type === 'zem' ? 'Transporteur' : (user.user_type === 'customer' ? 'Client' : 'N/A') }}
                 </td>
                 <td>{{ user.created_at | date: 'medium' }}</td>
@@ -285,9 +310,13 @@
           </table>
         </div>
       </div>
-      
+
       <!-- TA Users Tab -->
       <div class="tab-pane fade" id="tab_ta">
+        <div v-if="isLoading" class="loader-container">
+          <div class="loader">
+          </div>
+        </div>
         <div class="card-body">
           <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_mobile_users">
             <thead>
@@ -334,16 +363,13 @@
                     Créditer
                   </button>
                 </td>
-                <app-confirmation-dialog 
-                  [isOpen]="showValidationDialog"
-                  [title]="'Êtes-vous sûr de vouloir Créditer le compte km de cet Ambassadeur?'" 
-                  [confirmText]="'Oui, Confirmer'"
-                  [cancelText]="'Non, annuler'" 
-                  (confirm)="confirmValidationCredit('1')" 
-                  (cancel)="closeValidationDialog()"
+                <app-confirmation-dialog [isOpen]="showValidationDialog"
+                  [title]="'Êtes-vous sûr de vouloir Créditer le compte km de cet Ambassadeur?'"
+                  [confirmText]="'Oui, Confirmer'" [cancelText]="'Non, annuler'"
+                  (confirm)="confirmValidationCredit('1')" (cancel)="closeValidationDialog()"
                   (closeDialog)="closeValidationDialog()">
                 </app-confirmation-dialog>
-                
+
                 <td class="text-end">
                   <button class="btn btn-sm btn-light-primary" (click)="showUserDetails(user)">
                     Voir détails
@@ -378,7 +404,7 @@
                   {{ getInitials(selectedUser) }}
                 </span>
               </div>
-          
+
               <div class="d-flex flex-column">
                 <div class="d-flex align-items-center">
                   <h3 class="mb-1">{{ selectedUser.firstname }} {{ selectedUser.lastname }}</h3>
@@ -395,7 +421,7 @@
                 </div>
               </div>
             </div>
-          
+
             <div class="d-flex flex-column">
               <div class="d-flex flex-column align-items-end">
                 <div class="badge" [ngClass]="statusClass">
@@ -405,7 +431,7 @@
                 <button *ngIf="canValidate" class="btn btn-sm btn-primary mt-2" (click)="openValidationDialog()">
                   Valider
                 </button>
-            
+
                 <app-confirmation-dialog [isOpen]="showValidationDialog"
                   [title]="'Êtes-vous sûr de vouloir valider ce compte ?'" [confirmText]="'Oui, valider'"
                   [cancelText]="'Non, annuler'" (confirm)="confirmValidation()" (cancel)="closeValidationDialog()"
@@ -413,42 +439,90 @@
                 <button *ngIf="canValidate" class="btn btn-sm btn-primary mt-2" (click)="openRejetDialog()">
                   Rejeter
                 </button>
-            
+
                 <app-confirmation-dialog [isOpen]="showRejetDialog"
                   [title]="'Êtes-vous sûr de vouloir Rejeter ce compte ?'" [confirmText]="'Oui, Rejeter'"
                   [cancelText]="'Non, annuler'" (confirm)="confirmRejet()" (cancel)="closeRejetDialog()"
                   (closeDialog)="closeRejetDialog()"></app-confirmation-dialog>
-            
+
+                  <button *ngIf="selectedUser?.user_type ==='zem' " class="btn btn-sm mt-2"
+  [ngClass]="zem?.is_ambassador ? 'btn-danger' : 'btn-success'" 
+  (click)="openAmbassadorDialog()">
+  {{ zem?.is_ambassador ? 'Retirer ambassadeur' : 'Définir comme ambassadeur' }}
+</button>
+
+<!-- Dialog de confirmation avec champ de fichier -->
+<div *ngIf="showAmbassadorDialog" class="modal d-block" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ !zem?.is_ambassador ? 'Définir comme ambassadeur' : 'Retirer le statut d\'ambassadeur' }}
+        </h5>
+        <button type="button" class="close" (click)="closeAmbassadorDialog()">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+          {{ !zem?.is_ambassador ? 'Êtes-vous sûr de vouloir définir cet utilisateur comme ambassadeur ?' :
+             'Êtes-vous sûr de vouloir retirer le statut d\'ambassadeur à cet utilisateur ?' }}
+        </p>
+
+        <!-- Formulaire de téléchargement de fichier uniquement si on promeut comme ambassadeur -->
+        <form [formGroup]="ambassadorForm" *ngIf="!zem?.is_ambassador">
+          <div class="form-group">
+            <label for="contratDocument">Document de contrat (PDF requis)</label>
+            <input type="file" class="form-control-file" id="contratDocument"
+              formControlName="contratDocument" (change)="onContractFileSelected($event)"
+              accept="application/pdf">
+            <small class="form-text text-muted">Taille maximum: 5MB</small>
+          </div>
+          <div *ngIf="selectedContractFile" class="alert alert-info">
+            Fichier sélectionné: {{ selectedContractFile.name }}
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAmbassadorDialog()">
+          Non, annuler
+        </button>
+        <button type="button" class="btn btn-primary" (click)="toggleAmbassadorStatus()">
+          Oui, confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
                 <!-- Bouton pour changer le statut d'ambassadeur -->
-                <button *ngIf="selectedUser?.user_type ==='zem' " class="btn btn-sm mt-2" 
-                        [ngClass]="newStatus ? 'btn-danger' : 'btn-success'"
-                        (click)="openAmbassadorDialog()">
+               <!--  <button *ngIf="selectedUser?.user_type ==='zem' " class="btn btn-sm mt-2"
+                  [ngClass]="newStatus ? 'btn-danger' : 'btn-success'" (click)="openAmbassadorDialog()">
                   {{ newStatus ? 'Retirer ambassadeur' : 'Définir comme ambassadeur' }}
                 </button>
-            
-                <!-- Dialog de confirmation avec champ de fichier -->
+
+                 Dialog de confirmation avec champ de fichier 
                 <div *ngIf="showAmbassadorDialog" class="modal d-block" tabindex="-1" role="dialog">
                   <div class="modal-dialog" role="document">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h5 class="modal-title">{{ newStatus ? 'Définir comme ambassadeur' : 'Retirer le statut d\'ambassadeur' }}</h5>
+                        <h5 class="modal-title">{{ newStatus ? 'Définir comme ambassadeur' : 'Retirer le statut
+                          d\'ambassadeur' }}</h5>
                         <button type="button" class="close" (click)="closeAmbassadorDialog()">
                           <span>&times;</span>
                         </button>
                       </div>
                       <div class="modal-body">
-                        <p>{{ newStatus ? 'Êtes-vous sûr de vouloir définir cet utilisateur comme ambassadeur ?' : 'Êtes-vous sûr de vouloir retirer le statut d\'ambassadeur à cet utilisateur ?' }}</p>
-                        
-                        <!-- Formulaire de téléchargement de fichier uniquement si on promeut comme ambassadeur -->
+                        <p>{{ newStatus ? 'Êtes-vous sûr de vouloir définir cet utilisateur comme ambassadeur ?' :
+                          'Êtes-vous sûr de vouloir retirer le statut d\'ambassadeur à cet utilisateur ?' }}</p>
+
+                        Formulaire de téléchargement de fichier uniquement si on promeut comme ambassadeur 
                         <form [formGroup]="ambassadorForm" *ngIf="newStatus">
                           <div class="form-group">
                             <label for="contratDocument">Document de contrat (PDF requis)</label>
-                            <input type="file" 
-                                  class="form-control-file" 
-                                  id="contratDocument" 
-                                  formControlName="contratDocument"
-                                  (change)="onContractFileSelected($event)"
-                                  accept="application/pdf">
+                            <input type="file" class="form-control-file" id="contratDocument"
+                              formControlName="contratDocument" (change)="onContractFileSelected($event)"
+                              accept="application/pdf">
                             <small class="form-text text-muted">Taille maximum: 5MB</small>
                           </div>
                           <div *ngIf="selectedContractFile" class="alert alert-info">
@@ -462,7 +536,7 @@
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> -->
                 <!-- Fin du dialog de confirmation -->
               </div>
             </div>
@@ -557,7 +631,7 @@
               <i class="bi bi-arrow-left fs-2 me-3 cursor-pointer" (click)="backToMenu()"></i>
               <h3 class="mb-0">Programme d'affiliation</h3>
             </div>
-          
+
             <!-- Navigation par onglets -->
             <ul class="nav nav-tabs mb-4">
               <li class="nav-item">
@@ -573,72 +647,74 @@
             </ul>
 
 
-          <div *ngIf="affiliationTab === 'referes'" class="border rounded p-4">
-            <h5 class="mb-3">Vos référés</h5>
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Nom</th>
-                    <th>Téléphone</th>
-                    <th>Type</th>
-                    <th>Date d'inscription</th>
-                    <th>Montant bonus</th>
-                    <th>Statut</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let referral of referelList">
-                    <td>{{ referral.referred.firstname }} {{ referral.referred.lastname }}</td>
-                    <td>{{ referral.referred.phone_number }}</td>
-                    <td class ="badge-light-primary mt-2">{{ referral.referred.user_type === 'zem' ? 'Transporteur' : 'Client'}}</td>
-                    <td>{{ referral.referred.created_at | date:'dd/MM/yyyy' }}</td>
-                    <td>{{ referral.bonus_amount | number:'1.0-0' }} XOF</td>
-                    <td>
-                      <span [class]="'badge badge-light-' + (referral.zem_validation_bonus_paid ? 'success' : 'warning')">
-                        {{ referral.zem_validation_bonus_paid ? 'Bonus payé' : 'En attente' }}
-                      </span>
-                    </td>
-                  </tr>
-                  <tr *ngIf="!referelList || referelList.length === 0">
-                    <td colspan="5" class="text-center py-3">Aucun référé trouvé</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div *ngIf="affiliationTab === 'referes'" class="border rounded p-4">
+              <h5 class="mb-3">Vos référés</h5>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Nom</th>
+                      <th>Téléphone</th>
+                      <th>Type</th>
+                      <th>Date d'inscription</th>
+                      <th>Montant bonus</th>
+                      <th>Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let referral of referelList">
+                      <td>{{ referral.referred.firstname }} {{ referral.referred.lastname }}</td>
+                      <td>{{ referral.referred.phone_number }}</td>
+                      <td class="badge-light-primary mt-2">{{ referral.referred.user_type === 'zem' ? 'Transporteur' :
+                        'Client'}}</td>
+                      <td>{{ referral.referred.created_at | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ referral.bonus_amount | number:'1.0-0' }} XOF</td>
+                      <td>
+                        <span
+                          [class]="'badge badge-light-' + (referral.zem_validation_bonus_paid ? 'success' : 'warning')">
+                          {{ referral.zem_validation_bonus_paid ? 'Bonus payé' : 'En attente' }}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr *ngIf="!referelList || referelList.length === 0">
+                      <td colspan="5" class="text-center py-3">Aucun référé trouvé</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
-          <div *ngIf="affiliationTab === 'gains'" class="border rounded p-4">
-            <!-- Deux cartes centrées -->
-            <div class="row justify-content-center mb-4">
-              <!-- Première carte - Gain réalisé -->
-              <div class="col-md-5 mb-3">
-                <div class="card h-100">
-                  <div class="card-body text-center p-4">
-                    <h5 class="card-title text-muted mb-3">Gain réalisé</h5>
-                    <h2 class="text-primary mb-0">
-                      {{ referelMoneyList.totalBonus | number:'1.0-0' }} XOF
-                    </h2>
+            <div *ngIf="affiliationTab === 'gains'" class="border rounded p-4">
+              <!-- Deux cartes centrées -->
+              <div class="row justify-content-center mb-4">
+                <!-- Première carte - Gain réalisé -->
+                <div class="col-md-5 mb-3">
+                  <div class="card h-100">
+                    <div class="card-body text-center p-4">
+                      <h5 class="card-title text-muted mb-3">Gain réalisé</h5>
+                      <h2 class="text-primary mb-0">
+                        {{ referelMoneyList.totalBonus | number:'1.0-0' }} XOF
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Deuxième carte - Nombre d'affiliation -->
+                <div class="col-md-5 mb-3">
+                  <div class="card h-100">
+                    <div class="card-body text-center p-4">
+                      <h5 class="card-title text-muted mb-3">Nombre d'affiliation</h5>
+                      <h2 class="text-success mb-0">
+                        {{ referelMoneyList.totalReferred }}
+                      </h2>
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              <!-- Deuxième carte - Nombre d'affiliation -->
-              <div class="col-md-5 mb-3">
-                <div class="card h-100">
-                  <div class="card-body text-center p-4">
-                    <h5 class="card-title text-muted mb-3">Nombre d'affiliation</h5>
-                    <h2 class="text-success mb-0">
-                      {{ referelMoneyList.totalReferred }}
-                    </h2>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
-        </div>
 
-        
+
 
 
           <div *ngIf="activeSection === 'informations'" class="mt-5">
@@ -649,7 +725,7 @@
             <div class="border rounded p-4">
               <div *ngIf="selectedUser.user_type === 'customer' || selectedUser.user_type === 'zem'" class="row mb-3">
                 <div class="col-4 fw-bold">Date de naissance</div>
-                <div class="col-8">{{ selectedUser.birthday | date:'dd/MM/yyyy' }}</div>
+                <div class="col-8">{{ formattedBirthday | date:'dd/MM/yyyy' }}</div>
               </div>
               <div class="row mb-3">
                 <div class="col-4 fw-bold">Adresse</div>
@@ -670,7 +746,7 @@
               </div>
             </div>
           </div>
-        
+
 
           <div *ngIf="activeSection === 'portefeuille'" class="mt-5">
             <div class="d-flex align-items-center mb-3">
@@ -847,8 +923,7 @@
                               <div class="row">
                                 <div class="col-12 d-flex flex-row ms-5">
                                   <!-- Date -->
-                                  <div *ngIf="race.created_at && race.created_at !== 'null'"
-                                    class="d-flex  mb-3">
+                                  <div *ngIf="race.created_at && race.created_at !== 'null'" class="d-flex  mb-3">
                                     <i class="bi bi-plus-circle text-primary me-2"></i>
                                     <strong>Créée le:</strong>
                                     <span class="badge badge-light-primary ms-2 mb-2">
@@ -1285,7 +1360,8 @@
                       </tr>
                       <tr>
                         <th scope="row">Date de validation</th>
-                        <td><span [ngClass]="'badge badge-light-success'">{{zem?.validated_at | date:'dd/MM/yyyy HH:mm'}}</span></td>
+                        <td><span [ngClass]="'badge badge-light-success'">{{zem?.validated_at | date:'dd/MM/yyyy
+                            HH:mm'}}</span></td>
                       </tr>
                       <tr>
                         <th scope="row">Statut de validation</th>
@@ -1353,7 +1429,8 @@
                   </div>
                   <div class="modal-body text-center">
                     <object [data]="currentPdf" type="application/pdf" class="w-100" style="height: 75vh;">
-                      <p>Votre navigateur ne peut pas afficher ce PDF. <a [href]="imageBase+currentPdf" target="_blank">Cliquez ici pour le télécharger</a>.</p>
+                      <p>Votre navigateur ne peut pas afficher ce PDF. <a [href]="imageBase+currentPdf"
+                          target="_blank">Cliquez ici pour le télécharger</a>.</p>
                     </object>
                   </div>
                 </div>
@@ -1619,14 +1696,14 @@
             <div class="fv-row mb-7">
               <label class="fw-semibold fs-6 mb-2">Prénom</label>
               <input type="text" name="firstname" [(ngModel)]="newUser.firstname"
-                class="form-control form-control-solid mb-3 mb-lg-0" placeholder="First name" />
+                class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Prénom" />
             </div>
 
             <!-- Lastname -->
             <div class="fv-row mb-7">
               <label class="required fw-semibold fs-6 mb-2">Nom</label>
               <input type="text" name="lastname" [(ngModel)]="newUser.lastname" required #lastname="ngModel"
-                class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Last name" />
+                class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Nom" />
               <div *ngIf="lastname.invalid && (lastname.dirty || lastname.touched)" class="alert alert-danger">
                 Le nom est requis
               </div>
@@ -1662,9 +1739,14 @@
             <div class="fv-row mb-7">
               <label class="required fw-semibold fs-6 mb-2">Mot de passe</label>
               <input type="password" name="password" [(ngModel)]="newUser.password" required #password="ngModel"
-                class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Enter password" />
+                pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+                class="form-control form-control-solid mb-3 mb-lg-0" placeholder="Mot de passe" />
               <div *ngIf="password.invalid && (password.dirty || password.touched)" class="alert alert-danger">
-                Le mot de passe est requis
+                <div *ngIf="password.errors?.['required']">Le mot de passe est requis</div>
+                <div *ngIf="password.errors?.['pattern']">
+                  Le mot de passe doit contenir au moins 8 caractères,
+                  une lettre, un chiffre et un caractère spécial
+                </div>
               </div>
             </div>
 

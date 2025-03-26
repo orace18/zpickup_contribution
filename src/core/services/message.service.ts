@@ -31,14 +31,14 @@ export class MessagingService {
   requestPermission() {
     this.angularFireMessaging.requestToken.subscribe(
       (token) => {
-        console.log('Token reçu :', token);
+        //console.log('Token reçu :', token);
         
         if (token) {
           this.saveTokenToServer(token);
         }
       },
       (err) => {
-        console.error('Impossible d\'obtenir la permission', err);
+        //console.error('Impossible d\'obtenir la permission', err);
       }
     );
   }
@@ -46,7 +46,7 @@ export class MessagingService {
   receiveMessage() {
     this.angularFireMessaging.messages.subscribe(
       (payload) => {
-        console.log('Nouveau message reçu:', payload);
+       // console.log('Nouveau message reçu:', payload);
         const enhancedPayload = {
           ...payload,
           messageId: payload.from || Date.now().toString(),
@@ -68,7 +68,7 @@ export class MessagingService {
   // Afficher les notifications même quand l'application est au premier plan
   setupForegroundNotification() {
     this.angularFireMessaging.onMessage(payload => {
-      console.log('Message reçu au premier plan:', payload);
+     // console.log('Message reçu au premier plan:', payload);
       
       // Afficher une notification toast
       const title = payload.notification?.title || 'Nouvelle notification';
@@ -102,11 +102,11 @@ export class MessagingService {
     const userId = currentUser?.user?._id;
     
     if (userId) {
-      this.http.patch(`${this.apiUrl}/${userId}`, { fcm_token: token }, { headers })
-        .subscribe(
+      this.http.patch(`${this.apiUrl}/${userId}`, { fcm_token: token }, { headers });
+        /* .subscribe(
           response => console.log('Token FCM enregistré avec succès', response),
           error => console.error('Erreur lors de l\'enregistrement du token FCM', error)
-        );
+        ); */
     }
   }
 }

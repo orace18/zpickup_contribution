@@ -87,7 +87,7 @@ export class UsersService {
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json');
 
-    return this.http.patch<Zem>(`${this.zemUrl}/make_ambassador/${userId}`, {status}, {headers})
+    return this.http.patch<Zem>(`${this.zemUrl}/unambassador/${userId}`, {status}, {headers})
       .pipe(
         catchError(error => {
           return throwError(() => error);
@@ -102,8 +102,6 @@ makeAmbassador(userId: string, formData: FormData): Observable<Zem> {
   const headers = new HttpHeaders()
     .set('Authorization', `Bearer ${token}`);
   
-  // Pas besoin de définir Content-Type car Angular le fait automatiquement
-  // pour FormData avec la boundary appropriée
 
   return this.http.patch<Zem>(`${this.zemUrl}/make_ambassador/${userId}`, formData, {headers})
     .pipe(

@@ -37,13 +37,16 @@ import { BehaviorSubject, Observable, shareReplay, take, tap, throwError } from 
 import {Router} from '@angular/router';
 import {map} from 'rxjs/operators';
 import { ConfirmationDialogComponent } from "../../../../../shared/layouts/confirmation-dialog/confirmation-dialog.component";
-import { state } from '@angular/animations';
 import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
 import { ReferelService } from './services/referel.service';
 import { MoneyRefferal, Referral } from './models/referel.model';
 declare var bootstrap: any;
+import * as FileSaver from 'file-saver';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 @Pipe({
   name: 'filterByType',
@@ -183,6 +186,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.collapsedSections[raceId] = !this.collapsedSections[raceId];
   }
 
+
+  
+
   ngAfterViewInit() {
     // Initialisation des dropdowns
     const dropdownTriggerList = document.querySelectorAll('.dropdown-toggle');
@@ -221,6 +227,16 @@ export class UsersComponent implements OnInit, AfterViewInit {
     }
   }
 
+
+ 
+  get formattedBirthday(): Date | null {
+    if (this.selectedUser && this.selectedUser.birthday) {
+      // Diviser la chaîne et créer un nouvel objet Date
+      const [day, month, year] = this.selectedUser.birthday.split('/').map(Number);
+      return new Date(year, month - 1, day); // Notez que month est 0-indexé
+    }
+    return null;
+  }
 
   async showUserDetails(user: User): Promise<void> {
     this.loadUsers();
@@ -320,8 +336,6 @@ export class UsersComponent implements OnInit, AfterViewInit {
       email_address: this.newUser.email_address || undefined,
       firstname: this.newUser.firstname || undefined,
       lastname: this.newUser.lastname || undefined,
-     // birthday: this.newUser.birthday ? new Date(this.newUser.birthday).toISOString() : undefined,
-     // address: this.newUser.address || undefined,
       user_type: 'admin',
       role: this.newUser.role,
       created_at: new Date().toISOString(),
@@ -527,12 +541,6 @@ filterRaces(userID: string): void {
         this.loading = false;
         this.cdr.detectChanges();
 
-        /* const locationModal = document.getElementById('locationModal');
-        if (locationModal) {
-          locationModal.addEventListener('shown.bs.modal', () => {
-             this.initServiceMap();
-          });
-        } */
       },
       error: (error) => {
         this.loading = false;
@@ -541,145 +549,6 @@ filterRaces(userID: string): void {
     });
   }
 
-   /* loadRaces(userId: string): void {
-    if (this.selectedUser?.user_type === 'zem') {
-
-      this.raceService.getZemRaces(userId).subscribe({
-        next: (races) => {
-          this.userRaces = races.map(race => {
-            return {
-              ...race
-            };
-          });
-          this.originalUserRaces = races;
-          this.userRaces = [...races];
-          this.applyDateFilters();
-        },
-        error: (error) => {
-          console.error('Erreur lors du chargement des courses du zem:', error);
-        }
-      });
-    } else {
-      this.raceService.getUserRaces(userId).subscribe({
-        next: (races) => {
-          //this.userRaces = races;
-          this.originalUserRaces = races;
-          this.userRaces = [...races];
-          this.applyDateFilters();
-        },
-        error: (error) => {
-          console.error('Erreur lors du chargement des courses:', error);
-        }
-      });
-    }
-  } 
-
-
-  loadUserRaces(userId: string): void {
-    // Obtenir le premier et le dernier jour du mois courant
-    const now = new Date();
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-
-    const service = this.selectedUser?.user_type === 'zem' 
-      ? this.raceService.getZemRaces(userId)
-      : this.raceService.getUserRaces(userId);
-
-    service.pipe(
-      map(races => races.filter(race => {
-        const raceDate = new Date(race.created_at); // ou race.date selon votre structure
-        return raceDate >= firstDayOfMonth && raceDate <= lastDayOfMonth;
-      })),
-      map(races => races.sort((a, b) => {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      }))
-    ).subscribe({
-      next: (races) => {
-        this.originalUserRaces = races;
-        this.userRaces = [...races];
-        this.applyDateFilters();
-        this.setInitialCollapseState(this.userRaces);
-      },
-      error: (error) => {
-        //console.error('Erreur lors du chargement des courses:', error);
-        // Vous pourriez ajouter ici une notification d'erreur pour l'utilisateur
-      }
-    });
-  } */
-
-    /* loadUserRaces(userId: string): void {
-      // Obtenir le premier et le dernier jour du mois courant
-      this.isLoading = true;
-      const now = new Date();
-      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-    
-      if (this.selectedUser?.user_type === 'zem') {
-        this.raceService.getZemRaces(userId).pipe(
-          map(races => races.filter(race => {
-            const raceDate = new Date(race.created_at);
-            return raceDate >= firstDayOfMonth && raceDate <= lastDayOfMonth;
-          })),
-          map(races => races.sort((a, b) => {
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-          }))
-        ).subscribe({
-          next: (races) => {
-            this.userRaces = races.map(race => {
-              return {
-                ...race
-              };
-            });
-            this.originalUserRaces = races;
-            this.userRaces = [...races];
-            this.isLoading = false;
-            if (this.referenceFilter) {
-              this.userRaces = this.originalUserRaces.filter(race => 
-                race.reference.toString().includes(this.referenceFilter)
-              );
-            } else {
-              this.userRaces = [...this.originalUserRaces];
-            }
-            this.applyDateFilters();
-            this.setInitialCollapseState(this.userRaces);
-            //this.isLoading = false;
-          
-          },
-          error: (error) => {
-            console.error('Erreur lors du chargement des courses du zem:', error);
-          }
-        });
-      } else {
-        this.raceService.getUserRaces(userId).pipe(
-          map(races => races.filter(race => {
-            const raceDate = new Date(race.created_at);
-            return raceDate >= firstDayOfMonth && raceDate <= lastDayOfMonth;
-          })),
-          map(races => races.sort((a, b) => {
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-          }))
-        ).subscribe({
-          next: (races) => {
-            this.originalUserRaces = races;
-            this.userRaces = [...races];
-            this.isLoading = false;
-            if (this.referenceFilter) {
-              this.userRaces = this.originalUserRaces.filter(race => 
-                race.reference.toString().includes(this.referenceFilter)
-              );
-            } else {
-              this.userRaces = [...this.originalUserRaces];
-            }
-            this.applyDateFilters();
-            this.setInitialCollapseState(this.userRaces);
-          
-          },
-          error: (error) => {
-            console.error('Erreur lors du chargement des courses:', error);
-          }
-        });
-      }
-    } */
 
   showAllRaces = false; 
 
@@ -863,7 +732,6 @@ loadUserRaces(userId: string): void {
         this.usersService.getUsers().toPromise()
           .then(users => {
             this.users = users ?? [];
-            console.log("Nombre d'utilisateurs chargés:", this.users.length);
             
             // Appliquer les filtres
             this.applyFilters();
@@ -945,12 +813,7 @@ loadUserRaces(userId: string): void {
 
     // Extraire l'ID du rôle
     const roleId = (this.selectedUser.role as any)?._id;
-   // const hbd = (this.selectedUser.birthday);
 
-   /*  if (hbd) {
-      const date = new Date(hbd);
-      this.selectedUser.birthday = date.toISOString().split('T')[0];
-    } */
     const validRole = this.roles.find(role => role._id === roleId);
 
     // Assignez l'ID du rôle si valide, sinon mettez une chaîne vide
@@ -966,8 +829,7 @@ loadUserRaces(userId: string): void {
         lastname: this.selectedUser.lastname,
         email_address: this.selectedUser.email_address,
         phone_number: this.selectedUser.phone_number,
-       /*  birthday: this.selectedUser.birthday,
-        address: this.selectedUser.address, */
+       
         role: this.selectedUser.role
       };
 
@@ -983,19 +845,13 @@ loadUserRaces(userId: string): void {
           this.toastr.success('Utilisateur mis à jour avec succès');
         },
         error: (error) => {
-          /*console.error('Erreur détaillée :', {
-            status: error.status,
-            message: error.error?.message,
-            fullError: error
-          });*/
+         
 
           this.toastr.error(error.error.message, "Erreur");
 
           if (error.status === 403) {
             this.toastr.error('Session expirée. Veuillez vous reconnecter.');
-            /* this.authService.logout().subscribe(() => {
-               this.router.navigate(['/login']);
-             });*/
+           
           } else {
             this.toastr.error(error.error?.message || 'Erreur lors de la mise à jour de l\'utilisateur');
           }
@@ -1012,165 +868,134 @@ loadUserRaces(userId: string): void {
   activeTab: 'admin' | 'mobile' | 'tsd' |'ta' = 'admin';
   searchQuery: any;
 
-/*   applyFilters(): void {
-    let filtered = [...this.users];
-
-    if (this.searchQuery) {
-      const query = this.searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(user =>
-        user.firstname?.toLowerCase().includes(query) ||
-        user.lastname?.toLowerCase().includes(query) ||
-        user.email_address?.toLowerCase().includes(query) ||
-        user.user_type?.toLowerCase().includes(query) ||
-        user.validated_at?.toLowerCase().includes(query)
-      );
-    }
-
-
-    filtered = filtered.filter(user => {
-      if (this.activeTab === 'admin') {
-        return user.user_type === 'admin';
-      } else if (this.activeTab === 'mobile') {
-        return user.user_type !== 'admin';
-      } else if (this.activeTab === 'tsd') {
-
-        return user.user_type !== 'admin' && user.user_type !== 'customer' && user?.zem != null;
-      } else if (this.activeTab === 'ta') {
-        return user.user_type === 'zem' && user?.zem != null && this.newStatus === true;
-      }
-      return true;
-    });
-
-
-    this.filteredUsers = filtered.filter(user => {
-      return (!this.filters.typeUtilisateur || user.user_type === this.filters.typeUtilisateur);
-    });
-
-
-    this.filteredUsers = filtered.filter(user => {
-      let matchesStatus = true;
-      let matchesDate = true;
-  
-      // Filtrage par statut
-      if (this.filters.status) {
-       const state = user.validated_at;
-        if(state !== null) {
-          user.validated_at = 'validated';
-          matchesStatus = user.validated_at === this.filters.status;
-        }
-        if(state === null) {
-          user.validated_at = 'pending';
-          matchesStatus = user.validated_at === this.filters.status;
+      getUserTypeDisplay(userType: string): string {
+        switch(userType) {
+          case 'customer': return 'Client';
+          case 'zem': return 'Transporteur';
+          default: return userType;
         }
       }
-  
-      // Filtrage par date
-      if (this.filters.startDate || this.filters.endDate) {
-        const userDate = new Date(user.created_at);
-        const startDate = this.filters.startDate ? new Date(this.filters.startDate) : null;
-        const endDate = this.filters.endDate ? new Date(this.filters.endDate) : null;
-  
-        if (startDate && userDate < startDate) matchesDate = false;
-        if (endDate && userDate > endDate) matchesDate = false;
-      }
-  
-      return matchesStatus && matchesDate;
-    });
-  } */
 
 
-    async applyFilters(): Promise<void> {
-      let filtered = [...this.users];
-    
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase().trim();
-        filtered = filtered.filter(user =>
-          user.firstname?.toLowerCase().includes(query) ||
-          user.lastname?.toLowerCase().includes(query) ||
-          user.email_address?.toLowerCase().includes(query) ||
-          user.user_type?.toLowerCase().includes(query) ||
-          user.validated_at?.toLowerCase().includes(query)
-        );
-      }
-    
-      // Créer un tableau pour stocker les utilisateurs filtrés après traitement asynchrone
-      let tempFiltered: User[] = [];
-    
-      // Filtrage par onglet avec gestion asynchrone pour les types zem
-      for (const user of filtered) {
-        if (this.activeTab === 'admin') {
-          if (user.user_type === 'admin') {
-            tempFiltered.push(user);
+      async applyFilters(): Promise<void> {
+
+        // Définir un état de chargement au début
+        this.isLoading = true;
+      
+        try {
+          // Précharger tous les détails Zem avant le filtrage
+          const zemDetailsMap = new Map<string, any>();
+          const zemIds = this.users
+            .filter(user => user.user_type === 'zem' && user.zem != null)
+            .map(user => user.zem);
+      
+          // Charger tous les détails Zem en parallèle
+          const zemDetailsPromises = [...new Set(zemIds)].map(zemId => 
+            this.getZemDetails(zemId!)
+          );
+          
+          const zemDetailsResults = await Promise.all(zemDetailsPromises);
+          
+          // Créer une map pour un accès rapide
+          zemDetailsResults.forEach(details => {
+            if (details && details._id) {
+              zemDetailsMap.set(details._id, details);
+            }
+          });
+      
+          let filtered = [...this.users];
+          
+          if (this.searchQuery) {
+            const query = this.searchQuery.toLowerCase().trim();
+            filtered = filtered.filter(user =>
+              user.firstname?.toLowerCase().includes(query) ||
+              user.lastname?.toLowerCase().includes(query) ||
+              user.email_address?.toLowerCase().includes(query) ||
+              this.getUserTypeDisplay(user.user_type).toLowerCase().includes(query) ||
+              user.validated_at?.toLowerCase().includes(query)
+            );
           }
-        } 
-        else if (this.activeTab === 'mobile') {
-          if (user.user_type !== 'admin') {
-            tempFiltered.push(user);
-          }
-        } 
-        else if (this.activeTab === 'tsd') {
-          if (user.user_type === 'zem' && user?.zem != null) {
-            const zemDetails = await this.getZemDetails(user.zem);
-            if (zemDetails && zemDetails.is_temporal === true) {
+
+          // Filtrage par onglet avec utilisation de la map préchargée
+          let tempFiltered: User[] = [];
+          
+          for (const user of filtered) {
+            if (this.activeTab === 'admin') {
+              if (user.user_type === 'admin') {
+                tempFiltered.push(user);
+              }
+            } 
+            else if (this.activeTab === 'mobile') {
+              if (user.user_type !== 'admin') {
+                tempFiltered.push(user);
+              }
+            } 
+            else if (this.activeTab === 'tsd') {
+              if (user.user_type === 'zem' && user?.zem != null) {
+                const zemDetails = zemDetailsMap.get(user.zem);
+                if (zemDetails && zemDetails.is_temporal === true) {
+                  tempFiltered.push(user);
+                }
+              }
+            } 
+            else if (this.activeTab === 'ta') {
+              if (user.user_type === 'zem' && user?.zem != null) {
+                const zemDetails = zemDetailsMap.get(user.zem);
+                if (zemDetails && zemDetails.is_ambassador === true) {
+                  tempFiltered.push(user);
+                }
+              }
+            }
+            else {
               tempFiltered.push(user);
             }
           }
-        } 
-        else if (this.activeTab === 'ta') {
-          if (user.user_type === 'zem' && user?.zem != null) {
-            const zemDetails = await this.getZemDetails(user.zem);
-            if (zemDetails && zemDetails.is_ambassador === true) {
-              tempFiltered.push(user);
+      
+          filtered = tempFiltered;
+      
+          // Filtrage par type d'utilisateur et statut/date (reste inchangé)
+          this.filteredUsers = filtered.filter(user => {
+            let matchesType = !this.filters.typeUtilisateur || user.user_type === this.filters.typeUtilisateur;
+            
+            let matchesStatus = true;
+            let matchesDate = true;
+      
+            if (this.filters.status) {
+              const state = user.validated_at;
+              if (state !== null) {
+                user.validated_at = 'validated';
+                matchesStatus = user.validated_at === this.filters.status;
+              }
+              if (state === null) {
+                user.validated_at = 'in_progress';
+                matchesStatus = user.validated_at === this.filters.status;
+              }
             }
-          }
+      
+            if (this.filters.startDate || this.filters.endDate) {
+              const userDate = new Date(user.created_at);
+              const startDate = this.filters.startDate ? new Date(this.filters.startDate) : null;
+              const endDate = this.filters.endDate ? new Date(this.filters.endDate) : null;
+      
+              if (startDate && userDate < startDate) matchesDate = false;
+              if (endDate && userDate > endDate) matchesDate = false;
+            }
+      
+            return matchesType && matchesStatus && matchesDate;
+          });
+        } catch (error) {
+          // Gestion des erreurs
+          console.error('Erreur lors du filtrage:', error);
+          this.filteredUsers = [];
+        } finally {
+          // Désactiver le loader une fois le traitement terminé
+          this.isLoading = false;
         }
-        else {
-          tempFiltered.push(user);
-        }
-      }
-    
-      filtered = tempFiltered;
-    
-      // Filtrage par type d'utilisateur
-      this.filteredUsers = filtered.filter(user => {
-        return (!this.filters.typeUtilisateur || user.user_type === this.filters.typeUtilisateur);
-      });
-    
-      // Filtrage par statut et date
-      this.filteredUsers = this.filteredUsers.filter(user => {
-        let matchesStatus = true;
-        let matchesDate = true;
-    
-        // Filtrage par statut
-        if (this.filters.status) {
-          const state = user.validated_at;
-          if (state !== null) {
-            user.validated_at = 'validated';
-            matchesStatus = user.validated_at === this.filters.status;
-          }
-          if (state === null) {
-            user.validated_at = 'in_progress';
-            matchesStatus = user.validated_at === this.filters.status;
-          }
-        }
-    
-        // Filtrage par date
-        if (this.filters.startDate || this.filters.endDate) {
-          const userDate = new Date(user.created_at);
-          const startDate = this.filters.startDate ? new Date(this.filters.startDate) : null;
-          const endDate = this.filters.endDate ? new Date(this.filters.endDate) : null;
-    
-          if (startDate && userDate < startDate) matchesDate = false;
-          if (endDate && userDate > endDate) matchesDate = false;
-        }
-    
-        return matchesStatus && matchesDate;
-      });
-    }
+      } 
 
 
   onTabChange(event: any): void {
-    //this.activeTab = event.target.id === 'admin-tab' ? 'admin' : 'mobile' ;
+    
 
     switch (event.target.id) {
       case 'admin-tab':
@@ -1681,6 +1506,62 @@ closeAmbassadorDialog() {
 }
 
 
+/* toggleAmbassadorStatus() {
+  if (!this.selectedUser) return;
+  
+  const zemId = this.selectedUser.zem;
+  if (!zemId) return;
+  
+  // Inverser la logique pour correspondre à la vue
+  const isBecomingAmbassador = !this.zem.is_ambassador;
+  
+  if (isBecomingAmbassador && !this.selectedContractFile) {
+    this.toastr.error("Veuillez sélectionner un document de contrat (PDF)");
+    return;
+  }
+  
+  if (isBecomingAmbassador) {
+    const formData = new FormData();
+    formData.append('contrat_document', this.selectedContractFile as File);
+    
+    this.usersService.makeAmbassador(zemId, formData).subscribe({
+      next: (response) => {
+        this.zem.is_ambassador = true;
+        this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} est maintenant ambassadeur`);
+        this.closeAmbassadorDialog();
+        this.selectedContractFile = null;
+        this.ambassadorForm.get('contratDocument')?.setValue(null);
+      },
+      error: (error) => {
+        this.toastr.error(error.error?.message || "Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
+        console.error(error);
+        this.closeAmbassadorDialog();
+      }
+    });
+  } else {
+    this.usersService.updateAmbassadorStatus(zemId, "false").subscribe({
+      next: (response) => {
+        this.zem.is_ambassador = false;
+        this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} n'est plus ambassadeur`);
+        this.closeAmbassadorDialog();
+      },
+      error: (error) => {
+        this.toastr.error("Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
+        console.error(error);
+        this.closeAmbassadorDialog();
+      }
+    });
+  }
+}
+
+// Méthode pour ouvrir le dialogue
+openAmbassadorDialog() {
+  // Initialiser newStatus basé sur le statut actuel
+  this.newStatus = !this.zem.is_ambassador;
+  this.showAmbassadorDialog = true;
+} */
+
+
 async toggleAmbassadorStatus() {
   if (!this.selectedUser) return;
   
@@ -1688,10 +1569,8 @@ async toggleAmbassadorStatus() {
   if (!zemId) return;
   
   if (!this.zem) {
-    if (zemId) {
-      const zemDetails = await this.getZemDetails(zemId);
-      this.zem = zemDetails || null;
-    }
+    const zemDetails = await this.getZemDetails(zemId);
+    this.zem = zemDetails || null;
     if (!this.zem) {
       this.toastr.error("Impossible de récupérer les détails du transporteur");
       this.closeAmbassadorDialog();
@@ -1699,10 +1578,7 @@ async toggleAmbassadorStatus() {
     }
   }
 
-  console.log("L'ancien statut", this.zem.is_ambassador);
-  
   this.newStatus = !this.zem.is_ambassador;
-  console.log("Le nouveau statut", this.newStatus);
   
   // Si on promeut au statut d'ambassadeur et qu'aucun fichier n'est sélectionné
   if (this.newStatus && !this.selectedContractFile) {
@@ -1715,40 +1591,38 @@ async toggleAmbassadorStatus() {
     const formData = new FormData();
     formData.append('contrat_document', this.selectedContractFile as File);
     
-    this.usersService.makeAmbassador(zemId, formData).subscribe(
-      (response) => {
+    this.usersService.makeAmbassador(zemId, formData).subscribe({
+      next: (response) => {
         if (this.zem) {
           this.zem.is_ambassador = true;
         }
-        
         this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} est maintenant ambassadeur`);
         this.closeAmbassadorDialog();
         this.selectedContractFile = null;
         this.ambassadorForm.get('contratDocument')?.setValue(null);
       },
-      (error) => {
+      error: (error) => {
         this.toastr.error(error.error?.message || "Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
         console.error(error);
         this.closeAmbassadorDialog();
       }
-    );
+    });
   } else {
-    // Cas où on retire le statut d'ambassadeur (sans fichier)
-    this.usersService.updateAmbassadorStatus(zemId, "false").subscribe(
-      (response) => {
+    // Cas où on retire le statut d'ambassadeur
+    this.usersService.updateAmbassadorStatus(zemId, "false").subscribe({
+      next: (response) => {
         if (this.zem) {
           this.zem.is_ambassador = false;
         }
-        
         this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} n'est plus ambassadeur`);
         this.closeAmbassadorDialog();
       },
-      (error) => {
+      error: (error) => {
         this.toastr.error("Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
         console.error(error);
         this.closeAmbassadorDialog();
       }
-    );
+    });
   }
 }
 
@@ -1893,19 +1767,16 @@ async toggleAmbassadorStatus() {
 
     async loadUserStatus(user: User) {
       try {
-        console.log("Début loadUserStatus pour utilisateur:", user._id);
         const status = await this.getUserStatut(user);
-        console.log("Statut obtenu pour", user._id, ":", status);
         
         if (!this.userStatusMap) {
           this.userStatusMap = new Map<string, string>();
         }
         
         this.userStatusMap.set(user._id, status);
-        //console.log("Map après ajout:", [...this.userStatusMap.entries()]);
         this.cdr.detectChanges();
       } catch (error) {
-        console.error("Erreur lors du chargement du statut pour", user._id, ":", error);
+
       }
     }
 
@@ -1964,6 +1835,40 @@ async toggleAmbassadorStatus() {
         console.error(error);
       }
     );
+  }
+
+  excludedFields: string[] = ['password', 'token', '_id', '__v', 'created_at', 'updated_at','deleted_at','validated_at','token_version','fcm_token'];
+
+  getFilteredUsers(): User[] {
+    return this.filteredUsers.map(user => {
+      const filteredUser: any = { ...user };
+      this.excludedFields.forEach(field => delete filteredUser[field]);
+      return filteredUser;
+    });
+  }
+
+  exportToCSV() {
+    const users = this.getFilteredUsers();
+    const csvContent = users.map(user => Object.values(user).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    FileSaver.saveAs(blob, `users_${this.activeTab}.csv`);
+  }
+
+  exportToExcel() {
+    const users = this.getFilteredUsers();
+    const worksheet = XLSX.utils.json_to_sheet(users);
+    const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+    FileSaver.saveAs(data, `users_${this.activeTab}.xlsx`);
+  }
+
+  exportToPDF() {
+    const users = this.getFilteredUsers();
+    const doc = new jsPDF();
+    doc.text('User List', 10, 10);
+    (doc as any).autoTable({ head: [Object.keys(users[0])], body: users.map(u => Object.values(u)) });
+    doc.save(`users_${this.activeTab}.pdf`);
   }
 
 }

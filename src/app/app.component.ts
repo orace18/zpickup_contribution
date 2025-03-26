@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
     this.messagingService.initializeMessaging();
     
     // Écouter les messages
-    /* this.messagingService.currentMessage.subscribe(
+    this.messagingService.currentMessage.subscribe(
       (message) => {
         if(message != null) {
           const title = message?.notification?.title || '';
@@ -52,8 +52,8 @@ export class AppComponent implements OnInit {
           }
         }
       }
-    ); */
-  
+    ); 
+   
     this.autoLogoutService.initializeAutoLogout();
   }
   

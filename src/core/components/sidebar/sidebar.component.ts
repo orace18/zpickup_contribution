@@ -60,11 +60,11 @@ export class SidebarComponent implements OnInit {
       })
     ).subscribe({
       next: (filteredItems) => {
-        console.log('Final filtered items:', filteredItems);
+      //  console.log('Final filtered items:', filteredItems);
         this.menuItems = filteredItems;
       },
       error: (error) => {
-        console.error('Error loading menu items:', error);
+       // console.error('Error loading menu items:', error);
         this.toast.error('Erreur lors du chargement du menu');
       }
     });
