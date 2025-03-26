@@ -1,5 +1,5 @@
 <div class="chat-container">
-  <!-- En-tête avec le nom et statut du contact -->
+  <!-- Chat Header -->
   <div class="chat-header">
     <div class="user-info">
       <div class="user-details">
@@ -17,19 +17,19 @@
     </div>
   </div>
 
-  <!-- Séparateur -->
+  <!-- Separator -->
   <div class="separator"></div>
 
-  <!-- Zone de messages scrollable -->
+  <!-- Message List -->
   <div class="message-list" #scrollContainer>
     <ng-container *ngFor="let message of messages; let i = index">
-      <!-- Séparateur de date si nécessaire -->
+      <!-- Date Separator -->
       <div class="message-date-separator" *ngIf="isFirstMessageOfDate(i)">
         {{ getMessageDate(message) }}
       </div>
 
       <div class="message-row" [ngClass]="isAdmin(message.sender.user_type) ? 'own-message' : 'other-message'">
-        <!-- Avatar pour les messages d'utilisateurs non-admin -->
+        <!-- Avatar for non-admin messages -->
         <div class="avatar-container" *ngIf="!isAdmin(message.sender.user_type)">
           <ng-container *ngIf="message.sender.avatar; else initialAvatar">
             <img [src]="message.sender.avatar" class="avatar" alt="Contact avatar">
@@ -42,15 +42,14 @@
         </div>
 
         <div class="message-container">
-          <!-- Info expéditeur (uniquement pour les messages reçus des non-admin) -->
+          <!-- Sender name for non-admin messages -->
           <div class="message-header" *ngIf="!isAdmin(message.sender.user_type)">
             <span class="sender-name">{{ message.sender.name }}</span>
           </div>
 
-          <!-- Contenu du message -->
           <div class="message-bubble">
             <div class="message-content">
-              <!-- Vérifier si le contenu est une URL d'image -->
+              <!-- Check if content is an image URL -->
               <ng-container *ngIf="message.content && isImageUrl(message.content); else textContent">
                 <img [src]="imageURI + message.content" class="message-image" alt="Uploaded image">
               </ng-container>
@@ -58,11 +57,11 @@
                 {{ message.content }}
               </ng-template>
             </div>
-            <!-- Affichage de l'image si présente (gardez cette ligne si nécessaire) -->
+            <!-- Display additional image if present -->
             <img *ngIf="message.imageUrl" [src]="message.imageUrl" class="message-image" alt="Message image">
           </div>
 
-          <!-- Horodatage (pour tous les messages) -->
+          <!-- Message timestamp -->
           <div class="message-footer">
             <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
           </div>
@@ -70,29 +69,24 @@
       </div>
     </ng-container>
 
-    <!-- Message d'erreur -->
+    <!-- Error message -->
     <div class="error-message" *ngIf="error">{{ error }}</div>
   </div>
 
-  <!-- Zone de saisie de message améliorée -->
+  <!-- Message Composer -->
   <div class="message-composer">
-    <!-- Input de fichier caché pour sélectionner les images -->
+    <!-- Hidden file input for image upload -->
     <input type="file" id="imageUpload" (change)="handleImageSelect($event)" accept="image/*" style="display: none;" />
 
-    <!-- Bouton pour sélectionner une image -->
-    <button class="action-button file-button" (click)="triggerFileInput()" title="Ajouter une image">
-      <i class="bi bi-image style='color: #FFF;'"></i>
+    <!-- Image upload button -->
+    <button class="action-button file-button" (click)="triggerFileInput()" title="Add Image">
+      <i class="bi bi-image" style="color: #FFF;"></i>
     </button>
 
-    <!-- Bouton pour autres pièces jointes -->
-    <!-- <button class="action-button" title="Ajouter une pièce jointe">
-      <i class="bi bi-paperclip"></i>
-    </button> -->
-
-    <!-- Conteneur d'aperçu d'image sélectionnée -->
+    <!-- Selected image preview -->
     <div class="selected-image-preview" *ngIf="selectedImage">
       <div class="preview-container">
-        <img [src]="selectedImagePreview" alt="Image à envoyer" class="preview-image">
+        <img [src]="selectedImagePreview" alt="Image to send" class="preview-image">
         <button class="remove-image-btn" (click)="removeSelectedImage()">
           <i class="bi bi-x-circle-fill"></i>
         </button>
@@ -100,13 +94,22 @@
     </div>
 
     <div class="composer-input-container">
-      <textarea class="composer-input" [(ngModel)]="newMessage" (input)="autoResize($event)" [disabled]="loading"
-        rows="1" placeholder="Tapez un message"></textarea>
+      <textarea 
+        class="composer-input" 
+        [(ngModel)]="newMessage" 
+        (input)="autoResize($event)" 
+        [disabled]="loading"
+        rows="1" 
+        placeholder="Type a message">
+      </textarea>
     </div>
 
-    <!-- Bouton d'envoi amélioré -->
-    <button class="send-button" [disabled]="loading || (!newMessage.trim() && !selectedImage)" (click)="send()"
-      title="Envoyer">
+    <!-- Send button -->
+    <button 
+      class="send-button" 
+      [disabled]="loading || (!newMessage.trim() && !selectedImage)" 
+      (click)="send()"
+      title="Send">
       <i class="bi bi-send-fill"></i>
     </button>
   </div>
