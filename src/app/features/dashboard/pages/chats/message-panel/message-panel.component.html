@@ -40,13 +40,13 @@
             </div>
           </ng-template>
         </div>
-
+      
         <div class="message-container">
           <!-- Sender name for non-admin messages -->
           <div class="message-header" *ngIf="!isAdmin(message.sender.user_type)">
             <span class="sender-name">{{ message.sender.name }}</span>
           </div>
-
+      
           <div class="message-bubble">
             <div class="message-content">
               <!-- Check if content is an image URL -->
@@ -60,7 +60,7 @@
             <!-- Display additional image if present -->
             <img *ngIf="message.imageUrl" [src]="message.imageUrl" class="message-image" alt="Message image">
           </div>
-
+      
           <!-- Message timestamp -->
           <div class="message-footer">
             <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
@@ -80,7 +80,7 @@
 
     <!-- Image upload button -->
     <button class="action-button file-button" (click)="triggerFileInput()" title="Add Image">
-      <i class="bi bi-image" style="color: #FFF;"></i>
+      <i class="bi bi-image" style="color: #796ce7;"></i>
     </button>
 
     <!-- Selected image preview -->

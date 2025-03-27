@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { interval, Subscription } from 'rxjs';
 import { ChatService } from '../services/chat.service';
 import { environment } from '../../../../../../environments/environment';
+import { AuthService } from '../../../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-message-panel',
@@ -28,6 +29,7 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
   newMessage: string = '';
   selectedImage: File | null = null;
   selectedImagePreview: string | null = null;
+  userId: string = '';
 
   // Contact information
   contactStatus: string = 'Active';
@@ -44,20 +46,24 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
 
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
 
-  constructor(private chatService: ChatService) {}
+  constructor(private chatService: ChatService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     this.startMessagePolling();
+      const currentUser = this.authService.getCurrentUser();
+      const userId = currentUser?.user?._id;
+      this.userId = userId ;
   }
 
   ngOnDestroy() {
     this.stopMessagePolling();
   }
 
-  // Determines if a message is from an admin (your messages)
-  isAdmin(role: string | any): boolean {
-    // Always return true for your own messages
-    return true;
+  
+  isAdmin(user_type: string | any): boolean {
+    return user_type === 'admin';
   }
 
   // Auto-resize textarea
@@ -106,7 +112,7 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
   }
 
   // Send message
-  send(): void {
+ /*  send(): void {
     // Sending with image
     if (this.selectedImage) {
       this.chatService.uploadImage(this.selectedImage)
@@ -134,7 +140,65 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
   
       setTimeout(() => this.checkForNewMessages(), 10);
     }
-  }
+  } */
+
+    send(): void {
+      
+      const tempMessage: Message = {
+        id: 'temp_' + Date.now(), 
+        content: this.newMessage,
+        timestamp: new Date(),
+        created_at: new Date().toDateString(),
+        updated_at: new Date().toDateString(),
+        sender: {
+          user_type: 'admin', 
+          userId: this.userId, 
+          name: 'Vous'
+        }
+      };
+    
+      // Ajoutez le message temporaire immédiatement À DROITE
+      this.messages = [...this.messages, tempMessage];
+    
+      // Envoi du message
+      if (this.selectedImage) {
+        this.chatService.uploadImage(this.selectedImage)
+          .subscribe({
+            next: (response) => {
+              this.sendMessage.emit(response.imageUrl);
+              this.newMessage = '';
+              this.removeSelectedImage();
+              
+              // Remplacez le message temporaire par le message définitif
+              const index = this.messages.findIndex(m => m.id === tempMessage.id);
+              if (index !== -1) {
+                this.messages[index] = { ...tempMessage, content: response.imageUrl };
+              }
+              
+              setTimeout(() => this.checkForNewMessages(), 50);
+            },
+            error: (error) => {
+              console.error("Error sending image:", error);
+              // Supprimez le message temporaire en cas d'erreur
+              this.messages = this.messages.filter(m => m.id !== tempMessage.id);
+            }
+          });
+        return;
+      }
+    
+      // Envoi de message texte
+      if (this.newMessage?.trim()) {
+        this.sendMessage.emit(this.newMessage);
+        this.newMessage = '';
+    
+        const textarea = document.querySelector('.composer-input') as HTMLTextAreaElement;
+        if (textarea) {
+          textarea.style.height = 'auto';
+        }
+    
+        setTimeout(() => this.checkForNewMessages(), 1);
+      }
+    }
 
   // Check for new messages
   private checkForNewMessages() {
