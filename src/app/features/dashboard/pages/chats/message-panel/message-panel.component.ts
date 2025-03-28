@@ -175,7 +175,7 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
                 this.messages[index] = { ...tempMessage, content: response.imageUrl };
               }
               
-              setTimeout(() => this.checkForNewMessages(), 50);
+              setTimeout(() => this.checkForNewMessages(), 0.1);
             },
             error: (error) => {
               console.error("Error sending image:", error);
@@ -196,7 +196,7 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
           textarea.style.height = 'auto';
         }
     
-        setTimeout(() => this.checkForNewMessages(), 1);
+        setTimeout(() => this.checkForNewMessages(), 0.1);
       }
     }
 
@@ -248,13 +248,13 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
       messageDate.getMonth() === today.getMonth() &&
       messageDate.getFullYear() === today.getFullYear()
     ) {
-      return 'Today';
+      return 'Aujourd\'hui';
     } else if (
       messageDate.getDate() === today.getDate() - 1 &&
       messageDate.getMonth() === today.getMonth() &&
       messageDate.getFullYear() === today.getFullYear()
     ) {
-      return 'Yesterday';
+      return 'Hier';
     } else {
       return messageDate.toLocaleDateString('en-US', {
         month: 'short',

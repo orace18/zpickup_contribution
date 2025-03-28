@@ -84,6 +84,7 @@ export class FilterByTypePipe implements PipeTransform {
 })
 export class UsersComponent implements OnInit, AfterViewInit {
 
+
   imageBase: string = environment.imageUrl;
   userStatusCache: Map<string, string> = new Map();
   userStatusMap: Map<string, string> = new Map();
@@ -181,6 +182,12 @@ export class UsersComponent implements OnInit, AfterViewInit {
     });
   }
 
+
+  handleImageError($event: ErrorEvent) {
+
+    ($event.target as HTMLImageElement).src = 'default/icon_app.png'; 
+    
+  }
 
   toggleSection(raceId: string): void {
     this.collapsedSections[raceId] = !this.collapsedSections[raceId];

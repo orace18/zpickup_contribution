@@ -263,7 +263,7 @@ export class ConversationListComponent implements OnInit, OnChanges, OnDestroy {
         '#60a5fa', // bleu
         '#38bdf8', // bleu clair
         '#4ade80', // vert
-        '#facc15', // jaune
+        '#facc15', 
       ];
       
       return colors[Math.abs(hash) % colors.length];
@@ -294,16 +294,16 @@ export class ConversationListComponent implements OnInit, OnChanges, OnDestroy {
     
     if (diff < oneDay) {
       // Aujourd'hui, afficher les heures
-      return `${Math.round(diff / (60 * 60 * 1000))} hrs`;
+      return `${Math.round(diff / (60 * 60 * 1000))} h`;
     } else if (diff < oneWeek) {
       // Cette semaine, afficher les jours
-      return `${Math.round(diff / oneDay)} day${Math.round(diff / oneDay) > 1 ? 's' : ''}`;
+      return `${Math.round(diff / oneDay)} jour${Math.round(diff / oneDay) > 1 ? 's' : ''}`;
     } else if (diff < 2 * oneWeek) {
       // Plus d'une semaine
       return '1 Semaine';
     } else {
       // Plus de deux semaines
-      return `${Math.round(diff / oneWeek)} weeks`;
+      return `${Math.round(diff / oneWeek)} semaines`;
     }
   }
 }

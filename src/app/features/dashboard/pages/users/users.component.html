@@ -445,58 +445,58 @@
                   [cancelText]="'Non, annuler'" (confirm)="confirmRejet()" (cancel)="closeRejetDialog()"
                   (closeDialog)="closeRejetDialog()"></app-confirmation-dialog>
 
-                  <button *ngIf="selectedUser?.user_type ==='zem' " class="btn btn-sm mt-2"
-  [ngClass]="zem?.is_ambassador ? 'btn-danger' : 'btn-success'" 
-  (click)="openAmbassadorDialog()">
-  {{ zem?.is_ambassador ? 'Retirer ambassadeur' : 'Définir comme ambassadeur' }}
-</button>
+                <button *ngIf="selectedUser?.user_type ==='zem' " class="btn btn-sm mt-2"
+                  [ngClass]="zem?.is_ambassador ? 'btn-danger' : 'btn-success'" (click)="openAmbassadorDialog()">
+                  {{ zem?.is_ambassador ? 'Retirer ambassadeur' : 'Définir comme ambassadeur' }}
+                </button>
 
-<!-- Dialog de confirmation avec champ de fichier -->
-<div *ngIf="showAmbassadorDialog" class="modal d-block" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          {{ !zem?.is_ambassador ? 'Définir comme ambassadeur' : 'Retirer le statut d\'ambassadeur' }}
-        </h5>
-        <button type="button" class="close" (click)="closeAmbassadorDialog()">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>
-          {{ !zem?.is_ambassador ? 'Êtes-vous sûr de vouloir définir cet utilisateur comme ambassadeur ?' :
-             'Êtes-vous sûr de vouloir retirer le statut d\'ambassadeur à cet utilisateur ?' }}
-        </p>
+                <!-- Dialog de confirmation avec champ de fichier -->
+                <div *ngIf="showAmbassadorDialog" class="modal d-block" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">
+                          {{ !zem?.is_ambassador ? 'Définir comme ambassadeur' : 'Retirer le statut d\'ambassadeur' }}
+                        </h5>
+                        <button type="button" class="close" (click)="closeAmbassadorDialog()">
+                          <span>&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>
+                          {{ !zem?.is_ambassador ? 'Êtes-vous sûr de vouloir définir cet utilisateur comme ambassadeur
+                          ?' :
+                          'Êtes-vous sûr de vouloir retirer le statut d\'ambassadeur à cet utilisateur ?' }}
+                        </p>
 
-        <!-- Formulaire de téléchargement de fichier uniquement si on promeut comme ambassadeur -->
-        <form [formGroup]="ambassadorForm" *ngIf="!zem?.is_ambassador">
-          <div class="form-group">
-            <label for="contratDocument">Document de contrat (PDF requis)</label>
-            <input type="file" class="form-control-file" id="contratDocument"
-              formControlName="contratDocument" (change)="onContractFileSelected($event)"
-              accept="application/pdf">
-            <small class="form-text text-muted">Taille maximum: 5MB</small>
-          </div>
-          <div *ngIf="selectedContractFile" class="alert alert-info">
-            Fichier sélectionné: {{ selectedContractFile.name }}
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeAmbassadorDialog()">
-          Non, annuler
-        </button>
-        <button type="button" class="btn btn-primary" (click)="toggleAmbassadorStatus()">
-          Oui, confirmer
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+                        <!-- Formulaire de téléchargement de fichier uniquement si on promeut comme ambassadeur -->
+                        <form [formGroup]="ambassadorForm" *ngIf="!zem?.is_ambassador">
+                          <div class="form-group">
+                            <label for="contratDocument">Document de contrat (PDF requis)</label>
+                            <input type="file" class="form-control-file" id="contratDocument"
+                              formControlName="contratDocument" (change)="onContractFileSelected($event)"
+                              accept="application/pdf">
+                            <small class="form-text text-muted">Taille maximum: 5MB</small>
+                          </div>
+                          <div *ngIf="selectedContractFile" class="alert alert-info">
+                            Fichier sélectionné: {{ selectedContractFile.name }}
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" (click)="closeAmbassadorDialog()">
+                          Non, annuler
+                        </button>
+                        <button type="button" class="btn btn-primary" (click)="toggleAmbassadorStatus()">
+                          Oui, confirmer
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 <!-- Bouton pour changer le statut d'ambassadeur -->
-               <!--  <button *ngIf="selectedUser?.user_type ==='zem' " class="btn btn-sm mt-2"
+                <!--  <button *ngIf="selectedUser?.user_type ==='zem' " class="btn btn-sm mt-2"
                   [ngClass]="newStatus ? 'btn-danger' : 'btn-success'" (click)="openAmbassadorDialog()">
                   {{ newStatus ? 'Retirer ambassadeur' : 'Définir comme ambassadeur' }}
                 </button>
@@ -1429,7 +1429,7 @@
                   </div>
                   <div class="modal-body text-center">
                     <object [data]="currentPdf" type="application/pdf" class="w-100" style="height: 75vh;">
-                      <p>Votre navigateur ne peut pas afficher ce PDF. <a [href]="imageBase+currentPdf"
+                      <p>Votre navigateur ne peut pas afficher ce PDF. <a [href]="'imageBase+currentPdf'"
                           target="_blank">Cliquez ici pour le télécharger</a>.</p>
                     </object>
                   </div>
@@ -1446,7 +1446,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body text-center">
-                    <img [src]="imageBase+currentPhoto" class="img-fluid" alt="Photo">
+                    <img [src]="imageBase + currentPhoto" class="img-fluid" alt="Photo"
+                      (error)="handleImageError($event)">
                   </div>
                 </div>
               </div>
@@ -1595,7 +1596,7 @@
     <div class="modal-content">
       <!-- Modal Header -->
       <div class="modal-header">
-        <h5 class="modal-title">Modifier l'utilisateur</h5>
+        <h5 class="modal-title">Modifier l\'utilisateur</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
