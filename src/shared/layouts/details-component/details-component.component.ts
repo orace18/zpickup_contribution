@@ -2,6 +2,9 @@ import { Component, Input, OnChanges, OnInit } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { Race } from '../../../app/features/dashboard/pages/users/models/race.model';
+import { User } from '../../../app/features/dashboard/pages/home/models/users.model';
+import { map, Observable } from 'rxjs';
+import { UserService } from '../../../app/features/dashboard/pages/home/services/home.service';
 
 @Component({
   selector: 'app-details-component',
@@ -14,13 +17,36 @@ export class DetailsComponentComponent implements OnInit, OnChanges{
   @Input() race?: Race;
   @Input() selectedUser: 'customer' | 'zem' = 'customer';
 
+
+  constructor(private homeService: UserService) {}
+
   getZemFullName(): string {
     return this.race?.zem 
       ? `${this.race.zem.firstname} ${this.race.zem.lastname}` 
       : 'Non assigné';
   }
+  
+  getUserByZem(): Observable<User | undefined> {
+    return this.homeService.getUsers().pipe(
+      map(users => 
+        users.find(user => 
+          user.firstname === this.race?.zem?.firstname && 
+          user.lastname === this.race?.zem?.lastname
+        )
+      )
+    );
+  }
 
   ngOnInit(): void {
+
+    this.getUserByZem().subscribe(user => {
+      if (user) {
+        console.log('Utilisateur trouvé:', user);
+      } else {
+        console.log('Aucun utilisateur correspondant trouvé');
+      }
+    });
+
     setTimeout(() => {
       if(this.race){
       this.initMap(this.race);

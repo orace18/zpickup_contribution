@@ -85,7 +85,7 @@ export class GainsComponent implements OnInit {
           if (gains && typeof gains === 'object') {
             //setTimeout(() => {
              // this.isLoading = false;
-              this.cards[0].amount = Number(gains.customer_bonus) || 0;
+            this.cards[0].amount = Number(gains.customer_bonus) || 0;
             this.cards[2].amount = Number(gains.zem_bonus) || 0;
             this.cards[1].amount = Number(gains.admin_bonus) || 0;
             //}, 10000);

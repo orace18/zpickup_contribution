@@ -63,6 +63,7 @@ export class GainsService {
           // Transformer les données
           .map(race => ({
             date: race?.ended_at ? new Date(race.ended_at).toLocaleDateString('fr-FR') : '',
+            reference: race.reference || '',
             zem_bonus: Number((race.zem_bonus || 0).toFixed(2)),
             customer_bonus: Number((race.customer_bonus || 0).toFixed(2)),
             admin_bonus: Number((race.admin_bonus || 0).toFixed(2)),

@@ -14,6 +14,7 @@ export interface GainsResult {
 
 export interface GainHistory {
   date: string;
+  reference: string;
   zem_bonus: number;
   customer_bonus: number;
   admin_bonus: number;

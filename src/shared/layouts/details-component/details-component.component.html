@@ -284,8 +284,8 @@
           </div>
 
           <!-- Client/Transporteur Info -->
-          <!-- <div class="col-md-6">
-            <div class="col-md-12" *ngIf="selectedUser === 'zem'">
+          <div class="col-md-6">
+            <div class="col-md-12">
               <div>
                 <div class="p-3">
                   <h6 class="card-title mb-3">
@@ -307,7 +307,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-12" *ngIf="race.zem && selectedUser === 'customer'">
+            <div class="col-md-12" *ngIf="race.zem">
               <div>
                 <div class="p-3">
                   <h6 class="card-title mb-3">
@@ -321,7 +321,7 @@
                     <div class="w-100">
                       <div class="text-muted mb-2">
                         <i class="bi bi-person-badge me-2"></i>Nom et prénom:
-                        <span class="badge badge-light-primary">{{ getZemFullName() }}</span>
+                        <span class="badge badge-light-primary">{{ race.zem.firstname }}{{ race.zem.lastname }}</span>
                       </div>
                       <div class="text-muted mb-2">
                         <i class="bi bi-truck me-2"></i>Plaque:
@@ -336,7 +336,7 @@
                 </div>
               </div>
             </div>
-          </div> -->
+          </div>
 
         </div>
       </ng-container>
@@ -351,7 +351,7 @@
             <div class="col-md-4">
               <div class="bg-light rounded p-3 mb-3">
                 <h6 class="card-subtitle mb-2">
-                  <i class="bi bi-building me-2"></i>Administration
+                  <i class="bi bi-building me-2"></i>Zpickup
                 </h6>
                 <p class="mb-1">
                   <i class="bi bi-piggy-bank me-2"></i><strong>Bonus:</strong>

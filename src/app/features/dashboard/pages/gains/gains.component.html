@@ -110,15 +110,17 @@
         <ng-template pTemplate="header">
           <tr>
             <th class="fw-bold text-primary p-3">Date</th>
+            <th class="fw-bold text-primary p-3">Référence de la course</th>
             <th class="fw-bold text-primary p-3">Gain Transporteur</th>
             <th class="fw-bold text-primary p-3">Gain Client</th>
-            <th class="fw-bold text-primary p-3">Gain Admin</th>
+            <th class="fw-bold text-primary p-3">Gain Zpickup</th>
             <th class="fw-bold text-primary p-3">Total</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-race>
           <tr>
             <td class="p-3 text-primary">{{ race.date }}</td>
+            <td class="p-3 text-primary">{{ race.reference }}</td>
             <td class="p-3 text-warning">{{ race.zem_bonus | number:'1.0-0' }} FCFA</td>
             <td class="p-3 text-primary">{{ race.customer_bonus | number:'1.0-0' }} FCFA</td>
             <td class="p-3 text-success">{{ race.admin_bonus | number:'1.0-0' }} FCFA</td>
