@@ -9,6 +9,9 @@ import {CommonModule} from '@angular/common';
 import {Role} from './models/role.model';
 import { Modal } from 'bootstrap';
 import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 declare const bootstrap: any;
 
 @Component({
@@ -226,8 +229,16 @@ export class RolesComponent implements OnInit, AfterViewInit {
     }
   }
 
+
   ngAfterViewInit() {
-    // Réinitialiser les composants après chaque changement de vue
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      modal.addEventListener('hidden.bs.modal', () => {
+        // Nettoyez l'overlay après que la modal soit cachée
+        this.hideOverlay();
+      });
+    });
+
     setTimeout(() => {
       this.initializeAccordions();
       this.initializeDropdowns();
@@ -322,14 +333,22 @@ export class RolesComponent implements OnInit, AfterViewInit {
       });
     }
   }
+
+
   discardForm(): void {
-    this.roleForm.reset();
-    const modal = document.getElementById('kt_modal_add_role');
-    if (modal) {
-      const modalInstance = bootstrap.Modal.getInstance(modal);
-      modalInstance?.hide();
+  this.roleForm.reset();
+  const modal = document.getElementById('kt_modal_add_role');
+  if (modal) {
+    const modalInstance = bootstrap.Modal.getInstance(modal);
+    if (modalInstance) {
+      modalInstance.hide();
+      // Ajoutez un délai court avant de supprimer l'overlay
+      setTimeout(() => {
+        this.hideOverlay();
+      }, 150);
     }
   }
+}
 
   discardUpdateForm(): void {
     this.roleForm.reset();
@@ -344,12 +363,17 @@ export class RolesComponent implements OnInit, AfterViewInit {
 
   @ViewChild('kt_modal_add_role') modal!: ElementRef;
 
-  closeModal() {
-    if (this.modal) {
-      const modalElement = this.modal.nativeElement;
-      const bsModal = bootstrap.Modal.getInstance(modalElement);
-      if (bsModal) {
-        bsModal.hide();
+  closeModal(): void {
+    const modalElement = document.getElementById('kt_modal_add_role');
+    if (modalElement) {
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
+      if (modalInstance) {
+        modalInstance.hide();
+        
+        // Assurez-vous de supprimer le backdrop après un court délai
+        setTimeout(() => {
+          this.hideOverlay();
+        }, 150);
       }
     }
   }
@@ -564,10 +588,226 @@ export class RolesComponent implements OnInit, AfterViewInit {
     this.hideOverlay();
   }
 
-  private hideOverlay(): void {
+  hideOverlay(): void {
+    // Supprimez toutes les modal-backdrop
     const backdrops = document.querySelectorAll('.modal-backdrop');
     backdrops.forEach(backdrop => backdrop.remove());
+    
+    // Supprimez les classes qui peuvent causer des problèmes
     document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+  }
+
+
+  exportToCsv(): void {
+    try {
+      if (this.roles.length === 0) {
+        this.toastr.warning('Aucune donnée à exporter');
+        return;
+      }
+      
+      // En-têtes du CSV
+      const header = ['Nom', 'Description', 'Clé', 'Permissions'];
+      
+      // Préparation des données
+      const csvData = this.roles.map(role => {
+        // Convertir les permissions en chaîne lisible
+        const permissionsList = role.permissions
+          .map((perm: string) => this.getPermissionName(perm))
+          .join('; ');
+        
+        return [
+          role.name,
+          role.description || '',
+          role.key,
+          permissionsList
+        ];
+      });
+      
+      // Ajouter l'en-tête au début
+      csvData.unshift(header);
+      
+      // Convertir en format CSV (chaque ligne séparée par un saut de ligne, chaque colonne par une virgule)
+      let csvContent = '';
+      csvData.forEach(row => {
+        // Échapper les valeurs contenant des virgules avec des guillemets
+        const processedRow = row.map(cell => {
+          // Si la cellule contient une virgule, un guillemet ou un saut de ligne, l'entourer de guillemets et échapper les guillemets existants
+          if (cell.includes(',') || cell.includes('"') || cell.includes('\n')) {
+            return `"${cell.replace(/"/g, '""')}"`;
+          }
+          return cell;
+        });
+        
+        csvContent += processedRow.join(',') + '\r\n';
+      });
+      
+      // Création et téléchargement du fichier
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `roles_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      this.toastr.success('Export CSV réussi');
+    } catch (error) {
+      console.error('Erreur lors de l\'export CSV:', error);
+      this.toastr.error('Erreur lors de l\'export CSV');
+    }
+  }
+  
+ 
+  exportToExcel(): void {
+    try {
+      if (this.roles.length === 0) {
+        this.toastr.warning('Aucune donnée à exporter');
+        return;
+      }
+      
+      // Préparation des données pour Excel
+      const excelData = this.roles.map(role => {
+        // Convertir les permissions en chaîne lisible
+        const permissionsList = role.permissions
+          .map((perm: string) => this.getPermissionName(perm))
+          .join('; ');
+        
+        return {
+          'Nom': role.name,
+          'Description': role.description || '',
+          'Clé': role.key,
+          'Permissions': permissionsList
+        };
+      });
+      
+      // Création du workbook et ajout des données
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Rôles');
+      
+      // Ajustement automatique de la largeur des colonnes
+      const maxWidth = excelData.reduce((acc, role) => {
+        const nameWidth = Math.max(acc.nameWidth || 0, role.Nom.length);
+        const descWidth = Math.max(acc.descWidth || 0, (role.Description || '').length);
+        const keyWidth = Math.max(acc.keyWidth || 0, role.Clé.length);
+        const permWidth = Math.max(acc.permWidth || 0, role.Permissions.length);
+        
+        return { nameWidth, descWidth, keyWidth, permWidth };
+      }, { nameWidth: 3, descWidth: 11, keyWidth: 3, permWidth: 11 });
+      
+      // Définir la largeur des colonnes
+      worksheet['!cols'] = [
+        { wch: maxWidth.nameWidth + 2 },
+        { wch: maxWidth.descWidth + 2 },
+        { wch: maxWidth.keyWidth + 2 },
+        { wch: maxWidth.permWidth + 2 }
+      ];
+      
+      // Générer et télécharger le fichier Excel
+      XLSX.writeFile(workbook, `roles_${new Date().toISOString().split('T')[0]}.xlsx`);
+      
+      this.toastr.success('Export Excel réussi');
+    } catch (error) {
+      console.error('Erreur lors de l\'export Excel:', error);
+      this.toastr.error('Erreur lors de l\'export Excel');
+    }
+  }
+  
+ 
+  exportToPdf(): void {
+    try {
+      if (this.roles.length === 0) {
+        this.toastr.warning('Aucune donnée à exporter');
+        return;
+      }
+      
+      // Création du document PDF
+      const doc = new jsPDF();
+      
+      // Titre du document
+      doc.setFontSize(18);
+      doc.text('Liste des Rôles', 14, 22);
+      
+      // Date d'export
+      doc.setFontSize(10);
+      doc.text(`Exporté le ${new Date().toLocaleDateString()}`, 14, 30);
+      
+      // Préparation des données pour le tableau
+      const tableColumn = ['Nom', 'Description', 'Clé', 'Permissions'];
+      
+      const tableRows = this.roles.map(role => {
+        // Convertir les permissions en chaîne lisible
+        const permissionsList = role.permissions
+          .map((perm: string) => this.getPermissionName(perm))
+          .join('; ');
+        
+        return [
+          role.name,
+          role.description || '',
+          role.key,
+          permissionsList
+        ];
+      });
+      
+      // Génération du tableau avec autotable
+      (doc as any).autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 35,
+        styles: {
+          fontSize: 8,
+          cellPadding: 2,
+          lineWidth: 0.5,
+          textColor: [0, 0, 0]
+        },
+        headStyles: {
+          fillColor: [220, 220, 220],
+          textColor: [0, 0, 0],
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245]
+        },
+        margin: { top: 35 },
+        columnStyles: {
+          0: { cellWidth: 30 },
+          1: { cellWidth: 50 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 'auto' }
+        }
+      });
+      
+      // Enregistrement du PDF
+      doc.save(`roles_${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      this.toastr.success('Export PDF réussi');
+    } catch (error) {
+      console.error('Erreur lors de l\'export PDF:', error);
+      this.toastr.error('Erreur lors de l\'export PDF');
+    }
+  }
+  
+  // Fonction utilitaire pour formater les données pour l'exportation
+  private formatRoleDataForExport(): any[] {
+    return this.roles.map(role => {
+      // Récupérer et formater les noms des permissions
+      const permissionsText = role.permissions
+        .map((perm: string) => this.getPermissionName(perm))
+        .join(', ');
+      
+      return {
+        nom: role.name,
+        description: role.description || '',
+        cle: role.key,
+        permissions: permissionsText
+      };
+    });
   }
 
 }

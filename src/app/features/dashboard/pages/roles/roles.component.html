@@ -1,10 +1,6 @@
 <div class="content fs-6 d-flex flex-column flex-column-fluid" id="kt_content">
   <!--begin::Toolbar-->
-  <app-loading
-    *ngIf="isLoading"
-    [message]="loadingMessage"
-    [overlay]="true"
-  ></app-loading>
+  <app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading>
   <div class="toolbar" id="kt_toolbar">
     <div class=" container-fluid  d-flex flex-stack flex-wrap flex-sm-nowrap">
       <!--begin::Info-->
@@ -20,18 +16,25 @@
       </div>
       <div class="d-flex align-items-center flex-nowrap text-nowrap py-1">
         <div class="d-flex align-items-center position-relative my-1 ms-2 me-2">
-          <input type="text"
-                 name="searchQuery"
-                 class="form-control form-control-solid w-250px ps-13"
-                 placeholder="Rechercher un utilisateur"
-                 [(ngModel)]="searchQuery"
-                 (keyup)="applyFilters()" />
+          <input type="text" name="searchQuery" class="form-control form-control-solid w-250px ps-13"
+            placeholder="Rechercher un rôle" [(ngModel)]="searchQuery" (keyup)="applyFilters()" />
         </div>
-        <button type="button" class="btn btn-light-primary me-3"
-                data-bs-toggle="modal" data-bs-target="#kt_modal_export_users">
-          <i class="ki-duotone ki-exit-up fs-2"><span class="path1"></span><span class="path2"></span></i>
-          Export
-        </button>
+   <!--      <div class="d-flex justify-content-end mb-3"> -->
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light-primary dropdown-toggle me-3" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="ki-duotone ki-exit-up fs-2">
+                <span class="path1"></span>
+                <span class="path2"></span>
+              </i>
+              Exporter
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+              <li><a class="dropdown-item" (click)="exportToCsv()">Exporter en CSV</a></li>
+              <li><a class="dropdown-item" (click)="exportToExcel()">Exporter en Excel</a></li>
+              <li><a class="dropdown-item" (click)="exportToPdf()">Exporter en PDF</a></li>
+            </ul>
+          </div>
+        <!-- </div> -->
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_role">
           <i class="ki-duotone ki-plus fs-2"></i> Nouveau
         </button>
@@ -75,28 +78,41 @@
             <!--begin::Card footer-->
             <div class="card-footer flex-wrap pt-0">
               <div class="dropdown">
-                <button class="btn btn-light btn-active-light-primary dropdown-toggle"
-                        type="button"
-                        (click)="toggleDropdown($event)">
+                <button class="btn btn-light btn-active-light-primary dropdown-toggle" type="button"
+                  (click)="toggleDropdown($event)">
                   Actions
 
                   <span class="svg-icon svg-icon-5 m-0">
 
-      </span>
+                  </span>
                 </button>
                 <ul class="dropdown-menu">
                   <li>
                     <a class="dropdown-item" (click)="openViewModal(role)">
+                      <i class="ki-duotone ki-eye fs-4 me-2">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                        <span class="path3"></span>
+                      </i>
                       Consulter
                     </a>
                   </li>
                   <li>
                     <a class="dropdown-item" (click)="editRole(role)">
+                      <i class="ki-duotone ki-pencil fs-4 me-2">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                      </i>
                       Modifier
                     </a>
                   </li>
                   <li>
                     <a class="dropdown-item text-danger" (click)="openDeleteModal(role)">
+                      <i class="ki-duotone ki-trash fs-4 me-2">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                        <span class="path3"></span>
+                      </i>
                       Supprimer
                     </a>
                   </li>
@@ -114,11 +130,10 @@
             <!--begin::Card body-->
             <div class="card-body d-flex flex-center">
               <!--begin::Button-->
-              <button type="button" class="btn btn-clear d-flex flex-column flex-center"
-                      data-bs-toggle="modal" data-bs-target="#kt_modal_add_role">
+              <button type="button" class="btn btn-clear d-flex flex-column flex-center" data-bs-toggle="modal"
+                data-bs-target="#kt_modal_add_role">
                 <!--begin::Illustration-->
-                <img src="../../../assets/media/illustrations/sigma-1/4.png" alt=""
-                     class="mw-100 mh-150px mb-7" />
+                <img src="../../../assets/media/illustrations/sigma-1/4.png" alt="" class="mw-100 mh-150px mb-7" />
                 <!--end::Illustration-->
 
                 <!--begin::Label-->
@@ -145,8 +160,9 @@
             <!-- Modal Header -->
             <div class="modal-header">
               <h2 class="fw-bold">Ajouter un nouveau Role</h2>
-              <div class="btn btn-icon btn-sm btn-active-icon-primary" data-kt-roles-modal-action="close"  >
-                <i class="ki-duotone ki-cross fs-1" (click)="closeModal()">
+              <div class="btn btn-icon btn-sm btn-active-icon-primary" data-kt-roles-modal-action="close"
+                (click)="closeModal(); hideOverlay()">
+                <i class="ki-duotone ki-cross fs-1">
                   <span class="path1"></span>
                   <span class="path2"></span>
                 </i>
@@ -157,15 +173,20 @@
             <div class="modal-body scroll-y mx-lg-5 my-7">
               <form [formGroup]="roleForm" (ngSubmit)="onSubmit()" id="kt_modal_add_role_form" class="form">
                 <!-- Scroll Area -->
-                <div class="d-flex flex-column scroll-y me-n7 pe-7" id="kt_modal_add_role_scroll" data-kt-scroll="true" data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_add_role_header" data-kt-scroll-wrappers="#kt_modal_add_role_scroll" data-kt-scroll-offset="300px">
+                <div class="d-flex flex-column scroll-y me-n7 pe-7" id="kt_modal_add_role_scroll" data-kt-scroll="true"
+                  data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-max-height="auto"
+                  data-kt-scroll-dependencies="#kt_modal_add_role_header"
+                  data-kt-scroll-wrappers="#kt_modal_add_role_scroll" data-kt-scroll-offset="300px">
 
                   <!-- Role Name Input -->
                   <div class="fv-row mb-10">
                     <label class="fs-5 fw-bold form-label mb-2">
                       <span class="required">Nom du Role</span>
                     </label>
-                    <input formControlName="name" class="form-control form-control-solid" placeholder="Enter a role name" />
-                    <div *ngIf="roleForm.get('name')?.touched && roleForm.get('name')?.errors?.['required']" class="invalid-feedback">
+                    <input formControlName="name" class="form-control form-control-solid"
+                      placeholder="Enter a role name" />
+                    <div *ngIf="roleForm.get('name')?.touched && roleForm.get('name')?.errors?.['required']"
+                      class="invalid-feedback">
                       Le nom du role est requis
                     </div>
                   </div>
@@ -173,7 +194,8 @@
                   <!-- Role Description -->
                   <div class="fv-row mb-10">
                     <label class="fs-5 fw-bold form-label mb-2">Description du Role</label>
-                    <textarea formControlName="description" class="form-control form-control-solid" rows="3" placeholder="Enter role description"></textarea>
+                    <textarea formControlName="description" class="form-control form-control-solid" rows="3"
+                      placeholder="Enter role description"></textarea>
                   </div>
 
                   <!-- Permissions Section -->
@@ -184,41 +206,39 @@
                     <div class="table-responsive">
                       <table class="table align-middle table-row-dashed fs-6 gy-5">
                         <tbody class="text-gray-600 fw-semibold">
-                        <!-- Administrator Access Row -->
-                        <tr>
-                          <td class="text-gray-800">
-                            Les Access Administrateur
-                            <span class="ms-2" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true" data-bs-content="Allows a full access to the system">
-              <i class="ki-duotone ki-information fs-7">
-                <span class="path1"></span>
-                <span class="path2"></span>
-                <span class="path3"></span>
-              </i>
-            </span>
-                          </td>
-                          <td>
-                            <label class="form-check form-check-custom form-check-solid me-9">
-                              <input
-                                class="form-check-input"
-                                type="checkbox"
-                                (change)="selectAllPermissions($event)"
-                                [checked]="isAllPermissionsSelected()" />
-                              <span class="form-check-label">Tout sélectionner</span>
-                            </label>
-                          </td>
-                        </tr>
+                          <!-- Administrator Access Row -->
+                          <tr>
+                            <td class="text-gray-800">
+                              Les Access Administrateur
+                              <span class="ms-2" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-html="true"
+                                data-bs-content="Allows a full access to the system">
+                                <i class="ki-duotone ki-information fs-7">
+                                  <span class="path1"></span>
+                                  <span class="path2"></span>
+                                  <span class="path3"></span>
+                                </i>
+                              </span>
+                            </td>
+                            <td>
+                              <label class="form-check form-check-custom form-check-solid me-9">
+                                <input class="form-check-input" type="checkbox" (change)="selectAllPermissions($event)"
+                                  [checked]="isAllPermissionsSelected()" />
+                                <span class="form-check-label">Tout sélectionner</span>
+                              </label>
+                            </td>
+                          </tr>
 
-                        <!-- Permission Groups with Collapse -->
-                        <ng-container formGroupName="permissions">
-                          <tr *ngFor="let group of permissionGroups | keyvalue">
-                            <td colspan="2">
-                              <div class="accordion" [id]="'accordion_' + group.key">
-                                <div class="accordion-item border-0">
-                                  <!-- Group Header -->
-                                  <div class="accordion-header" [id]="'heading_' + group.key">
+                          <!-- Permission Groups with Collapse -->
+                          <ng-container formGroupName="permissions">
+                            <tr *ngFor="let group of permissionGroups | keyvalue">
+                              <td colspan="2">
+                                <div class="accordion" [id]="'accordion_' + group.key">
+                                  <div class="accordion-item border-0">
+                                    <!-- Group Header -->
+                                    <!--  <div class="accordion-header" [id]="'heading_' + group.key">
                                     <div class="accordion-button collapsed py-3"
-     (click)="toggleAccordion($event, group.key)"
-     [attr.data-bs-target]="'#collapse_' + group.key">
+                                        (click)="toggleAccordion($event, group.key)"
+                                        [attr.data-bs-target]="'#collapse_' + group.key">
                                       <div class="d-flex align-items-center w-100">
                                         <label class="form-check form-check-custom form-check-solid me-3">
                                           <input
@@ -230,34 +250,48 @@
                                         <span class="fs-5 fw-semibold">{{ group.key }}</span>
                                       </div>
                                     </div>
-                                  </div>
+                                  </div> -->
 
-                                  <!-- Group Content -->
-                                  <div [id]="'collapse_' + group.key"
-                                       class="accordion-collapse collapse"
-                                       [attr.aria-labelledby]="'heading_' + group.key"
-                                       [attr.data-bs-parent]="'#accordion_' + group.key">
-                                    <div class="accordion-body py-3">
-                                      <div class="d-flex flex-column ps-9" [formGroupName]="group.key">
-                                        <div formGroupName="permissions">
-                                          <ng-container *ngFor="let perm of group.value">
-                                            <label class="form-check form-check-custom form-check-solid mb-3">
-                                              <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                [formControlName]="perm.key" />
-                                              <span class="form-check-label ms-2">{{ perm.name }}</span>
-                                            </label>
-                                          </ng-container>
+                                    <!-- Partie à corriger dans votre code -->
+                                    <div class="accordion-header" [id]="'heading_' + group.key">
+                                      <div class="accordion-button collapsed py-3"
+                                        (click)="toggleAccordion($event, group.key)"
+                                        [attr.data-bs-target]="'#collapse_' + group.key">
+                                        <div class="d-flex align-items-center w-100">
+                                          <label class="form-check form-check-custom form-check-solid me-3"
+                                            (click)="$event.stopPropagation()">
+                                            <input class="form-check-input" type="checkbox"
+                                              [checked]="isGroupFullySelected(group.key)"
+                                              (change)="updateChildControls(group.key, $event)" />
+                                          </label>
+                                          <span class="fs-5 fw-semibold">{{ group.key }}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <!-- Group Content -->
+                                    <div [id]="'collapse_' + group.key" class="accordion-collapse collapse"
+                                      [attr.aria-labelledby]="'heading_' + group.key"
+                                      [attr.data-bs-parent]="'#accordion_' + group.key">
+                                      <div class="accordion-body py-3">
+                                        <div class="d-flex flex-column ps-9" [formGroupName]="group.key">
+                                          <div formGroupName="permissions">
+                                            <ng-container *ngFor="let perm of group.value">
+                                              <label class="form-check form-check-custom form-check-solid mb-3">
+                                                <input class="form-check-input" type="checkbox"
+                                                  [formControlName]="perm.key" />
+                                                <span class="form-check-label ms-2">{{ perm.name }}</span>
+                                              </label>
+                                            </ng-container>
+                                          </div>
                                         </div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            </td>
-                          </tr>
-                        </ng-container>
+                              </td>
+                            </tr>
+                          </ng-container>
                         </tbody>
                       </table>
                     </div>
@@ -266,23 +300,16 @@
 
                 <!-- Form Actions -->
                 <div class="text-center pt-15">
-                  <button
-                    type="button"
-                    class="btn btn-light me-3"
-                    (click)="discardForm()"
-                    [disabled]="submitting">
+                  <button type="button" class="btn btn-light me-3" (click)="discardForm()" [disabled]="submitting">
                     Retourner
                   </button>
 
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    [disabled]="roleForm.invalid || submitting">
+                  <button type="submit" class="btn btn-primary" [disabled]="roleForm.invalid || submitting">
                     <span class="indicator-label" *ngIf="!submitting">Envoyer</span>
                     <span class="indicator-progress" *ngIf="submitting">
-                Veuillez patienter...
-                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-              </span>
+                      Veuillez patienter...
+                      <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                    </span>
                   </button>
                 </div>
               </form>
@@ -314,17 +341,15 @@
                     <label class="fs-5 fw-bold form-label mb-2">
                       <span class="required">Nom du Role</span>
                     </label>
-                    <input class="form-control form-control-solid"
-                           formControlName="name"
-                           placeholder="Enter a role name" />
+                    <input class="form-control form-control-solid" formControlName="name"
+                      placeholder="Enter a role name" />
                   </div>
 
                   <!-- Description -->
                   <div class="fv-row mb-10">
                     <label class="fs-5 fw-bold form-label mb-2">Description du Role</label>
-                    <input class="form-control form-control-solid"
-                           formControlName="description"
-                           placeholder="Enter role description" />
+                    <input class="form-control form-control-solid" formControlName="description"
+                      placeholder="Enter role description" />
                   </div>
 
                   <!-- Permissions avec Accordion -->
@@ -332,10 +357,8 @@
                     <label class="fs-5 fw-bold form-label mb-2 d-flex justify-content-between align-items-center">
                       <span>Les Permissions</span>
                       <div class="form-check form-check-custom form-check-solid">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               (change)="selectAllPermissions($event)"
-                               [checked]="isAllPermissionsSelected()" />
+                        <input class="form-check-input" type="checkbox" (change)="selectAllPermissions($event)"
+                          [checked]="isAllPermissionsSelected()" />
                         <span class="form-check-label ms-2">Tout sélectionner</span>
                       </div>
                     </label>
@@ -344,33 +367,36 @@
                     <div class="accordion mt-5" id="permissionsAccordion" [formGroupName]="'permissions'">
                       <div class="accordion-item mb-3" *ngFor="let group of permissionGroups | keyvalue">
                         <div class="accordion-header" [id]="'heading' + group.key">
-                          <div class="accordion-button collapsed py-3"
-                               data-bs-toggle="collapse"
-                               [attr.data-bs-target]="'#collapse' + group.key"
-                               [attr.aria-expanded]="false"
-                               [attr.aria-controls]="'collapse' + group.key">
+                          <!--  <div class="accordion-button collapsed py-3" data-bs-toggle="collapse"
+                            [attr.data-bs-target]="'#collapse' + group.key" [attr.aria-expanded]="false"
+                            [attr.aria-controls]="'collapse' + group.key">
                             <div class="form-check form-check-custom form-check-solid me-3">
-                              <input class="form-check-input"
-                                     type="checkbox"
-                                     [checked]="isGroupFullySelected(group.key)"
-                                     (change)="updateChildControls(group.key, $event)"
-                                     (click)="$event.stopPropagation()" />
+                              <input class="form-check-input" type="checkbox"
+                                [checked]="isGroupFullySelected(group.key)"
+                                (change)="updateChildControls(group.key, $event)" (click)="$event.stopPropagation()" />
+                            </div>
+                            <span class="fw-bold">{{group.key}}</span>
+                          </div> -->
+
+                          <div class="accordion-button collapsed py-3" data-bs-toggle="collapse"
+                            [attr.data-bs-target]="'#collapse' + group.key" [attr.aria-expanded]="false"
+                            [attr.aria-controls]="'collapse' + group.key">
+                            <div class="form-check form-check-custom form-check-solid me-3">
+                              <input class="form-check-input" type="checkbox"
+                                [checked]="isGroupFullySelected(group.key)"
+                                (change)="updateChildControls(group.key, $event)" (click)="$event.stopPropagation()" />
                             </div>
                             <span class="fw-bold">{{group.key}}</span>
                           </div>
                         </div>
 
-                        <div [id]="'collapse' + group.key"
-                             class="accordion-collapse collapse"
-                             [attr.aria-labelledby]="'heading' + group.key"
-                             data-bs-parent="#permissionsAccordion">
+                        <div [id]="'collapse' + group.key" class="accordion-collapse collapse"
+                          [attr.aria-labelledby]="'heading' + group.key" data-bs-parent="#permissionsAccordion">
                           <div class="accordion-body px-3 ps-9" [formGroupName]="group.key">
                             <div formGroupName="permissions" class="d-flex flex-column gap-3 ps-5">
                               <label *ngFor="let perm of group.value"
-                                     class="form-check form-check-custom form-check-solid">
-                                <input class="form-check-input"
-                                       type="checkbox"
-                                       [formControlName]="perm.key"/>
+                                class="form-check form-check-custom form-check-solid">
+                                <input class="form-check-input" type="checkbox" [formControlName]="perm.key" />
                                 <span class="form-check-label ms-2">{{perm.name}}</span>
                               </label>
                             </div>
@@ -383,20 +409,16 @@
 
                 <!-- Actions -->
                 <div class="text-center pt-15">
-                  <button type="button"
-                          class="btn btn-light me-3"
-                          (click)="discardUpdateForm()">
+                  <button type="button" class="btn btn-light me-3" (click)="discardUpdateForm()">
                     Retourner
                   </button>
 
-                  <button type="submit"
-                          class="btn btn-primary"
-                          [disabled]="roleForm.invalid || submitting">
+                  <button type="submit" class="btn btn-primary" [disabled]="roleForm.invalid || submitting">
                     <span class="indicator-label">Envoyer</span>
                     <span class="indicator-progress" *ngIf="submitting">
-                Veuillez patienter...
-                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
-              </span>
+                      Veuillez patienter...
+                      <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                    </span>
                   </button>
                 </div>
               </form>
@@ -436,10 +458,7 @@
 
             <div class="modal-footer">
               <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
-              <button type="button"
-                      class="btn btn-danger"
-                      (click)="confirmDeleteRole()"
-                      [disabled]="submitting">
+              <button type="button" class="btn btn-danger" (click)="confirmDeleteRole()" [disabled]="submitting">
                 <span *ngIf="!submitting">Supprimer</span>
                 <span *ngIf="submitting">Suppression en cours...</span>
               </button>
@@ -488,20 +507,6 @@
                   </div>
                 </div>
 
-                <!-- Métadonnées -->
-                <div class="mb-7">
-                  <h3 class="mb-3">Informations supplémentaires</h3>
-                  <div class="text-gray-600">
-                    <div class="d-flex justify-content-between mb-2">
-                      <span>ID:</span>
-                      <span>{{ selectedRole?._id }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                      <span>Nombre total d'utilisateurs:</span>
-                      <!--<span>{{ selectedRole?.totalUsers || 0 }}</span>-->
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -516,17 +521,17 @@
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-body text-center pt-5 pb-8">
-        <span class="svg-icon svg-icon-warning svg-icon-5x mb-5">
-          <i class="ki-duotone ki-warning fs-5x text-warning">
-            <span class="path1"></span>
-            <span class="path2"></span>
-          </i>
-        </span>
-              <h2>Are you sure you would like to cancel?</h2>
+              <span class="svg-icon svg-icon-warning svg-icon-5x mb-5">
+                <i class="ki-duotone ki-warning fs-5x text-warning">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                </i>
+              </span>
+              <h2>Désolé, il semble y avoir des erreurs détectées, veuillez réessayer.</h2>
             </div>
             <div class="modal-footer justify-content-center border-0 pt-0 pb-6">
-              <button type="button" class="btn btn-primary px-8" onclick="discardChanges()">Yes, cancel it!</button>
-              <button type="button" class="btn btn-light px-8" data-bs-dismiss="modal">No, return</button>
+              <button type="button" class="btn btn-primary px-8" onclick="discardChanges()">Oui, annulez-le !</button>
+              <button type="button" class="btn btn-light px-8" data-bs-dismiss="modal">Non, retourner</button>
             </div>
           </div>
         </div>
@@ -537,23 +542,23 @@
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-body text-center pt-5 pb-8">
-        <span class="svg-icon svg-icon-danger svg-icon-5x mb-5">
-          <i class="ki-duotone ki-cross-circle fs-5x text-danger">
-            <span class="path1"></span>
-            <span class="path2"></span>
-          </i>
-        </span>
-              <h2>Sorry, looks like there are some errors detected, please try again.</h2>
+              <span class="svg-icon svg-icon-danger svg-icon-5x mb-5">
+                <i class="ki-duotone ki-cross-circle fs-5x text-danger">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                </i>
+              </span>
+              <h2>Désolé, il semble y avoir des erreurs détectées, veuillez réessayer.</h2>
             </div>
             <div class="modal-footer justify-content-center border-0 pt-0 pb-6">
-              <button type="button" class="btn btn-primary px-8" data-bs-dismiss="modal">Ok, got it!</button>
+              <button type="button" class="btn btn-primary px-8" data-bs-dismiss="modal">Ok, compris !</button>
             </div>
           </div>
         </div>
       </div>
-      <!--end::Modal - Update role--><!--end::Modals-->
+
     </div>
-    <!--end::Container-->
+
   </div>
-  <!--end::Post-->
+
 </div>
