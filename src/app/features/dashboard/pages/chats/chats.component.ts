@@ -10,6 +10,12 @@ import {map, Observable, Subscription, tap} from 'rxjs';
 import { UsersService } from '../users/services/users.service';
 import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 
+
+interface MediaMessage {
+  type: 'image' | 'video' | 'audio';
+  url: string;
+}
+
 @Component({
   selector: 'app-chats',
   imports: [
@@ -113,6 +119,8 @@ export class ChatsComponent implements OnInit {
     return conversation ? conversation.title : '';
   }
 
+  
+
   sendMessage(text: string): void {
     if (!this.selectedConversationId || !text.trim()) return;
 
@@ -146,6 +154,53 @@ export class ChatsComponent implements OnInit {
       }
     );
   }
+
+
+    sendMediaMessage(mediaMessage: MediaMessage): void {
+      if (!this.selectedConversationId) return;
+      
+      this.chatService.sendMediaMessage(
+        this.selectedConversationId, 
+        mediaMessage.url, 
+        mediaMessage.type
+      ).subscribe(
+        (newMessage) => {
+          // Ajouter le message à la liste locale avec le type de média approprié
+          this.messages = [...this.messages, {
+            ...newMessage,
+            mediaType: mediaMessage.type,
+            timestamp: new Date(newMessage.created_at)
+          }];
+  
+          // Mettre à jour la conversation dans la liste
+          const conversationIndex = this.conversations.findIndex(
+            c => c.id === this.selectedConversationId
+          );
+  
+          if (conversationIndex > -1) {
+            // Texte descriptif selon le type de média
+            const mediaDescriptions = {
+              'image': 'Image',
+              'video': 'Vidéo',
+              'audio': 'Audio'
+            };
+            
+            this.conversations[conversationIndex] = {
+              ...this.conversations[conversationIndex],
+              lastMessage: `[${mediaDescriptions[mediaMessage.type]}]`,
+              lastMessageDate: new Date(newMessage.created_at),
+              messages: [
+                ...this.conversations[conversationIndex].messages,
+                newMessage.id!
+              ]
+            };
+          }
+        },
+        (err) => {
+          console.error(`Erreur lors de l'envoi du ${mediaMessage.type}`, err);
+        }
+      );
+    }
 
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 

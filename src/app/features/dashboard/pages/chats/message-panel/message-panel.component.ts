@@ -2,10 +2,20 @@ import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, 
 import { Message } from '../models/message';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { interval, Subscription } from 'rxjs';
+import { interval, Observable, of, Subscription } from 'rxjs';
 import { ChatService } from '../services/chat.service';
 import { environment } from '../../../../../../environments/environment';
 import { AuthService } from '../../../../../../core/services/auth.service';
+
+
+
+interface MediaMessage {
+  type: 'image' | 'video' | 'audio';
+  url: string;
+}
+
+
+
 
 @Component({
   selector: 'app-message-panel',
@@ -25,10 +35,12 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
   @Input() loading: boolean = false;
   @Input() error: string | null = null;
   @Output() sendMessage = new EventEmitter<string>();
+  @Output() sendMediaMessage = new EventEmitter<MediaMessage>();
 
   newMessage: string = '';
-  selectedImage: File | null = null;
-  selectedImagePreview: string | null = null;
+  selectedMedia: File | null = null;
+  selectedMediaType: 'image' | 'video' | 'audio' | null = null;
+  selectedMediaPreview: string | null = null;
   userId: string = '';
 
   // Contact information
@@ -45,6 +57,7 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
   creatorNames: {[userId: string]: string} = {};
 
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
+  @ViewChild('mediaUpload') mediaUpload!: ElementRef;
 
   constructor(private chatService: ChatService,
     private authService: AuthService
@@ -84,31 +97,48 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
       .substring(0, 2);
   }
 
-  // Remove selected image
-  removeSelectedImage(): void {
-    this.selectedImage = null;
-    this.selectedImagePreview = null;
+  triggerMediaUpload(mediaType: 'image' | 'video' | 'audio'): void {
+    this.selectedMediaType = mediaType;
+    
+    // Configurer les types de fichiers acceptés
+    const acceptTypes = {
+      'image': 'image/*',
+      'video': 'video/*',
+      'audio': 'audio/*'
+    };
+    
+    this.mediaUpload.nativeElement.accept = acceptTypes[mediaType];
+    this.mediaUpload.nativeElement.click();
   }
 
-  // Trigger hidden file input
-  triggerFileInput(): void {
-    document.getElementById('imageUpload')?.click();
-  }
-
-  // Handle image selection
-  handleImageSelect(event: any): void {
+  handleMediaSelect(event: any): void {
     const files = event.target.files;
-    if (files.length > 0) {
-      this.selectedImage = files[0];
+    if (files.length > 0 && this.selectedMediaType) {
+      this.selectedMedia = files[0];
       
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.selectedImagePreview = e.target.result;
-      };
-      if (this.selectedImage) {
-        reader.readAsDataURL(this.selectedImage);
+      // Créer une prévisualisation pour les images
+      if (this.selectedMediaType === 'image') {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.selectedMediaPreview = e.target.result;
+        };
+        if (this.selectedMedia) {
+          reader.readAsDataURL(this.selectedMedia);
+        }
+      } else {
+        // Pour les vidéos et audios, on affiche juste le nom du fichier
+        if (this.selectedMedia) {
+          this.selectedMediaPreview = this.selectedMedia.name;
+        }
+       // this.selectedMediaPreview = this.selectedMedia.name;
       }
     }
+  }
+
+  removeSelectedMedia(): void {
+    this.selectedMedia = null;
+    this.selectedMediaPreview = null;
+    this.selectedMediaType = null;
   }
 
   // Send message
@@ -143,64 +173,110 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
   } */
 
     send(): void {
-      
-      const tempMessage: Message = {
-        id: 'temp_' + Date.now(), 
-        content: this.newMessage,
-        timestamp: new Date(),
-        created_at: new Date().toDateString(),
-        updated_at: new Date().toDateString(),
-        sender: {
-          user_type: 'admin', 
-          userId: this.userId, 
-          name: 'Vous'
-        }
-      };
-    
-      // Ajoutez le message temporaire immédiatement À DROITE
-      this.messages = [...this.messages, tempMessage];
-    
-      // Envoi du message
-      if (this.selectedImage) {
-        this.chatService.uploadImage(this.selectedImage)
+      // Si on a un média sélectionné
+      if (this.selectedMedia && this.selectedMediaType) {
+        // Créer un message temporaire pour l'affichage immédiat
+        const tempMessage: Message = {
+          id: 'temp_' + Date.now(),
+          [this.selectedMediaType + 'Url']: URL.createObjectURL(this.selectedMedia),
+          mediaType: this.selectedMediaType,
+          timestamp: new Date(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          sender: {
+            user_type: 'admin',
+            userId: this.userId,
+            name: 'Vous'
+          }
+        };
+        
+        // Ajouter le message temporaire
+        this.messages = [...this.messages, tempMessage];
+
+        console.log('conversation id', this.conversationId);
+        
+        // Utiliser la nouvelle méthode combinée
+        this.chatService
+          .sendMessageWithMedia(this.conversationId, null, this.selectedMedia, this.selectedMediaType)
           .subscribe({
-            next: (response) => {
-              this.sendMessage.emit(response.imageUrl);
-              this.newMessage = '';
-              this.removeSelectedImage();
+            next: (newMessage) => {
+              // Remplacer le message temporaire par le vrai message
+              this.messages = this.messages.filter(m => m.id !== tempMessage.id);
+              this.messages = [...this.messages, {
+                ...newMessage,
+                timestamp: new Date(newMessage.created_at)
+              }];
               
-              // Remplacez le message temporaire par le message définitif
-              const index = this.messages.findIndex(m => m.id === tempMessage.id);
-              if (index !== -1) {
-                this.messages[index] = { ...tempMessage, content: response.imageUrl };
+              // Émettre le nouveau message pour mettre à jour la liste des conversations
+              // dans le composant parent
+              const mediaType = this.selectedMediaType;
+              if (mediaType) {
+                this.sendMediaMessage.emit({
+                  type: mediaType,
+                  url: newMessage[mediaType + 'Url'] || ''
+                });
               }
               
-              setTimeout(() => this.checkForNewMessages(), 0.1);
+              // Réinitialiser l'état
+              this.removeSelectedMedia();
             },
             error: (error) => {
-              console.error("Error sending image:", error);
-              // Supprimez le message temporaire en cas d'erreur
+              console.error(`Error sending ${this.selectedMediaType}:`, error);
+              // Supprimer le message temporaire en cas d'erreur
               this.messages = this.messages.filter(m => m.id !== tempMessage.id);
             }
           });
+        
         return;
       }
-    
+      
       // Envoi de message texte
       if (this.newMessage?.trim()) {
-        this.sendMessage.emit(this.newMessage);
-        this.newMessage = '';
-    
-        const textarea = document.querySelector('.composer-input') as HTMLTextAreaElement;
-        if (textarea) {
-          textarea.style.height = 'auto';
-        }
-    
-        setTimeout(() => this.checkForNewMessages(), 0.1);
+        const tempMessage: Message = {
+          id: 'temp_' + Date.now(),
+          content: this.newMessage,
+          timestamp: new Date(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          sender: {
+            user_type: 'admin',
+            userId: this.userId,
+            name: 'Vous'
+          }
+        };
+        
+        // Ajouter le message temporaire immédiatement
+        this.messages = [...this.messages, tempMessage];
+        
+        // Envoi du message
+        this.chatService.sendMessage(this.conversationId, this.newMessage).subscribe({
+          next: (newMessage) => {
+            // Remplacer le message temporaire par le vrai message
+            this.messages = this.messages.filter(m => m.id !== tempMessage.id);
+            this.messages = [...this.messages, {
+              ...newMessage,
+              timestamp: new Date(newMessage.created_at)
+            }];
+            
+            // Émettre le nouveau message texte
+            this.sendMessage.emit(this.newMessage);
+            
+            this.newMessage = '';
+            
+            const textarea = document.querySelector('.composer-input') as HTMLTextAreaElement;
+            if (textarea) {
+              textarea.style.height = 'auto';
+            }
+          },
+          error: (err) => {
+            console.error('Erreur lors de l\'envoi du message', err);
+            // Supprimer le message temporaire en cas d'erreur
+            this.messages = this.messages.filter(m => m.id !== tempMessage.id);
+          }
+        });
       }
     }
 
-  // Check for new messages
   private checkForNewMessages() {
     if (!this.conversationId) return;
 
@@ -274,15 +350,37 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
     return this.getMessageDate(currentMessage) !== this.getMessageDate(previousMessage);
   }
 
-  // Check if content is an image URL
   isImageUrl(content: string): boolean {
     if (!content) return false;
     
     const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.svg'];
     
     const isImageExtension = imageExtensions.some(ext => content.toLowerCase().endsWith(ext));
-    const isValidUrl = content.startsWith('/uploads/');
+    const isValidUrl = content.startsWith('/uploads/') || content.startsWith('http');
     
     return isValidUrl && isImageExtension;
   }
+  
+  isVideoUrl(content: string): boolean {
+    if (!content) return false;
+    
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi'];
+    
+    const isVideoExtension = videoExtensions.some(ext => content.toLowerCase().endsWith(ext));
+    const isValidUrl = content.startsWith('/uploads/') || content.startsWith('http');
+    
+    return isValidUrl && isVideoExtension;
+  }
+  
+  isAudioUrl(content: string): boolean {
+    if (!content) return false;
+    
+    const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a'];
+    
+    const isAudioExtension = audioExtensions.some(ext => content.toLowerCase().endsWith(ext));
+    const isValidUrl = content.startsWith('/uploads/') || content.startsWith('http');
+    
+    return isValidUrl && isAudioExtension;
+  }
+  
 }

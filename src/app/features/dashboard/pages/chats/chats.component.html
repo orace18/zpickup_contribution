@@ -20,6 +20,7 @@
     <div class="message-view" *ngIf="selectedConversationId; else noConversation">
       <!-- Message panel component -->
       <app-message-panel
+        [conversationId]="selectedConversationId"
         [messages]="getConversationMessage(selectedConversationId)"
         [conversationTitle]="getConversationTitle()"
         [loading]="loading"

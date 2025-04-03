@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of, forkJoin } from 'rxjs';
-import { map, switchMap, tap, mergeMap } from 'rxjs/operators';
+import { Observable, of, forkJoin, throwError } from 'rxjs';
+import { map, switchMap, tap, mergeMap, catchError } from 'rxjs/operators';
 import { environment } from '../../../../../../environments/environment';
 import { Conversation } from '../models/conversation';
 import { Message } from '../models/message';
 import { User } from '../../home/models/users.model';
+
+
 
 
 @Injectable({
@@ -202,7 +204,7 @@ export class ChatService {
               lastMessage: 'Pas de messages',
               lastMessageDate: new Date(conversation.updated_at)
             });
-          }
+          }; 
 
           // Récupérer tous les messages de la conversation pour trouver le dernier
           return this.getMessagesByConversationId(conversation.id).pipe(
@@ -320,8 +322,108 @@ export class ChatService {
     );
   }
 
+
+sendMessageWithMedia(conversationId: string, text: string | null, file: File | null, mediaType?: 'image' | 'video' | 'audio'): Observable<Message> {
+  // Si on a un fichier, on l'upload d'abord puis on envoie le message
+  if (file && mediaType) {
+    return this.uploadMedia(file, mediaType).pipe(
+      tap(response => {
+        console.log('Upload réussi:', response);
+      }),
+      switchMap(response => {
+        const mediaUrl = response.mediaUrl; 
+        return this.sendMediaMessage(conversationId, mediaUrl, mediaType);
+      })
+    );
+  }
+  // Sinon, on envoie simplement un message texte
+  else if (text) {
+    return this.sendMessage(conversationId, text);
+  }
   
+  // Si ni texte ni média, renvoyer une erreur
+  return throwError(() => new Error('Aucun contenu à envoyer'));
+}
+
+  uploadMedia(file: File, mediaType: 'image' | 'video' | 'audio'): Observable<{ mediaUrl: string, mediaType: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('mediaType', mediaType);
+  
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
+  
+    /* return this.http.post<{ mediaUrl: string, mediaType: string }>(
+      `${this.apiUrl}/discussions/upload/${mediaType}`, 
+      formData, 
+      { headers }
+    ).pipe(
+      tap(response => console.log(`${mediaType.charAt(0).toUpperCase() + mediaType.slice(1)} uploaded successfully:`, response.mediaUrl)), ) ; */
+    
+    // Dans uploadMedia
+return this.http.post<{ mediaUrl: string, mediaType: string }>(
+  `${this.apiUrl}/discussions/upload/${mediaType}`,
+  formData,
+  { headers }
+).pipe(
+  map(response => {
+    // Vérifier si la réponse est au format ancien pour les images
+    if ('imageUrl' in response && typeof response.imageUrl === 'string') {
+      return {
+        mediaUrl: response.imageUrl,
+        mediaType: 'image'
+      };
+    }
+    return response;
+  }),
+  tap(response => console.log(`${mediaType.charAt(0).toUpperCase() + mediaType.slice(1)} uploaded successfully:`, response.mediaUrl))
+);
+
+    }
+
+  // Pour la rétrocompatibilité, on garde la méthode uploadImage qui utilisera uploadMedia en interne
   uploadImage(image: File): Observable<{ imageUrl: string }> {
+    return this.uploadMedia(image, 'image').pipe(
+      map(response => ({ imageUrl: response.mediaUrl }))
+    );
+  }
+  
+  // Nouvelles méthodes pour les vidéos et audios
+  uploadVideo(video: File): Observable<{ videoUrl: string }> {
+    return this.uploadMedia(video, 'video').pipe(
+      map(response => ({ videoUrl: response.mediaUrl }))
+    );
+  }
+  
+  uploadAudio(audio: File): Observable<{ audioUrl: string }> {
+    return this.uploadMedia(audio, 'audio').pipe(
+      map(response => ({ audioUrl: response.mediaUrl }))
+    );
+  }
+  
+  // Méthode pour envoyer un message avec un média attaché
+  sendMediaMessage(conversationId: string, mediaUrl: string, mediaType: 'image' | 'video' | 'audio'): Observable<any> {
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
+    
+    // Structure de données standardisée
+    const messageData = {
+      discussionId: conversationId,
+      mediaUrl: mediaUrl,
+      mediaType: mediaType
+    };
+    
+    console.log('Sending media message with data:', messageData);
+    
+    return this.http.post(`${this.apiUrl}/discussions/message`, messageData, {headers}).pipe(
+      tap(message => console.log(`${mediaType} message sent successfully:`, message)),
+      catchError(error => {
+        console.error(`Error sending ${mediaType} message:`, error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  
+/*   uploadImage(image: File): Observable<{ imageUrl: string }> {
     const formData = new FormData();
     formData.append('file', image);
   
@@ -331,7 +433,7 @@ export class ChatService {
       tap(response => console.log('Image uploaded successfully:', response.imageUrl
       ))
     );
-  }
+  } */
   
   createConversation(title: string): Observable<Conversation> {
     console.log(`Creating new conversation with title: ${title}`);

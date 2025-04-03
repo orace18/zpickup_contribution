@@ -28,39 +28,117 @@
         {{ getMessageDate(message) }}
       </div>
 
-      <div class="message-row" [ngClass]="isAdmin(message.sender.user_type) ? 'own-message' : 'other-message'">
+      <div class="message-row" [ngClass]="message.sender.userId === userId ? 'own-message' : 'other-message'">
         <!-- Avatar for non-admin messages -->
-        <div class="avatar-container" *ngIf="!isAdmin(message.sender.user_type)">
-          <ng-container *ngIf="message.sender.avatar; else initialAvatar">
+        <div class="avatar-container" *ngIf="message.sender?.userId !== userId">
+          <!-- <ng-container *ngIf="message.sender?.avatar; else initialAvatar">
             <img [src]="message.sender.avatar" class="avatar" alt="Contact avatar">
-          </ng-container>
+          </ng-container> -->
           <ng-template #initialAvatar>
             <div class="initial-avatar">
-              {{ getInitials(creatorNames[message.sender.userId]) }}
+              {{ getInitials(message.sender.name || '') }}
             </div>
           </ng-template>
         </div>
       
         <div class="message-container">
           <!-- Sender name for non-admin messages -->
-          <div class="message-header" *ngIf="!isAdmin(message.sender.user_type)">
+          <div class="message-header" *ngIf="message.sender?.userId !== userId">
             <span class="sender-name">{{ message.sender.name }}</span>
           </div>
       
+          <!-- <div class="message-bubble">
+            <div class="message-content">
+              
+              
+           
+              <ng-container *ngIf="message.mediaType === 'image' || message.imageUrl || (message.content && isImageUrl(message.content))">
+                <img 
+                  [src]="message.imageUrl || (message.content?.startsWith('http') ? message.content : imageURI + message.content)" 
+                  class="message-image" 
+                  alt="Image"
+                  (load)="scrollContainer.scrollTop = scrollContainer.scrollHeight"
+                >
+              </ng-container>
+           
+              <ng-container *ngIf="message.mediaType === 'video' || message.videoUrl || (message.content && isVideoUrl(message.content))">
+                <video controls class="message-video" (loadeddata)="scrollContainer.scrollTop = scrollContainer.scrollHeight">
+                  <source 
+                    [src]="message.videoUrl || (message.content?.startsWith('http') ? message.content : imageURI + message.content)" 
+                    type="video/mp4"
+                  >
+                  Votre navigateur ne prend pas en charge la lecture vidéo.
+                </video>
+              </ng-container>
+              
+              
+              <ng-container *ngIf="message.mediaType === 'audio' || message.audioUrl || (message.content && isAudioUrl(message.content))">
+                <audio controls class="message-audio" (loadeddata)="scrollContainer.scrollTop = scrollContainer.scrollHeight">
+                  <source 
+                    [src]="message.audioUrl || (message.content?.startsWith('http') ? message.content : imageURI + message.content)" 
+                    type="audio/mpeg"
+                  >
+                  Votre navigateur ne prend pas en charge la lecture audio.
+                </audio>
+              </ng-container>
+              
+              
+              <ng-container *ngIf="message.content && !message.mediaType && !message.imageUrl && !message.videoUrl && !message.audioUrl && !isImageUrl(message.content) && !isVideoUrl(message.content) && !isAudioUrl(message.content)">
+                {{ message.content }}
+              </ng-container>
+            </div>
+          </div> -->
+      
+
           <div class="message-bubble">
             <div class="message-content">
-              <!-- Check if content is an image URL -->
-              <ng-container *ngIf="message.content && isImageUrl(message.content); else textContent">
-                <img [src]="imageURI + message.content" class="message-image" alt="Uploaded image">
+              <!-- Gestion conditionnelle du contenu basée sur mediaType -->
+              
+              <!-- Image -->
+              <ng-container *ngIf="message.mediaType === 'image'">
+                <div class="media-container">
+                  <img 
+                    [src]="message.mediaUrl?.startsWith('http') ? message.mediaUrl : imageURI + message.mediaUrl" 
+                    class="message-image" 
+                    alt="Image"
+                    (load)="scrollContainer.scrollTop = scrollContainer.scrollHeight"
+                  >
+                  <a [href]="message.mediaUrl" download class="download-button">Télécharger</a>
+                </div>
               </ng-container>
-              <ng-template #textContent>
+              
+              <!-- Vidéo -->
+              <ng-container *ngIf="message.mediaType === 'video'">
+                <div class="media-container">
+                  <video controls class="message-video" (loadeddata)="scrollContainer.scrollTop = scrollContainer.scrollHeight">
+                    <source 
+                      [src]="message.mediaUrl?.startsWith('http') ? message.mediaUrl : imageURI + message.mediaUrl" 
+                      type="video/mp4"
+                    >
+                    Votre navigateur ne prend pas en charge la lecture vidéo.
+                  </video>
+                  <a [href]="message.mediaUrl" download class="download-button">Télécharger</a>
+                </div>
+              </ng-container>
+              
+              <!-- Audio -->
+              <ng-container *ngIf="message.mediaType === 'audio'">
+                <audio controls class="message-audio" (loadeddata)="scrollContainer.scrollTop = scrollContainer.scrollHeight">
+                  <source 
+                    [src]="message.mediaUrl?.startsWith('http') ? message.mediaUrl : imageURI + message.mediaUrl" 
+                    type="audio/mpeg"
+                  >
+                  Votre navigateur ne prend pas en charge la lecture audio.
+                </audio>
+              </ng-container>
+              
+              <!-- Texte (seulement si ce n'est pas un média) -->
+              <ng-container *ngIf="message.mediaType !== 'image' && message.mediaType !== 'video' && message.mediaType !== 'audio'">
                 {{ message.content }}
-              </ng-template>
+              </ng-container>
             </div>
-            <!-- Display additional image if present -->
-            <img *ngIf="message.imageUrl" [src]="message.imageUrl" class="message-image" alt="Message image">
           </div>
-      
+          
           <!-- Message timestamp -->
           <div class="message-footer">
             <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
@@ -69,25 +147,57 @@
       </div>
     </ng-container>
 
+    <!-- Loading indicator -->
+    <div class="loading-indicator" *ngIf="loading">
+      <div class="spinner"></div>
+    </div>
+
     <!-- Error message -->
     <div class="error-message" *ngIf="error">{{ error }}</div>
   </div>
 
   <!-- Message Composer -->
   <div class="message-composer">
-    <!-- Hidden file input for image upload -->
-    <input type="file" id="imageUpload" (change)="handleImageSelect($event)" accept="image/*" style="display: none;" />
+    <!-- Hidden file input for media upload -->
+    <input 
+      type="file" 
+      #mediaUpload
+      (change)="handleMediaSelect($event)" 
+      style="display: none;" 
+    />
 
-    <!-- Image upload button -->
-    <button class="action-button file-button" (click)="triggerFileInput()" title="Add Image">
-      <i class="bi bi-image" style="color: #796ce7;"></i>
-    </button>
+    <!-- Media buttons -->
+    <div class="media-buttons">
+      <button class="action-button" (click)="triggerMediaUpload('image')" title="Ajouter une image">
+        <i class="bi bi-image" style="color: #796ce7;"></i>
+      </button>
+      <button class="action-button" (click)="triggerMediaUpload('video')" title="Ajouter une vidéo">
+        <i class="bi bi-camera-video" style="color: #796ce7;"></i>
+      </button>
+      <button class="action-button" (click)="triggerMediaUpload('audio')" title="Ajouter un audio">
+        <i class="bi bi-mic" style="color: #796ce7;"></i>
+      </button>
+    </div>
 
-    <!-- Selected image preview -->
-    <div class="selected-image-preview" *ngIf="selectedImage">
+    <!-- Selected media preview -->
+    <div class="selected-media-preview" *ngIf="selectedMedia">
       <div class="preview-container">
-        <img [src]="selectedImagePreview" alt="Image to send" class="preview-image">
-        <button class="remove-image-btn" (click)="removeSelectedImage()">
+        <!-- Image preview -->
+        <img *ngIf="selectedMediaType === 'image'" [src]="selectedMediaPreview" alt="Image à envoyer" class="preview-image">
+        
+        <!-- Video preview -->
+        <div *ngIf="selectedMediaType === 'video'" class="media-preview">
+          <i class="bi bi-camera-video-fill"></i>
+          <span class="media-filename">{{ selectedMedia.name }}</span>
+        </div>
+        
+        <!-- Audio preview -->
+        <div *ngIf="selectedMediaType === 'audio'" class="media-preview">
+          <i class="bi bi-file-music-fill"></i>
+          <span class="media-filename">{{ selectedMedia.name }}</span>
+        </div>
+        
+        <button class="remove-media-btn" (click)="removeSelectedMedia()">
           <i class="bi bi-x-circle-fill"></i>
         </button>
       </div>
@@ -100,16 +210,17 @@
         (input)="autoResize($event)" 
         [disabled]="loading"
         rows="1" 
-        placeholder="Type a message">
+        placeholder="Écrivez un message..."
+        (keydown.enter)="$event.preventDefault(); send()">
       </textarea>
     </div>
 
     <!-- Send button -->
     <button 
       class="send-button" 
-      [disabled]="loading || (!newMessage.trim() && !selectedImage)" 
+      [disabled]="loading || (!newMessage.trim() && !selectedMedia)" 
       (click)="send()"
-      title="Send">
+      title="Envoyer">
       <i class="bi bi-send-fill"></i>
     </button>
   </div>
