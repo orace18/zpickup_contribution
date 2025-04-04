@@ -5,7 +5,7 @@ import { MessagePayload } from 'firebase/messaging';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
-import { ToastrService } from 'ngx-toastr'; // Vous devrez installer cette bibliothèque
+import { ToastrService } from 'ngx-toastr'; 
 
 @Injectable({
   providedIn: 'root'

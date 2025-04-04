@@ -141,36 +141,6 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
     this.selectedMediaType = null;
   }
 
-  // Send message
- /*  send(): void {
-    // Sending with image
-    if (this.selectedImage) {
-      this.chatService.uploadImage(this.selectedImage)
-      .subscribe({
-        next: (response) => {
-          this.sendMessage.emit(response.imageUrl);
-          this.newMessage = '';
-          this.removeSelectedImage();
-          setTimeout(() => this.checkForNewMessages(), 50);
-        },
-        error: (error) => console.error("Error sending image:", error)
-      });
-      return;
-    }
-  
-    // Send text message
-    if (this.newMessage?.trim()) {
-      this.sendMessage.emit(this.newMessage);
-      this.newMessage = '';
-  
-      const textarea = document.querySelector('.composer-input') as HTMLTextAreaElement;
-      if (textarea) {
-        textarea.style.height = 'auto';
-      }
-  
-      setTimeout(() => this.checkForNewMessages(), 10);
-    }
-  } */
 
     send(): void {
       // Si on a un média sélectionné
@@ -232,6 +202,10 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
       
       // Envoi de message texte
       if (this.newMessage?.trim()) {
+        const textarea = document.querySelector('.composer-input') as HTMLTextAreaElement;
+        if (textarea) {
+          textarea.style.height = 'auto';
+        }
         const tempMessage: Message = {
           id: 'temp_' + Date.now(),
           content: this.newMessage,
@@ -259,14 +233,11 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
             }];
             
             // Émettre le nouveau message texte
-            this.sendMessage.emit(this.newMessage);
+           // this.sendMessage.emit(this.newMessage);
             
             this.newMessage = '';
             
-            const textarea = document.querySelector('.composer-input') as HTMLTextAreaElement;
-            if (textarea) {
-              textarea.style.height = 'auto';
-            }
+           
           },
           error: (err) => {
             console.error('Erreur lors de l\'envoi du message', err);

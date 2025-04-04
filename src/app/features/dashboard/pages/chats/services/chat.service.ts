@@ -22,23 +22,23 @@ export class ChatService {
   }
 
   getUsers(): Observable<User[]> {
-   // console.log('Getting all users');
+    // console.log('Getting all users');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
-    return this.http.get<User[]>(this.usersApiUrl, {headers}).pipe(
-     // tap(users => console.log(`Retrieved ${users.length} users`))
+    return this.http.get<User[]>(this.usersApiUrl, { headers }).pipe(
+      // tap(users => console.log(`Retrieved ${users.length} users`))
     );
   }
 
   getUserById(userId: string): Observable<User> {
-   // console.log(`Getting user with ID: ${userId}`);
+    // console.log(`Getting user with ID: ${userId}`);
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
-    return this.http.get<User>(`${this.usersApiUrl}/${userId}`, {headers}).pipe(
-    //  tap(user => console.log('Retrieved user:', user))
+    return this.http.get<User>(`${this.usersApiUrl}/${userId}`, { headers }).pipe(
+      //  tap(user => console.log('Retrieved user:', user))
     );
   }
 
   // Nouvelle méthode pour récupérer les détails des créateurs de conversations
-  getConversationCreatorsDetails(): Observable<{[creatorId: string]: {firstName: string, lastName: string}}> {
+  getConversationCreatorsDetails(): Observable<{ [creatorId: string]: { firstName: string, lastName: string } }> {
     //console.log('Getting details of all conversation creators');
 
     return this.getConversations().pipe(
@@ -53,7 +53,7 @@ export class ChatService {
         return this.getUsers().pipe(
           map(users => {
             // Créer un dictionnaire des créateurs avec leurs noms et prénoms
-            const creatorsMap: {[creatorId: string]: {firstName: string, lastName: string}} = {};
+            const creatorsMap: { [creatorId: string]: { firstName: string, lastName: string } } = {};
 
             users.forEach(user => {
               if (creatorIds.includes(user._id)) {
@@ -73,8 +73,8 @@ export class ChatService {
   }
 
   // Méthode pour obtenir les conversations avec les noms des créateurs
-  getConversationsWithCreatorNames(): Observable<(Conversation & {creatorName: string})[]> {
-  //  console.log('Getting conversations with creator names');
+  getConversationsWithCreatorNames(): Observable<(Conversation & { creatorName: string })[]> {
+    //  console.log('Getting conversations with creator names');
 
     return forkJoin([
       this.getConversations(),
@@ -106,8 +106,8 @@ export class ChatService {
     //console.log('Getting all conversations');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
 
-    return this.http.get<Conversation[]>(`${this.apiUrl}/discussions`, {headers}).pipe(
-     // tap(conversations => console.log(`Retrieved ${conversations.length} conversations`)),
+    return this.http.get<Conversation[]>(`${this.apiUrl}/discussions`, { headers }).pipe(
+      // tap(conversations => console.log(`Retrieved ${conversations.length} conversations`)),
       switchMap(conversations => {
         if (conversations.length === 0) {
           console.log('No conversations found');
@@ -116,9 +116,9 @@ export class ChatService {
 
         // Pour chaque conversation, récupérer le dernier message s'il y en a
         const conversationsWithLastMessage = conversations.map(conversation => {
-         // console.log(`Processing conversation: ${conversation.id}`);
+          // console.log(`Processing conversation: ${conversation.id}`);
           if (conversation.messages.length === 0) {
-           // console.log(`No messages in conversation: ${conversation.id}`);
+            // console.log(`No messages in conversation: ${conversation.id}`);
             return of({
               ...conversation,
               lastMessage: 'Pas de messages',
@@ -130,7 +130,7 @@ export class ChatService {
           return this.getMessagesByConversationId(conversation.id).pipe(
             map(messages => {
               if (messages.length === 0) {
-              //  console.log(`No messages found for conversation: ${conversation.id}`);
+                //  console.log(`No messages found for conversation: ${conversation.id}`);
                 return {
                   ...conversation,
                   lastMessage: 'Pas de messages',
@@ -143,7 +143,7 @@ export class ChatService {
                 (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
               );
               const lastMessage = sortedMessages[0];
-             // console.log(`Last message for conversation ${conversation.id}:`, lastMessage.content);
+              // console.log(`Last message for conversation ${conversation.id}:`, lastMessage.content);
 
               return {
                 ...conversation,
@@ -160,12 +160,12 @@ export class ChatService {
   }
 
   getConversationsWithUserDetails(): Observable<Conversation[]> {
-   // console.log('Getting conversations with user details');
+    // console.log('Getting conversations with user details');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
 
     // Récupérer d'abord toutes les conversations
-    return this.http.get<Conversation[]>(`${this.apiUrl}/discussions`, {headers}).pipe(
-     // tap(conversations => console.log(`Retrieved ${conversations.length} conversations`)),
+    return this.http.get<Conversation[]>(`${this.apiUrl}/discussions`, { headers }).pipe(
+      // tap(conversations => console.log(`Retrieved ${conversations.length} conversations`)),
       // Récupérer tous les utilisateurs une seule fois
       switchMap(conversations => {
         return this.getUsers().pipe(
@@ -187,31 +187,31 @@ export class ChatService {
 
         // Pour chaque conversation, enrichir avec les détails d'utilisateur et le dernier message
         const conversationsWithDetails = conversations.map(conversation => {
-         // console.log(`Processing conversation details: ${conversation.id}`);
+          // console.log(`Processing conversation details: ${conversation.id}`);
           // Récupérer les détails du créateur
           const creator = userMap.get(conversation.creator);
-        //  console.log(`Creator for conversation ${conversation.id}:`, creator?._id || 'Unknown');
+          //  console.log(`Creator for conversation ${conversation.id}:`, creator?._id || 'Unknown');
 
           if (creator) {
             console.log(`Creator name: ${creator.firstname} ${creator.lastname}`);
           }
 
           if (conversation.messages.length === 0) {
-          //  console.log(`No messages in conversation: ${conversation.id}`);
+            //  console.log(`No messages in conversation: ${conversation.id}`);
             return of({
               ...conversation,
               creatorDetails: creator || { firstName: 'Inconnu', lastName: 'Inconnu' },
               lastMessage: 'Pas de messages',
               lastMessageDate: new Date(conversation.updated_at)
             });
-          }; 
+          };
 
           // Récupérer tous les messages de la conversation pour trouver le dernier
           return this.getMessagesByConversationId(conversation.id).pipe(
             //tap(messages => console.log(`Retrieved ${messages.length} messages for conversation: ${conversation.id}`)),
             map(messages => {
               if (messages.length === 0) {
-              //  console.log(`No messages found for conversation: ${conversation.id}`);
+                //  console.log(`No messages found for conversation: ${conversation.id}`);
                 return {
                   ...conversation,
                   creatorDetails: creator || { firstName: 'Inconnu', lastName: 'Inconnu' },
@@ -225,12 +225,12 @@ export class ChatService {
                 (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
               );
               const lastMessage = sortedMessages[0];
-             // console.log(`Last message for conversation ${conversation.id}:`, lastMessage.content);
+              // console.log(`Last message for conversation ${conversation.id}:`, lastMessage.content);
 
               // Enrichir chaque message avec les détails de l'expéditeur
               const enrichedMessages = messages.map(message => {
                 const senderDetails = userMap.get(message.sender.name);
-              //  console.log(`Sender for message ${message.id}:`, senderDetails?._id || 'Unknown');
+                //  console.log(`Sender for message ${message.id}:`, senderDetails?._id || 'Unknown');
                 if (senderDetails) {
                   console.log(`Sender name: ${senderDetails.firstname} ${senderDetails.lastname}`);
                 }
@@ -257,19 +257,19 @@ export class ChatService {
   }
 
   getConversationById(id: string): Observable<Conversation> {
-   // console.log(`Getting conversation with ID: ${id}`);
+    // console.log(`Getting conversation with ID: ${id}`);
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
-    return this.http.get<Conversation>(`${this.apiUrl}/discussions/${id}`, {headers}).pipe(
-    //  tap(conversation => console.log('Retrieved conversation:', conversation.id))
+    return this.http.get<Conversation>(`${this.apiUrl}/discussions/${id}`, { headers }).pipe(
+      //  tap(conversation => console.log('Retrieved conversation:', conversation.id))
     );
   }
 
   getMessagesByConversationId(conversationId: string): Observable<Message[]> {
-   // console.log(`Getting messages for conversation: ${conversationId}`);
+    // console.log(`Getting messages for conversation: ${conversationId}`);
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
 
-    return this.http.get<Message[]>(`${this.apiUrl}/discussions/messages/${conversationId}`, {headers}).pipe(
-     // tap(messages => console.log(`Retrieved ${messages.length} messages for conversation: ${conversationId}`)),
+    return this.http.get<Message[]>(`${this.apiUrl}/discussions/messages/${conversationId}`, { headers }).pipe(
+      // tap(messages => console.log(`Retrieved ${messages.length} messages for conversation: ${conversationId}`)),
       map(messages => messages.map(message => ({
         ...message,
         timestamp: new Date(message.created_at)
@@ -278,14 +278,14 @@ export class ChatService {
   }
 
   getMessagesByConversationIdWithUserDetails(conversationId: string): Observable<Message[]> {
-   // console.log(`Getting messages with user details for conversation: ${conversationId}`);
+    // console.log(`Getting messages with user details for conversation: ${conversationId}`);
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
 
     return forkJoin([
-      this.http.get<Message[]>(`${this.apiUrl}/discussions/messages/${conversationId}`, {headers}),
+      this.http.get<Message[]>(`${this.apiUrl}/discussions/messages/${conversationId}`, { headers }),
       this.getUsers()
     ]).pipe(
-     // tap(([messages, users]) => console.log(`Retrieved ${messages.length} messages and ${users.length} users`)),
+      // tap(([messages, users]) => console.log(`Retrieved ${messages.length} messages and ${users.length} users`)),
       map(([messages, users]) => {
         // Créer un Map pour un accès rapide aux utilisateurs
         const userMap = new Map<string, User>();
@@ -296,7 +296,7 @@ export class ChatService {
           const senderDetails = userMap.get(message.sender.name);
           console.log(`Sender for message ${message.id}:`, senderDetails?._id || 'Unknown');
           if (senderDetails) {
-           // console.log(`Sender name: ${senderDetails.firstname} ${senderDetails.lastname}`);
+            // console.log(`Sender name: ${senderDetails.firstname} ${senderDetails.lastname}`);
           }
           return {
             ...message,
@@ -309,7 +309,7 @@ export class ChatService {
   }
 
   sendMessage(conversationId: string, text: string): Observable<Message> {
-   // console.log(`Sending message to conversation: ${conversationId}`, text);
+    // console.log(`Sending message to conversation: ${conversationId}`, text);
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
 
     const messageData = {
@@ -317,103 +317,94 @@ export class ChatService {
       discussionId: conversationId
     };
 
-    return this.http.post<Message>(`${this.apiUrl}/discussions/message`, messageData, {headers}).pipe(
+    return this.http.post<Message>(`${this.apiUrl}/discussions/message`, messageData, { headers }).pipe(
       tap(message => console.log('Message sent successfully:', message.id))
     );
   }
 
 
-sendMessageWithMedia(conversationId: string, text: string | null, file: File | null, mediaType?: 'image' | 'video' | 'audio'): Observable<Message> {
-  // Si on a un fichier, on l'upload d'abord puis on envoie le message
-  if (file && mediaType) {
-    return this.uploadMedia(file, mediaType).pipe(
-      tap(response => {
-        console.log('Upload réussi:', response);
-      }),
-      switchMap(response => {
-        const mediaUrl = response.mediaUrl; 
-        return this.sendMediaMessage(conversationId, mediaUrl, mediaType);
-      })
-    );
+  sendMessageWithMedia(conversationId: string, text: string | null, file: File | null, mediaType?: 'image' | 'video' | 'audio'): Observable<Message> {
+    // Si on a un fichier, on l'upload d'abord puis on envoie le message
+    if (file && mediaType) {
+      return this.uploadMedia(file, mediaType).pipe(
+        tap(response => {
+          console.log('Upload réussi:', response);
+        }),
+        switchMap(response => {
+          const mediaUrl = response.mediaUrl;
+          return this.sendMediaMessage(conversationId, mediaUrl, mediaType);
+        })
+      );
+    }
+    // Sinon, on envoie simplement un message texte
+    else if (text) {
+      return this.sendMessage(conversationId, text);
+    }
+
+    // Si ni texte ni média, renvoyer une erreur
+    return throwError(() => new Error('Aucun contenu à envoyer'));
   }
-  // Sinon, on envoie simplement un message texte
-  else if (text) {
-    return this.sendMessage(conversationId, text);
-  }
-  
-  // Si ni texte ni média, renvoyer une erreur
-  return throwError(() => new Error('Aucun contenu à envoyer'));
-}
 
   uploadMedia(file: File, mediaType: 'image' | 'video' | 'audio'): Observable<{ mediaUrl: string, mediaType: string }> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('mediaType', mediaType);
-  
+
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
-  
-    /* return this.http.post<{ mediaUrl: string, mediaType: string }>(
-      `${this.apiUrl}/discussions/upload/${mediaType}`, 
-      formData, 
+
+    return this.http.post<{ mediaUrl: string, mediaType: string }>(
+      `${this.apiUrl}/discussions/upload/${mediaType}`,
+      formData,
       { headers }
     ).pipe(
-      tap(response => console.log(`${mediaType.charAt(0).toUpperCase() + mediaType.slice(1)} uploaded successfully:`, response.mediaUrl)), ) ; */
-    
-    // Dans uploadMedia
-return this.http.post<{ mediaUrl: string, mediaType: string }>(
-  `${this.apiUrl}/discussions/upload/${mediaType}`,
-  formData,
-  { headers }
-).pipe(
-  map(response => {
-    // Vérifier si la réponse est au format ancien pour les images
-    if ('imageUrl' in response && typeof response.imageUrl === 'string') {
-      return {
-        mediaUrl: response.imageUrl,
-        mediaType: 'image'
-      };
-    }
-    return response;
-  }),
-  tap(response => console.log(`${mediaType.charAt(0).toUpperCase() + mediaType.slice(1)} uploaded successfully:`, response.mediaUrl))
-);
+      map(response => {
 
-    }
+        if ('imageUrl' in response && typeof response.imageUrl === 'string') {
+          return {
+            mediaUrl: response.imageUrl,
+            mediaType: 'image'
+          };
+        }
+        return response;
+      }),
+      tap(response => console.log(`${mediaType.charAt(0).toUpperCase() + mediaType.slice(1)} uploaded successfully:`, response.mediaUrl))
+    );
 
-  // Pour la rétrocompatibilité, on garde la méthode uploadImage qui utilisera uploadMedia en interne
+  }
+
   uploadImage(image: File): Observable<{ imageUrl: string }> {
     return this.uploadMedia(image, 'image').pipe(
       map(response => ({ imageUrl: response.mediaUrl }))
     );
   }
-  
+
   // Nouvelles méthodes pour les vidéos et audios
   uploadVideo(video: File): Observable<{ videoUrl: string }> {
     return this.uploadMedia(video, 'video').pipe(
       map(response => ({ videoUrl: response.mediaUrl }))
     );
   }
-  
+
   uploadAudio(audio: File): Observable<{ audioUrl: string }> {
     return this.uploadMedia(audio, 'audio').pipe(
       map(response => ({ audioUrl: response.mediaUrl }))
     );
   }
-  
+
   // Méthode pour envoyer un message avec un média attaché
   sendMediaMessage(conversationId: string, mediaUrl: string, mediaType: 'image' | 'video' | 'audio'): Observable<any> {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
-    
+
     // Structure de données standardisée
     const messageData = {
       discussionId: conversationId,
       mediaUrl: mediaUrl,
       mediaType: mediaType
     };
-    
+
     console.log('Sending media message with data:', messageData);
-    
-    return this.http.post(`${this.apiUrl}/discussions/message`, messageData, {headers}).pipe(
+
+    return this.http.post(`${this.apiUrl}/discussions/message`, messageData, { headers }).pipe(
       tap(message => console.log(`${mediaType} message sent successfully:`, message)),
       catchError(error => {
         console.error(`Error sending ${mediaType} message:`, error);
@@ -422,23 +413,11 @@ return this.http.post<{ mediaUrl: string, mediaType: string }>(
     );
   }
 
-  
-/*   uploadImage(image: File): Observable<{ imageUrl: string }> {
-    const formData = new FormData();
-    formData.append('file', image);
-  
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
-  
-    return this.http.post<{ imageUrl: string }>(`${this.apiUrl}/discussions/upload`, formData, { headers }).pipe(
-      tap(response => console.log('Image uploaded successfully:', response.imageUrl
-      ))
-    );
-  } */
-  
+
   createConversation(title: string): Observable<Conversation> {
     console.log(`Creating new conversation with title: ${title}`);
     const headers = new HttpHeaders().set('Authorization', `Bearer ${localStorage.getItem('access_token')}`);
-    return this.http.post<Conversation>(`${this.apiUrl}/discussions`, { title }, {headers}).pipe(
+    return this.http.post<Conversation>(`${this.apiUrl}/discussions`, { title }, { headers }).pipe(
       tap(conversation => console.log('Conversation created successfully:', conversation.id))
     );
   }
