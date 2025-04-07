@@ -1559,8 +1559,8 @@
                       <tr>
                         <th>Date</th>
                         <th>Référence</th>
-                        <th>Type</th>
-                        <th>Montant</th>
+                        <th>Nature</th>
+                        <th>Km</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1574,7 +1574,7 @@
                         </td>
                         <td
                           [ngClass]="{'text-success': history.counter_type === 'input', 'text-danger': history.counter_type === 'output'}">
-                          {{ history.counter_type === 'input' ? '+' : '-' }}{{ history.value | number:'1.2-2' }} XOF
+                          {{ history.counter_type === 'input' ? '+' : '-' }}{{ history.value | number:'1.2-2' }} KM
                         </td>
                       </tr>
                     </tbody>
