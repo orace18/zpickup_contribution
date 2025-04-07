@@ -243,7 +243,7 @@
   <!-- Modal de détails -->
   <ng-template #historyModal let-modal>
     <div class="modal-header">
-      <h4 class="modal-title">Détails de la course</h4>
+      <h4 class="modal-title">Détails de la course #{{selectedRace.reference}}</h4>
       <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
     </div>
     <div class="modal-body">
@@ -255,6 +255,7 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button type="button" class="btn btn-primary">Exporter</button>
       <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">Fermer</button>
     </div>
   </ng-template>
