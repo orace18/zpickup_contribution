@@ -1345,7 +1345,7 @@ loadUserRaces(userId: string): void {
       case 'input':
         return 'Recharge';
       case 'output':
-        return 'Retrait';
+        return 'Course';
       default:
         return type;
     }
