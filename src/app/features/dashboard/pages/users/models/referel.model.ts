@@ -20,8 +20,20 @@ export  interface Referral {
     updated_at: string;
   }
 
+  export interface AmbassadorReferral {
+    _id: string;
+    created_at: string;
+    type: string;
+    updated_at: string;
+    user: string;
+    wallet_amount: number;
+    __v: number;
+  }
+
 
   export interface MoneyRefferal {
     totalBonus: number;
     totalReferred: number
-}
+  }
+
+  

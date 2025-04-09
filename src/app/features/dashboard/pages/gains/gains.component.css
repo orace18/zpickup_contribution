@@ -65,3 +65,84 @@
   }
   
  
+/* Styles pour personnaliser la pagination */
+:host ::ng-deep .custom-pagination-table .p-paginator {
+  background: #f8f9fa;
+  border-radius: 0 0 8px 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+:host ::ng-deep .custom-pagination-table .p-paginator .p-paginator-current {
+  margin-right: auto;
+  font-weight: 500;
+  color: #6c757d;
+}
+
+:host ::ng-deep .custom-pagination-table .p-paginator .p-paginator-page,
+:host ::ng-deep .custom-pagination-table .p-paginator .p-paginator-first,
+:host ::ng-deep .custom-pagination-table .p-paginator .p-paginator-prev,
+:host ::ng-deep .custom-pagination-table .p-paginator .p-paginator-next,
+:host ::ng-deep .custom-pagination-table .p-paginator .p-paginator-last {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.25rem; /* Boutons carrés avec coins légèrement arrondis */
+  margin: 0 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background-color: var(--bs-primary);
+  color: white;
+}
+
+:host ::ng-deep .custom-pagination-table .p-paginator .p-paginator-page.p-highlight {
+  background-color: var(--bs-primary);
+  color: white;
+}
+
+:host ::ng-deep .custom-pagination-table .p-paginator .p-dropdown {
+  border-radius: 0.25rem; /* Dropdown carré avec coins légèrement arrondis */
+  margin-left: 0.5rem;
+  border: 1px solid var(--bs-primary);
+}
+
+:host ::ng-deep .custom-pagination-table .p-paginator .p-dropdown:focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+:host ::ng-deep .custom-pagination-table .p-paginator .p-dropdown .p-dropdown-label {
+  padding-right: 2.5rem;
+  padding-left: 1rem;
+}
+
+/* Animation légère sur hover pour les boutons - maintenant carrée */
+:host ::ng-deep .custom-pagination-table .p-paginator button:not(.p-disabled):hover {
+  background-color: var(--bs-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0.25rem; /* Conserve la forme carrée en hover */
+}
+
+/* Style pour les états désactivés */
+:host ::ng-deep .custom-pagination-table .p-paginator .p-disabled {
+  opacity: 0.5;
+}
+
+/* Adaptation mobile */
+@media (max-width: 576px) {
+  :host ::ng-deep .custom-pagination-table .p-paginator {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  :host ::ng-deep .custom-pagination-table .p-paginator .p-paginator-current {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+}

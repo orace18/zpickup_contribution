@@ -6,4 +6,5 @@ export interface User {
   lastname?: string;
   created_at: string;
   validated_at: string;
+  zem?: string;
 }

@@ -9,8 +9,8 @@ import {
   ViewChild
 } from '@angular/core';
 import { NgbCollapseModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import {User, ZemValidationRequest} from './models/users.model';
-import {UsersService} from './services/users.service';
+import { User, ZemValidationRequest } from './models/users.model';
+import { UsersService } from './services/users.service';
 import {
   CommonModule,
   DatePipe,
@@ -21,45 +21,33 @@ import {
   NgIf
 } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import {FormsModule, NgForm} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
-import {Dropdown, Modal} from 'bootstrap';
-import {WalletBalance, WalletHistory} from './models/wallet.model';
-import {WalletService} from './services/wallet.service';
-import {Race, Zem, ZemUser} from './models/race.model';
-import {RaceService} from './services/race.service';
-import {CardType, CardTypeLabels, Role} from './models/role.model';
-import {RoleService} from './services/role.service';
-import {ToastrService} from 'ngx-toastr';
-import {CounterData} from './models/counter.model';
-import {CounterService} from './services/counter.service';
+import { FormsModule, NgForm } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { Dropdown, Modal } from 'bootstrap';
+import { WalletBalance, WalletHistory } from './models/wallet.model';
+import { WalletService } from './services/wallet.service';
+import { Race, Zem, ZemUser } from './models/race.model';
+import { RaceService } from './services/race.service';
+import { CardType, CardTypeLabels, Role } from './models/role.model';
+import { RoleService } from './services/role.service';
+import { ToastrService } from 'ngx-toastr';
+import { CounterData } from './models/counter.model';
+import { CounterService } from './services/counter.service';
 import { BehaviorSubject, Observable, shareReplay, take, tap, throwError } from 'rxjs';
-import {Router} from '@angular/router';
-import {map} from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { map } from 'rxjs/operators';
 import { ConfirmationDialogComponent } from "../../../../../shared/layouts/confirmation-dialog/confirmation-dialog.component";
 import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
 import { ReferelService } from './services/referel.service';
-import { MoneyRefferal, Referral } from './models/referel.model';
+import { AmbassadorReferral, MoneyRefferal, Referral } from './models/referel.model';
 declare var bootstrap: any;
 import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-@Pipe({
-  name: 'filterByType',
-  standalone: true
-})
-export class FilterByTypePipe implements PipeTransform {
-  transform(users: any[], type: string): any[] {
-    if (!users) return [];
-    return users.filter(user =>
-      type === 'admin' ? user.user_type === 'admin' : user.user_type !== 'admin'
-    );
-  }
-}
 
 @Component({
   selector: 'app-users',
@@ -79,7 +67,7 @@ export class FilterByTypePipe implements PipeTransform {
     ConfirmationDialogComponent,
     CommonModule,
     LoadingComponent
-],
+  ],
   styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit, AfterViewInit {
@@ -107,6 +95,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   userRaces: Race[] = [];
   roles: Role[] = [];
   referelList: Referral[] = [];
+  ambassadorReferrals: AmbassadorReferral[] = [];
   referelMoneyList: MoneyRefferal = {
     totalBonus: 0,
     totalReferred: 0
@@ -135,7 +124,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   loadingMessage: string = 'Chargement des données...';
   joursRestantsMap = new Map<string, number | string>();
 
-  
+
   newUser = {
     phone_number: '',
     password: '',
@@ -153,13 +142,6 @@ export class UsersComponent implements OnInit, AfterViewInit {
   detailsModal: any;
   editModal: any;
   @ViewChild('editForm') editForm!: NgForm;
-
-
-  shouldShowLocation(race: any): boolean {
-    return ['started', 'stopped', 'end', 'pending'].includes(race.status) && 
-      (race.country_start || race.country_end || race.country_stop);
-  }
-
 
   constructor(
     private router: Router,
@@ -183,10 +165,17 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
 
+
+  shouldShowLocation(race: any): boolean {
+    return ['started', 'stopped', 'end', 'pending'].includes(race.status) &&
+      (race.country_start || race.country_end || race.country_stop);
+  }
+
+
   handleImageError($event: ErrorEvent) {
 
-    ($event.target as HTMLImageElement).src = 'default/icon_app.png'; 
-    
+    ($event.target as HTMLImageElement).src = 'default/icon_app.png';
+
   }
 
   toggleSection(raceId: string): void {
@@ -194,7 +183,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
 
-  
+
 
   ngAfterViewInit() {
     // Initialisation des dropdowns
@@ -235,7 +224,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
 
- 
+
   get formattedBirthday(): Date | null {
     if (this.selectedUser && this.selectedUser.birthday) {
       // Diviser la chaîne et créer un nouvel objet Date
@@ -255,8 +244,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
     if (this.selectedUser?.zem) {
       const zemDetails = await this.getZemDetails(this.selectedUser?.zem!);
       this.zem = zemDetails || null;
-      if(this.zem) {
-        this.newStatus  = this.zem?.is_ambassador;
+      if (this.zem) {
+        this.newStatus = this.zem?.is_ambassador;
       }
     }
 
@@ -313,7 +302,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     this.addModal.show();
   }
 
- 
+
   resetNewUser(): void {
     this.newUser = {
       phone_number: '',
@@ -467,25 +456,25 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
 
-onReferenceChange(userID: string) {
-  this.filterRaces(userID);
-}
-
-
-
-filterRaces(userID: string): void {
-  // On garde en mémoire le filtre actuel
-  const currentFilter = this.referenceFilter;
-  
-  this.loadUserRaces(userID);
-  
-  // On réapplique le filtre si il existe toujours
-  if (currentFilter) {
-    this.userRaces = this.userRaces.filter(race => 
-      race.reference.toString().includes(currentFilter)
-    );
+  onReferenceChange(userID: string) {
+    this.filterRaces(userID);
   }
-}
+
+
+
+  filterRaces(userID: string): void {
+    // On garde en mémoire le filtre actuel
+    const currentFilter = this.referenceFilter;
+
+    this.loadUserRaces(userID);
+
+    // On réapplique le filtre si il existe toujours
+    if (currentFilter) {
+      this.userRaces = this.userRaces.filter(race =>
+        race.reference.toString().includes(currentFilter)
+      );
+    }
+  }
 
   toggleStoppedDetails(race: any) {
     race.showStoppedDetails = !race.showStoppedDetails;
@@ -506,8 +495,8 @@ filterRaces(userID: string): void {
         if (typeof z === "string") {
           this.loadUserRaces(z);
         }
-      } 
-      if(this.selectedUser.user_type === 'customer') {
+      }
+      if (this.selectedUser.user_type === 'customer') {
         this.loadUserRaces(this.selectedUser._id);
       }
     }
@@ -531,7 +520,7 @@ filterRaces(userID: string): void {
       }
     }
 
-    if(section === 'affiliations' && this.selectedUser) {
+    if (section === 'affiliations' && this.selectedUser) {
       this.getUserRefer(this.selectedUser._id);
       this.getReferesMoney(this.selectedUser._id);
     }
@@ -557,58 +546,58 @@ filterRaces(userID: string): void {
   }
 
 
-  showAllRaces = false; 
+  showAllRaces = false;
 
-loadUserRaces(userId: string): void {
-  this.isLoading = true;
-  const now = new Date();
-  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  loadUserRaces(userId: string): void {
+    this.isLoading = true;
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-  const service = this.selectedUser?.user_type === 'zem' 
-    ? this.raceService.getZemRaces(userId)
-    : this.raceService.getUserRaces(userId);
+    const service = this.selectedUser?.user_type === 'zem'
+      ? this.raceService.getZemRaces(userId)
+      : this.raceService.getUserRaces(userId);
 
-  service.pipe(
-    map(races => {
-      this.userRaces = [...races]; 
-      if(this.startDate || this.endDate) {
-        this.showAllRaces = true;
-      } 
+    service.pipe(
+      map(races => {
+        this.userRaces = [...races];
+        if (this.startDate || this.endDate) {
+          this.showAllRaces = true;
+        }
 
-      // Si showAllRaces est false, on filtre les courses du mois en cours
-      if (!this.showAllRaces) {
-        return races.filter(race => {
-          const raceDate = new Date(race.created_at);
-          return raceDate >= firstDayOfMonth && raceDate <= lastDayOfMonth;
-        });
+        // Si showAllRaces est false, on filtre les courses du mois en cours
+        if (!this.showAllRaces) {
+          return races.filter(race => {
+            const raceDate = new Date(race.created_at);
+            return raceDate >= firstDayOfMonth && raceDate <= lastDayOfMonth;
+          });
+        }
+        return races;
+      }),
+      map(races => races.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))
+    ).subscribe({
+      next: (races) => {
+        this.originalUserRaces = races;
+        this.userRaces = [...races];
+        this.isLoading = false;
+
+        // Appliquer un filtre sur la référence si nécessaire
+        if (this.referenceFilter) {
+          this.userRaces = this.originalUserRaces.filter(race =>
+            race.reference.toString().includes(this.referenceFilter)
+          );
+        } else {
+          this.userRaces = [...this.originalUserRaces];
+        }
+
+        this.applyDateFilters();
+        this.setInitialCollapseState(this.userRaces);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des courses:', error);
       }
-      return races;
-    }),
-    map(races => races.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()))
-  ).subscribe({
-    next: (races) => {
-      this.originalUserRaces = races;
-      this.userRaces = [...races];
-      this.isLoading = false;
-
-      // Appliquer un filtre sur la référence si nécessaire
-      if (this.referenceFilter) {
-        this.userRaces = this.originalUserRaces.filter(race => 
-          race.reference.toString().includes(this.referenceFilter)
-        );
-      } else {
-        this.userRaces = [...this.originalUserRaces];
-      }
-
-      this.applyDateFilters();
-      this.setInitialCollapseState(this.userRaces);
-    },
-    error: (error) => {
-      console.error('Erreur lors du chargement des courses:', error);
-    }
-  });
-}
+    });
+  }
 
 
   getZemFullName(zemId: string): string {
@@ -729,23 +718,23 @@ loadUserRaces(userId: string): void {
 
   async ngOnInit(): Promise<void> {
     this.isLoading = true;
-    
+
     // Utiliser une promesse au lieu de setTimeout
     await new Promise<void>(resolve => {
       setTimeout(() => {
         this.isLoading = false;
-        
+
         // Charger les utilisateurs UNE SEULE FOIS et attendre via une promesse
         this.usersService.getUsers().toPromise()
           .then(users => {
             this.users = users ?? [];
-            
+
             // Appliquer les filtres
             this.applyFilters();
-            
+
             // Initialiser la map des statuts
             this.userStatusMap = new Map<string, string>();
-            
+
             // Charger les statuts pour chaque utilisateur
             this.users.forEach(async user => {
               await this.loadUserStatus(user);
@@ -754,12 +743,12 @@ loadUserRaces(userId: string): void {
                 this.loadJoursRestants(user.zem);
               }
             });
-            
+
             // Initialiser les modaux
             this.editModal = new Modal(document.getElementById('kt_modal_edit_user')!);
             this.detailsModal = new Modal(document.getElementById('kt_modal_user_details')!);
             this.addModal = new Modal(document.getElementById('kt_modal_add_user')!);
-            
+
             resolve();
           })
           .catch(error => {
@@ -767,7 +756,7 @@ loadUserRaces(userId: string): void {
             this.users = [];
             resolve();
           });
-          
+
         this.loadRoles();
         this.userRaces.forEach(race => {
           this.collapsedSections[race._id] = true;
@@ -775,7 +764,7 @@ loadUserRaces(userId: string): void {
       }, 2000);
     });
   }
-  
+
   setInitialCollapseState(userRaces: Race[]): void {
     this.userRaces.forEach(race => {
       this.collapsedSections[race._id] = true;
@@ -816,7 +805,7 @@ loadUserRaces(userId: string): void {
 
 
   editUser(user: User): void {
-    this.selectedUser = {...user};
+    this.selectedUser = { ...user };
 
     // Extraire l'ID du rôle
     const roleId = (this.selectedUser.role as any)?._id;
@@ -836,7 +825,7 @@ loadUserRaces(userId: string): void {
         lastname: this.selectedUser.lastname,
         email_address: this.selectedUser.email_address,
         phone_number: this.selectedUser.phone_number,
-       
+
         role: this.selectedUser.role
       };
 
@@ -852,13 +841,13 @@ loadUserRaces(userId: string): void {
           this.toastr.success('Utilisateur mis à jour avec succès');
         },
         error: (error) => {
-         
+
 
           this.toastr.error(error.error.message, "Erreur");
 
           if (error.status === 403) {
             this.toastr.error('Session expirée. Veuillez vous reconnecter.');
-           
+
           } else {
             this.toastr.error(error.error?.message || 'Erreur lors de la mise à jour de l\'utilisateur');
           }
@@ -867,157 +856,157 @@ loadUserRaces(userId: string): void {
     }
   }
 
- async viewUserDetails(user: User): Promise<void> {
+  async viewUserDetails(user: User): Promise<void> {
     this.selectedUser = user;
     //this.canValidate = await this.canValidateZem();
   }
 
-  activeTab: 'admin' | 'mobile' | 'tsd' |'ta' = 'admin';
+  activeTab: 'admin' | 'mobile' | 'tsd' | 'ta' = 'admin';
   searchQuery: any;
 
-      getUserTypeDisplay(userType: string): string {
-        switch(userType) {
-          case 'customer': return 'Client';
-          case 'zem': return 'Transporteur';
-          default: return userType;
+  getUserTypeDisplay(userType: string): string {
+    switch (userType) {
+      case 'customer': return 'Client';
+      case 'zem': return 'Transporteur';
+      default: return userType;
+    }
+  }
+
+
+  async applyFilters(): Promise<void> {
+
+    // Définir un état de chargement au début
+    this.isLoading = true;
+
+    try {
+      // Précharger tous les détails Zem avant le filtrage
+      const zemDetailsMap = new Map<string, any>();
+      const zemIds = this.users
+        .filter(user => user.user_type === 'zem' && user.zem != null)
+        .map(user => user.zem);
+
+      // Charger tous les détails Zem en parallèle
+      const zemDetailsPromises = [...new Set(zemIds)].map(zemId =>
+        this.getZemDetails(zemId!)
+      );
+
+      const zemDetailsResults = await Promise.all(zemDetailsPromises);
+
+      // Créer une map pour un accès rapide
+      zemDetailsResults.forEach(details => {
+        if (details && details._id) {
+          zemDetailsMap.set(details._id, details);
         }
+      });
+
+      let filtered = [...this.users];
+
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase().trim();
+        filtered = filtered.filter(user =>
+          user.firstname?.toLowerCase().includes(query) ||
+          user.lastname?.toLowerCase().includes(query) ||
+          user.email_address?.toLowerCase().includes(query) ||
+          this.getUserTypeDisplay(user.user_type).toLowerCase().includes(query) ||
+          user.validated_at?.toLowerCase().includes(query)
+        );
       }
 
+      // Filtrage par onglet avec utilisation de la map préchargée
+      let tempFiltered: User[] = [];
 
-      async applyFilters(): Promise<void> {
-
-        // Définir un état de chargement au début
-        this.isLoading = true;
-      
-        try {
-          // Précharger tous les détails Zem avant le filtrage
-          const zemDetailsMap = new Map<string, any>();
-          const zemIds = this.users
-            .filter(user => user.user_type === 'zem' && user.zem != null)
-            .map(user => user.zem);
-      
-          // Charger tous les détails Zem en parallèle
-          const zemDetailsPromises = [...new Set(zemIds)].map(zemId => 
-            this.getZemDetails(zemId!)
-          );
-          
-          const zemDetailsResults = await Promise.all(zemDetailsPromises);
-          
-          // Créer une map pour un accès rapide
-          zemDetailsResults.forEach(details => {
-            if (details && details._id) {
-              zemDetailsMap.set(details._id, details);
-            }
-          });
-      
-          let filtered = [...this.users];
-          
-          if (this.searchQuery) {
-            const query = this.searchQuery.toLowerCase().trim();
-            filtered = filtered.filter(user =>
-              user.firstname?.toLowerCase().includes(query) ||
-              user.lastname?.toLowerCase().includes(query) ||
-              user.email_address?.toLowerCase().includes(query) ||
-              this.getUserTypeDisplay(user.user_type).toLowerCase().includes(query) ||
-              user.validated_at?.toLowerCase().includes(query)
-            );
+      for (const user of filtered) {
+        if (this.activeTab === 'admin') {
+          if (user.user_type === 'admin') {
+            tempFiltered.push(user);
           }
-
-          // Filtrage par onglet avec utilisation de la map préchargée
-          let tempFiltered: User[] = [];
-          
-          for (const user of filtered) {
-            if (this.activeTab === 'admin') {
-              if (user.user_type === 'admin') {
-                tempFiltered.push(user);
-              }
-            } 
-            else if (this.activeTab === 'mobile') {
-              if (user.user_type !== 'admin') {
-                tempFiltered.push(user);
-              }
-            } 
-            else if (this.activeTab === 'tsd') {
-              if (user.user_type === 'zem' && user?.zem != null) {
-                const zemDetails = zemDetailsMap.get(user.zem);
-                if (zemDetails && zemDetails.is_temporal === true) {
-                  tempFiltered.push(user);
-                }
-              }
-            } 
-            else if (this.activeTab === 'ta') {
-              if (user.user_type === 'zem' && user?.zem != null) {
-                const zemDetails = zemDetailsMap.get(user.zem);
-                if (zemDetails && zemDetails.is_ambassador === true) {
-                  tempFiltered.push(user);
-                }
-              }
-            }
-            else {
+        }
+        else if (this.activeTab === 'mobile') {
+          if (user.user_type !== 'admin') {
+            tempFiltered.push(user);
+          }
+        }
+        else if (this.activeTab === 'tsd') {
+          if (user.user_type === 'zem' && user?.zem != null) {
+            const zemDetails = zemDetailsMap.get(user.zem);
+            if (zemDetails && zemDetails.is_temporal === true) {
               tempFiltered.push(user);
             }
           }
-      
-          filtered = tempFiltered;
-      
-          // Filtrage par type d'utilisateur et statut/date (reste inchangé)
-          this.filteredUsers = filtered.filter(user => {
-            let matchesType = !this.filters.typeUtilisateur || user.user_type === this.filters.typeUtilisateur;
-            
-            let matchesStatus = true;
-            let matchesDate = true;
-      
-            if (this.filters.status) {
-              const state = user.validated_at;
-              if (state !== null) {
-                user.validated_at = 'validated';
-                matchesStatus = user.validated_at === this.filters.status;
-              }
-              if (state === null) {
-                user.validated_at = 'in_progress';
-                matchesStatus = user.validated_at === this.filters.status;
-              }
-            }
-      
-            if (this.filters.startDate || this.filters.endDate) {
-              const userDate = new Date(user.created_at);
-              const startDate = this.filters.startDate ? new Date(this.filters.startDate) : null;
-              const endDate = this.filters.endDate ? new Date(this.filters.endDate) : null;
-      
-              if (startDate && userDate < startDate) matchesDate = false;
-              if (endDate && userDate > endDate) matchesDate = false;
-            }
-      
-            return matchesType && matchesStatus && matchesDate;
-          });
-        } catch (error) {
-          // Gestion des erreurs
-          console.error('Erreur lors du filtrage:', error);
-          this.filteredUsers = [];
-        } finally {
-          // Désactiver le loader une fois le traitement terminé
-          this.isLoading = false;
         }
-      } 
+        else if (this.activeTab === 'ta') {
+          if (user.user_type === 'zem' && user?.zem != null) {
+            const zemDetails = zemDetailsMap.get(user.zem);
+            if (zemDetails && zemDetails.is_ambassador === true) {
+              tempFiltered.push(user);
+            }
+          }
+        }
+        else {
+          tempFiltered.push(user);
+        }
+      }
+
+      filtered = tempFiltered;
+
+      // Filtrage par type d'utilisateur et statut/date (reste inchangé)
+      this.filteredUsers = filtered.filter(user => {
+        let matchesType = !this.filters.typeUtilisateur || user.user_type === this.filters.typeUtilisateur;
+
+        let matchesStatus = true;
+        let matchesDate = true;
+
+        if (this.filters.status) {
+          const state = user.validated_at;
+          if (state !== null) {
+            user.validated_at = 'validated';
+            matchesStatus = user.validated_at === this.filters.status;
+          }
+          if (state === null) {
+            user.validated_at = 'in_progress';
+            matchesStatus = user.validated_at === this.filters.status;
+          }
+        }
+
+        if (this.filters.startDate || this.filters.endDate) {
+          const userDate = new Date(user.created_at);
+          const startDate = this.filters.startDate ? new Date(this.filters.startDate) : null;
+          const endDate = this.filters.endDate ? new Date(this.filters.endDate) : null;
+
+          if (startDate && userDate < startDate) matchesDate = false;
+          if (endDate && userDate > endDate) matchesDate = false;
+        }
+
+        return matchesType && matchesStatus && matchesDate;
+      });
+    } catch (error) {
+      // Gestion des erreurs
+      console.error('Erreur lors du filtrage:', error);
+      this.filteredUsers = [];
+    } finally {
+      // Désactiver le loader une fois le traitement terminé
+      this.isLoading = false;
+    }
+  }
 
 
   onTabChange(event: any): void {
-    
+
 
     switch (event.target.id) {
       case 'admin-tab':
-          this.activeTab = 'admin';
-          break;
+        this.activeTab = 'admin';
+        break;
       case 'mobile-tab':
-          this.activeTab = 'mobile';
-          break;
+        this.activeTab = 'mobile';
+        break;
       case 'tsd-tab':
-          this.activeTab = 'tsd';
-          break;
+        this.activeTab = 'tsd';
+        break;
       case 'ta-tab':
-          this.activeTab = 'ta';
-          break;
-  }
+        this.activeTab = 'ta';
+        break;
+    }
     this.applyFilters();
   }
 
@@ -1157,39 +1146,39 @@ loadUserRaces(userId: string): void {
     });
   }
 
-    async canValidateZem(): Promise<boolean> {
-      this.getZemStatusText();
-      try {
-        if (this.selectedUser?.user_type === 'zem' && this.selectedUser?.zem) {
-          const zem = this.selectedUser?.zem;
-          const data = await this.getZemDetails(zem!);
-          //console.log("La reponse de getZemDetails avant la date", data);
-          if (data && 'validated_at' in data) {
-            //console.log("La reponse de getZemDetails", data.validated_at);
-            return data.validated_at === null;
-          }
+  async canValidateZem(): Promise<boolean> {
+    this.getZemStatusText();
+    try {
+      if (this.selectedUser?.user_type === 'zem' && this.selectedUser?.zem) {
+        const zem = this.selectedUser?.zem;
+        const data = await this.getZemDetails(zem!);
+        //console.log("La reponse de getZemDetails avant la date", data);
+        if (data && 'validated_at' in data) {
+          //console.log("La reponse de getZemDetails", data.validated_at);
+          return data.validated_at === null;
         }
-        return false;
-      } catch (error) {
-       // console.error('Erreur lors de la vérification de la validation du ZEM:', error);
-        return false;
       }
+      return false;
+    } catch (error) {
+      // console.error('Erreur lors de la vérification de la validation du ZEM:', error);
+      return false;
     }
+  }
 
-    private zemValidationCache: { [key: string]: Observable<Zem> } = {};
-    private zemValidationInfo = new BehaviorSubject<{ validated: boolean, validatedAt?: string }>({ validated: false });
+  private zemValidationCache: { [key: string]: Observable<Zem> } = {};
+  private zemValidationInfo = new BehaviorSubject<{ validated: boolean, validatedAt?: string }>({ validated: false });
 
   get statusClass(): string {
     if (!this.selectedUser) return 'badge-light-primary';
 
     switch (this.selectedUser.user_type) {
       case 'zem':
-        return this.zemValidationInfo.value.validatedAt 
-          ? 'badge-light-success' 
+        return this.zemValidationInfo.value.validatedAt
+          ? 'badge-light-success'
           : 'badge-light-danger';
       case 'customer':
-        return this.selectedUser.validated_at 
-          ? 'badge-light-success' 
+        return this.selectedUser.validated_at
+          ? 'badge-light-success'
           : 'badge-light-warning';
       default:
         return 'badge-light-primary';
@@ -1204,10 +1193,10 @@ loadUserRaces(userId: string): void {
         return this.selectedUser.validated_at
           ? `Validé le ${formatDate(this.selectedUser.validated_at, 'dd/MM/yyyy HH:mm', 'en-US')}`
           : 'Non validé';
-      
+
       case 'zem':
         return this.getZemStatusText();
-      
+
       default:
         return '';
     }
@@ -1229,7 +1218,7 @@ loadUserRaces(userId: string): void {
         }),
         shareReplay(1)
       );
-      
+
       // Déclencher la requête
       this.zemValidationCache[zemId].pipe(take(1)).subscribe();
     }
@@ -1245,7 +1234,7 @@ loadUserRaces(userId: string): void {
       const response = await this.usersService.getZemInfoById(zemId).toPromise();
       return response;
     } catch (error) {
-     // console.error('Erreur lors de la récupération des détails du zem:', error);
+      // console.error('Erreur lors de la récupération des détails du zem:', error);
       return null;
     }
   }
@@ -1279,29 +1268,29 @@ loadUserRaces(userId: string): void {
     this.cdr.detectChanges();
   } */
 
-    applyDateFilters(): void {
-      let filtered = [...this.originalUserRaces];
-  
-      if (this.startDate || this.endDate) {
-        filtered = filtered.filter(race => {
-          const raceDate = new Date(race.initial_datetime);
-          raceDate.setHours(0, 0, 0, 0); // S'assurer que la date est à minuit
-  
-          const start = this.startDate ? new Date(this.startDate) : null;
-          const end = this.endDate ? new Date(this.endDate) : null;
-  
-          if (start) start.setHours(0, 0, 0, 0);
-          if (end) end.setHours(23, 59, 59, 999); // Fin de journée
-  
-          // Vérifier que la course est bien dans l'intervalle défini
-          return (!start || raceDate >= start) && (!end || raceDate <= end);
-        });
-      }
-  
-      this.userRaces = filtered;
-      this.cdr.detectChanges(); // Met à jour l'affichage si nécessaire
+  applyDateFilters(): void {
+    let filtered = [...this.originalUserRaces];
+
+    if (this.startDate || this.endDate) {
+      filtered = filtered.filter(race => {
+        const raceDate = new Date(race.initial_datetime);
+        raceDate.setHours(0, 0, 0, 0); // S'assurer que la date est à minuit
+
+        const start = this.startDate ? new Date(this.startDate) : null;
+        const end = this.endDate ? new Date(this.endDate) : null;
+
+        if (start) start.setHours(0, 0, 0, 0);
+        if (end) end.setHours(23, 59, 59, 999); // Fin de journée
+
+        // Vérifier que la course est bien dans l'intervalle défini
+        return (!start || raceDate >= start) && (!end || raceDate <= end);
+      });
+    }
+
+    this.userRaces = filtered;
+    this.cdr.detectChanges(); // Met à jour l'affichage si nécessaire
   }
-  
+
 
   resetDateFilters(): void {
     this.startDate = '';
@@ -1423,7 +1412,7 @@ loadUserRaces(userId: string): void {
   }
 
   initGoogleMap() {
-    
+
     if (!(window as any).google || !(window as any).google.maps) {
       console.error('Google Maps JavaScript API not loaded');
       return;
@@ -1455,23 +1444,23 @@ loadUserRaces(userId: string): void {
     if (user.user_type === 'customer') {
       return user.validated_at ? 'Validé' : 'Non validé';
     }
-    
+
     if (user.user_type === 'zem' && user.zem) {
       try {
         const zemDetails = await this.getZemDetails(user.zem);
         console.log("Les détails du zem", zemDetails);
-         if(zemDetails?.is_temporal === true) {
+        if (zemDetails?.is_temporal === true) {
           return "En attente";
-          }else {
-             return zemDetails?.validated_at ? 'Validé' : 'Non validé';
+        } else {
+          return zemDetails?.validated_at ? 'Validé' : 'Non validé';
 
-          }
+        }
       } catch (error) {
         console.error('Erreur lors de la récupération des détails ZEM:', error);
         return 'Non validé';
       }
     }
-    
+
     return 'Non validé';
   }
 
@@ -1479,7 +1468,7 @@ loadUserRaces(userId: string): void {
     for (const user of this.users) {
       this.userStatus[user._id] = await this.statutOfUser(user);
     }
-    this.cdr.detectChanges(); 
+    this.cdr.detectChanges();
   }
 
 
@@ -1502,296 +1491,296 @@ loadUserRaces(userId: string): void {
   }
 
   showAmbassadorDialog = false;
- 
-
-openAmbassadorDialog() {
-  this.showAmbassadorDialog = true;
-}
-
-closeAmbassadorDialog() {
-  this.showAmbassadorDialog = false;
-}
 
 
-/* toggleAmbassadorStatus() {
-  if (!this.selectedUser) return;
-  
-  const zemId = this.selectedUser.zem;
-  if (!zemId) return;
-  
-  // Inverser la logique pour correspondre à la vue
-  const isBecomingAmbassador = !this.zem.is_ambassador;
-  
-  if (isBecomingAmbassador && !this.selectedContractFile) {
-    this.toastr.error("Veuillez sélectionner un document de contrat (PDF)");
-    return;
+  openAmbassadorDialog() {
+    this.showAmbassadorDialog = true;
   }
-  
-  if (isBecomingAmbassador) {
-    const formData = new FormData();
-    formData.append('contrat_document', this.selectedContractFile as File);
+
+  closeAmbassadorDialog() {
+    this.showAmbassadorDialog = false;
+  }
+
+
+  /* toggleAmbassadorStatus() {
+    if (!this.selectedUser) return;
     
-    this.usersService.makeAmbassador(zemId, formData).subscribe({
-      next: (response) => {
-        this.zem.is_ambassador = true;
-        this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} est maintenant ambassadeur`);
-        this.closeAmbassadorDialog();
-        this.selectedContractFile = null;
-        this.ambassadorForm.get('contratDocument')?.setValue(null);
-      },
-      error: (error) => {
-        this.toastr.error(error.error?.message || "Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
-        console.error(error);
-        this.closeAmbassadorDialog();
-      }
-    });
-  } else {
-    this.usersService.updateAmbassadorStatus(zemId, "false").subscribe({
-      next: (response) => {
-        this.zem.is_ambassador = false;
-        this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} n'est plus ambassadeur`);
-        this.closeAmbassadorDialog();
-      },
-      error: (error) => {
-        this.toastr.error("Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
-        console.error(error);
-        this.closeAmbassadorDialog();
-      }
-    });
-  }
-}
-
-// Méthode pour ouvrir le dialogue
-openAmbassadorDialog() {
-  // Initialiser newStatus basé sur le statut actuel
-  this.newStatus = !this.zem.is_ambassador;
-  this.showAmbassadorDialog = true;
-} */
-
-
-async toggleAmbassadorStatus() {
-  if (!this.selectedUser) return;
-  
-  const zemId = this.selectedUser.zem;
-  if (!zemId) return;
-  
-  if (!this.zem) {
-    const zemDetails = await this.getZemDetails(zemId);
-    this.zem = zemDetails || null;
-    if (!this.zem) {
-      this.toastr.error("Impossible de récupérer les détails du transporteur");
-      this.closeAmbassadorDialog();
+    const zemId = this.selectedUser.zem;
+    if (!zemId) return;
+    
+    // Inverser la logique pour correspondre à la vue
+    const isBecomingAmbassador = !this.zem.is_ambassador;
+    
+    if (isBecomingAmbassador && !this.selectedContractFile) {
+      this.toastr.error("Veuillez sélectionner un document de contrat (PDF)");
       return;
     }
-  }
-
-  this.newStatus = !this.zem.is_ambassador;
-  
-  // Si on promeut au statut d'ambassadeur et qu'aucun fichier n'est sélectionné
-  if (this.newStatus && !this.selectedContractFile) {
-    this.toastr.error("Veuillez sélectionner un document de contrat (PDF)");
-    return;
-  }
-  
-  if (this.newStatus) {
-    // Cas où on promeut l'utilisateur comme ambassadeur (avec fichier)
-    const formData = new FormData();
-    formData.append('contrat_document', this.selectedContractFile as File);
     
-    this.usersService.makeAmbassador(zemId, formData).subscribe({
-      next: (response) => {
-        if (this.zem) {
+    if (isBecomingAmbassador) {
+      const formData = new FormData();
+      formData.append('contrat_document', this.selectedContractFile as File);
+      
+      this.usersService.makeAmbassador(zemId, formData).subscribe({
+        next: (response) => {
           this.zem.is_ambassador = true;
+          this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} est maintenant ambassadeur`);
+          this.closeAmbassadorDialog();
+          this.selectedContractFile = null;
+          this.ambassadorForm.get('contratDocument')?.setValue(null);
+        },
+        error: (error) => {
+          this.toastr.error(error.error?.message || "Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
+          console.error(error);
+          this.closeAmbassadorDialog();
         }
-        this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} est maintenant ambassadeur`);
-        this.closeAmbassadorDialog();
-        this.selectedContractFile = null;
-        this.ambassadorForm.get('contratDocument')?.setValue(null);
-      },
-      error: (error) => {
-        this.toastr.error(error.error?.message || "Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
-        console.error(error);
-        this.closeAmbassadorDialog();
-      }
-    });
-  } else {
-    // Cas où on retire le statut d'ambassadeur
-    this.usersService.updateAmbassadorStatus(zemId, "false").subscribe({
-      next: (response) => {
-        if (this.zem) {
+      });
+    } else {
+      this.usersService.updateAmbassadorStatus(zemId, "false").subscribe({
+        next: (response) => {
           this.zem.is_ambassador = false;
+          this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} n'est plus ambassadeur`);
+          this.closeAmbassadorDialog();
+        },
+        error: (error) => {
+          this.toastr.error("Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
+          console.error(error);
+          this.closeAmbassadorDialog();
         }
-        this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} n'est plus ambassadeur`);
-        this.closeAmbassadorDialog();
-      },
-      error: (error) => {
-        this.toastr.error("Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
-        console.error(error);
-        this.closeAmbassadorDialog();
-      }
-    });
+      });
+    }
   }
-}
+  
+  // Méthode pour ouvrir le dialogue
+  openAmbassadorDialog() {
+    // Initialiser newStatus basé sur le statut actuel
+    this.newStatus = !this.zem.is_ambassador;
+    this.showAmbassadorDialog = true;
+  } */
 
 
-  async crediteKmAccount(ambassadorId: string) {
-      const zemDetails = await this.getZemDetails( ambassadorId);
+  async toggleAmbassadorStatus() {
+    if (!this.selectedUser) return;
+
+    const zemId = this.selectedUser.zem;
+    if (!zemId) return;
+
+    if (!this.zem) {
+      const zemDetails = await this.getZemDetails(zemId);
       this.zem = zemDetails || null;
       if (!this.zem) {
         this.toastr.error("Impossible de récupérer les détails du transporteur");
+        this.closeAmbassadorDialog();
         return;
       }
-      this.usersService.creditKmAccount(this.zem?._id).subscribe(
-        (response) => {
-          //console.log("Réponse de crédit du compte", response);
-          this.toastr.success(response.message);
+    }
+
+    this.newStatus = !this.zem.is_ambassador;
+
+    // Si on promeut au statut d'ambassadeur et qu'aucun fichier n'est sélectionné
+    if (this.newStatus && !this.selectedContractFile) {
+      this.toastr.error("Veuillez sélectionner un document de contrat (PDF)");
+      return;
+    }
+
+    if (this.newStatus) {
+      // Cas où on promeut l'utilisateur comme ambassadeur (avec fichier)
+      const formData = new FormData();
+      formData.append('contrat_document', this.selectedContractFile as File);
+
+      this.usersService.makeAmbassador(zemId, formData).subscribe({
+        next: (response) => {
+          if (this.zem) {
+            this.zem.is_ambassador = true;
+          }
+          this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} est maintenant ambassadeur`);
+          this.closeAmbassadorDialog();
+          this.selectedContractFile = null;
+          this.ambassadorForm.get('contratDocument')?.setValue(null);
         },
-        (error) => {
-          this.toastr.error('Erreur lors du crédit du compte');
+        error: (error) => {
+          this.toastr.error(error.error?.message || "Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
           console.error(error);
+          this.closeAmbassadorDialog();
         }
-      );
-    }
-
-    currentZem: any;
-    openCreditConfirmDialog(zem: any) {
-      this.currentZem = zem;
-      this.showValidationDialog = true;
-    }
-    
-
-    confirmValidationCredit(methode: string) {
-      if(methode === '1') {
-        if (this.currentZem) {
-          this.crediteKmAccount(this.currentZem);
-        }
-      }
-      if(methode === '2') {
-        this.creditAllAmbassador();
-      }
-      this.closeValidationDialog();
-    }
-
-   
-
-
-    getJoursBadgeClass(userId: string): string {
-      if (!this.joursRestantsMap.has(userId)) {
-        return 'badge badge-light-info'; // Chargement
-      }
-      
-      const jours = this.joursRestantsMap.get(userId);
-      if (typeof jours === 'number') {
-        if (jours < 0) {
-          return 'badge badge-light-danger'; // Expiré
-        } else if (jours < 7) {
-          return 'badge badge-light-warning'; // Expiration proche
-        } else {
-          return 'badge badge-light-primary'; // Normal
-        }
-      }
-      
-      return 'badge badge-light-secondary'; // Non trouvé ou erreur
-    }
-
-    async loadJoursRestants(userId: string) {
-      if (!userId) return;
-      
-      try {
-        const zemDetails = await this.getZemDetails(userId);
-        if (zemDetails && zemDetails.expired_at) {
-          const expiredDate = new Date(zemDetails.expired_at);
-          const aujourdhui = new Date();
-          const diffTime = expiredDate.getTime() - aujourdhui.getTime();
-          const jours = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          
-          this.joursRestantsMap.set(userId, jours);
-        } else {
-          this.joursRestantsMap.set(userId, 'Non trouvé');
-        }
-      } catch (error) {
-        this.joursRestantsMap.set(userId, 'Erreur');
-      }
-    }
-
-    getJoursRestantsAffichage(userId: string): string {
-      if (!this.joursRestantsMap.has(userId)) {
-        return '...'; 
-      }
-      
-      const jours = this.joursRestantsMap.get(userId);
-      if (typeof jours === 'number') {
-        if (jours < 0) {
-          return 'Expiré';
-        } else {
-          return `${jours} jour${jours > 1 ? 's' : ''} restant${jours > 1 ? 's' : ''}`;
-        }
-      }
-      
-      return String(jours); 
-    }
-
-
-    creditAllAmbassador() {
-      this.usersService.creditAllAmbassador().subscribe(
-        (response) => {
-          //console.log("Réponse de crédit des comptes", response);
-          this.toastr.success(response.message);
+      });
+    } else {
+      // Cas où on retire le statut d'ambassadeur
+      this.usersService.updateAmbassadorStatus(zemId, "false").subscribe({
+        next: (response) => {
+          if (this.zem) {
+            this.zem.is_ambassador = false;
+          }
+          this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} n'est plus ambassadeur`);
+          this.closeAmbassadorDialog();
         },
-        (error) => {
-          this.toastr.error('Erreur lors du crédit des comptes');
+        error: (error) => {
+          this.toastr.error("Une erreur s'est produite lors de la mise à jour du statut d'ambassadeur");
           console.error(error);
+          this.closeAmbassadorDialog();
         }
-      );
+      });
+    }
+  }
 
+
+  async crediteKmAccount(ambassadorId: string) {
+    const zemDetails = await this.getZemDetails(ambassadorId);
+    this.zem = zemDetails || null;
+    if (!this.zem) {
+      this.toastr.error("Impossible de récupérer les détails du transporteur");
+      return;
+    }
+    this.usersService.creditKmAccount(this.zem?._id).subscribe(
+      (response) => {
+        //console.log("Réponse de crédit du compte", response);
+        this.toastr.success(response.message);
+      },
+      (error) => {
+        this.toastr.error('Erreur lors du crédit du compte');
+        console.error(error);
+      }
+    );
+  }
+
+  currentZem: any;
+  openCreditConfirmDialog(zem: any) {
+    this.currentZem = zem;
+    this.showValidationDialog = true;
+  }
+
+
+  confirmValidationCredit(methode: string) {
+    if (methode === '1') {
+      if (this.currentZem) {
+        this.crediteKmAccount(this.currentZem);
+      }
+    }
+    if (methode === '2') {
+      this.creditAllAmbassador();
+    }
+    this.closeValidationDialog();
+  }
+
+
+
+
+  getJoursBadgeClass(userId: string): string {
+    if (!this.joursRestantsMap.has(userId)) {
+      return 'badge badge-light-info'; // Chargement
     }
 
-    async getUserStatut(u: User) {
-      
-      if (u.user_type === 'customer') {
-        return u.validated_at ? 'Validé' : 'Non validé';
+    const jours = this.joursRestantsMap.get(userId);
+    if (typeof jours === 'number') {
+      if (jours < 0) {
+        return 'badge badge-light-danger'; // Expiré
+      } else if (jours < 7) {
+        return 'badge badge-light-warning'; // Expiration proche
+      } else {
+        return 'badge badge-light-primary'; // Normal
       }
-      
-      if (u.user_type === 'zem') {
-        if (u.zem) {
-          const zemDetails = await this.getZemDetails(u.zem);
-          if (zemDetails && zemDetails.validated_at !== null && zemDetails.validated_at !== undefined) {
-            if(zemDetails.is_temporal === true) {
-              return 'En attente';
-            }else{
-              return 'Validé';
-            }
+    }
+
+    return 'badge badge-light-secondary'; // Non trouvé ou erreur
+  }
+
+  async loadJoursRestants(userId: string) {
+    if (!userId) return;
+
+    try {
+      const zemDetails = await this.getZemDetails(userId);
+      if (zemDetails && zemDetails.expired_at) {
+        const expiredDate = new Date(zemDetails.expired_at);
+        const aujourdhui = new Date();
+        const diffTime = expiredDate.getTime() - aujourdhui.getTime();
+        const jours = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        this.joursRestantsMap.set(userId, jours);
+      } else {
+        this.joursRestantsMap.set(userId, 'Non trouvé');
+      }
+    } catch (error) {
+      this.joursRestantsMap.set(userId, 'Erreur');
+    }
+  }
+
+  getJoursRestantsAffichage(userId: string): string {
+    if (!this.joursRestantsMap.has(userId)) {
+      return '...';
+    }
+
+    const jours = this.joursRestantsMap.get(userId);
+    if (typeof jours === 'number') {
+      if (jours < 0) {
+        return 'Expiré';
+      } else {
+        return `${jours} jour${jours > 1 ? 's' : ''} restant${jours > 1 ? 's' : ''}`;
+      }
+    }
+
+    return String(jours);
+  }
+
+
+  creditAllAmbassador() {
+    this.usersService.creditAllAmbassador().subscribe(
+      (response) => {
+        //console.log("Réponse de crédit des comptes", response);
+        this.toastr.success(response.message);
+      },
+      (error) => {
+        this.toastr.error('Erreur lors du crédit des comptes');
+        console.error(error);
+      }
+    );
+
+  }
+
+  async getUserStatut(u: User) {
+
+    if (u.user_type === 'customer') {
+      return u.validated_at ? 'Validé' : 'Non validé';
+    }
+
+    if (u.user_type === 'zem') {
+      if (u.zem) {
+        const zemDetails = await this.getZemDetails(u.zem);
+        if (zemDetails && zemDetails.validated_at !== null && zemDetails.validated_at !== undefined) {
+          if (zemDetails.is_temporal === true) {
+            return 'En attente';
           } else {
-            return 'Non validé';
+            return 'Validé';
           }
         } else {
           return 'Non validé';
         }
-      }
-      
-      return 'Non validé';
-    }
-
-    async loadUserStatus(user: User) {
-      try {
-        const status = await this.getUserStatut(user);
-        
-        if (!this.userStatusMap) {
-          this.userStatusMap = new Map<string, string>();
-        }
-        
-        this.userStatusMap.set(user._id, status);
-        this.cdr.detectChanges();
-      } catch (error) {
-
+      } else {
+        return 'Non validé';
       }
     }
+
+    return 'Non validé';
+  }
+
+  async loadUserStatus(user: User) {
+    try {
+      const status = await this.getUserStatut(user);
+
+      if (!this.userStatusMap) {
+        this.userStatusMap = new Map<string, string>();
+      }
+
+      this.userStatusMap.set(user._id, status);
+      this.cdr.detectChanges();
+    } catch (error) {
+
+    }
+  }
 
   getUserStatusDisplay(userId: string): string {
     //console.log("Les valeurs de la map", this.userStatusMap);
     return this.userStatusMap.get(userId) || '...';
   }
-  
+
   getUserStatusClass(userId: string): string {
     const status = this.userStatusMap.get(userId);
     if (status === 'Validé') {
@@ -1799,14 +1788,14 @@ async toggleAmbassadorStatus() {
     } else if (status === 'Non validé') {
       return 'badge-light-danger';
     }
-    return 'badge-light-info'; 
+    return 'badge-light-info';
   }
 
   affiliationTab: string = 'referes';
   referesList: any[] = [];
 
   getReferralStatusClass(status: string): string {
-    switch(status.toLowerCase()) {
+    switch (status.toLowerCase()) {
       case 'actif':
         return 'success';
       case 'en attente':
@@ -1832,19 +1821,48 @@ async toggleAmbassadorStatus() {
   }
 
   getReferesMoney(userId: string) {
-    this.referelService.getMoneyReferral(userId).subscribe(
-      (response) => {
-        this.referelMoneyList = response as MoneyRefferal;
-        console.log("Réponse de la liste des referes", response);
+    this.usersService.getUserById(userId).subscribe(
+      (user) => {
+        console.log("L'utilisateur", user);
+        if (user?.zem?.is_ambassador === true) {
+          this.referelService.getAmbassadorMoneyReferral(userId).subscribe(
+            (response) => {
+              this.ambassadorReferrals = [response as AmbassadorReferral];
+              console.log("Réponse de la liste des gains issue referes", response);
+            },
+            (error) => {
+              this.toastr.error('Erreur lors du chargement des referes');
+              console.error(error);
+            }
+          );
+        } else {
+          this.referelService.getMoneyReferral(userId).subscribe(
+            (response) => {
+              this.referelMoneyList = response as MoneyRefferal;
+              console.log("Réponse de la liste des gains issue des referes", response);
+            },
+            (error) => {
+              this.toastr.error('Erreur lors du chargement des referes');
+              console.error(error);
+            }
+          );
+        }
       },
       (error) => {
-        this.toastr.error('Erreur lors du chargement des referes');
+        this.toastr.error('Erreur lors du chargement des informations utilisateur');
         console.error(error);
       }
     );
   }
 
-  excludedFields: string[] = ['password', 'token', '_id', '__v', 'created_at', 'updated_at','deleted_at','validated_at','token_version','fcm_token'];
+
+  calculateTotalAmbassadorBonus(): number {
+    return this.ambassadorReferrals.reduce((total, referral) => {
+      return total + (referral.wallet_amount || 0);
+    }, 0);
+  }
+
+  excludedFields: string[] = ['password', 'token', '_id', '__v', 'created_at', 'updated_at', 'deleted_at', 'validated_at', 'token_version', 'fcm_token'];
 
   getFilteredUsers(): User[] {
     return this.filteredUsers.map(user => {

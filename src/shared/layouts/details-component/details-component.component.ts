@@ -2,13 +2,16 @@ import { Component, Input, OnChanges, OnInit } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { Race } from '../../../app/features/dashboard/pages/users/models/race.model';
-import { User } from '../../../app/features/dashboard/pages/home/models/users.model';
 import { map, Observable } from 'rxjs';
 import { UserService } from '../../../app/features/dashboard/pages/home/services/home.service';
+import { LoadingComponent } from "../../../core/components/loading/loading.component";
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { User } from '../../../app/features/dashboard/pages/users/models/users.model';
 
 @Component({
   selector: 'app-details-component',
-  imports: [CommonModule],
+  imports: [CommonModule, LoadingComponent],
   standalone: true,
   templateUrl: './details-component.component.html',
   styleUrl: './details-component.component.css'
@@ -16,18 +19,51 @@ import { UserService } from '../../../app/features/dashboard/pages/home/services
 export class DetailsComponentComponent implements OnInit, OnChanges{
   @Input() race?: Race;
   @Input() selectedUser: 'customer' | 'zem' = 'customer';
+  zemFullName: string = '';
+  isLoading: boolean = true;
+  loadingMessage: string = 'Chargement des informations...';
+  private apiUserUrl = environment.apiUrl + "/users";
+  
 
 
-  constructor(private homeService: UserService) {}
+  constructor(private homeService: UserService,
+    private httpService: HttpClient,
+
+  ) {}
 
   getZemFullName(): string {
     return this.race?.zem 
       ? `${this.race.zem.firstname} ${this.race.zem.lastname}` 
       : 'Non assigné';
   }
+
+  getUsers(): Observable<any[]> {
+    const headers = new HttpHeaders({
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        'Content-Type': 'application/json'
+    });
+
+    return this.httpService.get<User[]>(`${this.apiUserUrl}`, {headers});
+
+}
+
+  getTransporteurFullName(zemId: string): string {
+
+    this.getUsers().pipe(
+      map(users => {
+        const zem = users.find(user => user?.zem === zemId || user?.zem === zemId);
+        return zem ? `${zem.firstname} ${zem.lastname}` : 'Non disponible';
+      })
+    ).subscribe(fullName => {
+      this.zemFullName = fullName;
+    });
+    
+ 
+    return this.zemFullName || '';
+  }
   
   getUserByZem(): Observable<User | undefined> {
-    return this.homeService.getUsers().pipe(
+    return this.getUsers().pipe(
       map(users => 
         users.find(user => 
           user.firstname === this.race?.zem?.firstname && 
@@ -38,6 +74,13 @@ export class DetailsComponentComponent implements OnInit, OnChanges{
   }
 
   ngOnInit(): void {
+
+    if(this.race){
+      if(this.race.zem){
+        this.getTransporteurFullName(this.race?.zem?._id || '');
+      }
+    }
+    
 
     this.getUserByZem().subscribe(user => {
       if (user) {
@@ -51,7 +94,9 @@ export class DetailsComponentComponent implements OnInit, OnChanges{
       if(this.race){
       this.initMap(this.race);
     }
+    this.isLoading = false; 
     }, 500);
+    
   }
 
   ngOnChanges() {

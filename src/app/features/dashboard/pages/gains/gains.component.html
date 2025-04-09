@@ -82,7 +82,7 @@
             <div class="mt-2">
               <h5 class="text-muted fw-semibold mb-3">{{ card.title }}</h5>
               <h2 class="fw-bold mb-0" [ngClass]="'text-' + card.color">
-                {{ card.amount | number:'1.0-0' }} FCFA
+                {{ card.amount | number:'1.2-2' }} FCFA
               </h2>
             </div>
           </div>
@@ -101,12 +101,13 @@
     <div class="card-body p-0">
       <p-table
         [value]="(racesHistory$ | async) || []"
-        [paginator]="false"
+        [paginator]="true"
         [rows]="10"
         [showCurrentPageReport]="true"
-        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} enregistrements"
         [rowsPerPageOptions]="[10,25,50]"
-        styleClass="p-datatable-striped">
+        styleClass="p-datatable-striped custom-pagination-table">
+        
         <ng-template pTemplate="header">
           <tr>
             <th class="fw-bold text-primary p-3">Date</th>
@@ -117,14 +118,39 @@
             <th class="fw-bold text-primary p-3">Total</th>
           </tr>
         </ng-template>
+        
         <ng-template pTemplate="body" let-race>
           <tr>
             <td class="p-3 text-primary">{{ race.date }}</td>
             <td class="p-3 text-primary">{{ race.reference }}</td>
-            <td class="p-3 text-warning">{{ race.zem_bonus | number:'1.0-0' }} FCFA</td>
-            <td class="p-3 text-primary">{{ race.customer_bonus | number:'1.0-0' }} FCFA</td>
-            <td class="p-3 text-success">{{ race.admin_bonus | number:'1.0-0' }} FCFA</td>
-            <td class="p-3 fw-bold text-primary">{{ race.total | number:'1.0-0' }} FCFA</td>
+            <td class="p-3 text-warning">{{ race.zem_bonus | number:'1.2-2' }} FCFA</td>
+            <td class="p-3 text-primary">{{ race.customer_bonus | number:'1.2-2' }} FCFA</td>
+            <td class="p-3 text-success">{{ race.admin_bonus | number:'1.2-2' }} FCFA</td>
+            <td class="p-3 fw-bold text-primary">{{ race.total | number:'1.2-2' }} FCFA</td>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="paginatorleft">
+          <span class="text-muted ml-3">
+            Résultats par page:
+          </span>
+        </ng-template>
+        
+        <ng-template pTemplate="paginatorright">
+          <button type="button" class="btn btn-outline-primary btn-sm squared-pill ms-2">
+            <i class="bi bi-arrow-clockwise me-1"></i>Actualiser
+          </button>
+        </ng-template>
+        
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center p-5">
+              <div class="d-flex flex-column align-items-center">
+                <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                <h5 class="text-muted">Aucune transaction trouvée</h5>
+                <p class="text-muted">Aucune donnée ne correspond à vos critères de recherche</p>
+              </div>
+            </td>
           </tr>
         </ng-template>
       </p-table>

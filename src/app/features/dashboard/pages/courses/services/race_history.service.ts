@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RaceHistory } from '../models/race.model';
 import { Race } from '../../users/models/race.model';
 import { Observable } from 'rxjs';
+import { User } from '../../users/models/users.model';
 
 @Injectable({
     providedIn: 'root'
@@ -32,4 +33,7 @@ export class RaceHistoryService {
     
         return this.httpService.get<Race[]>(this.apiRaceUrl, {headers});
     }
+
+
+    
 }

@@ -133,13 +133,41 @@ throw new Error('Method not implemented.');
 
   // Méthode pour changer d'onglet
   changeTab(tabId: string) {
-    this.activeTab = tabId;
+    this.isLoading = true;
+    this.loadingMessage = 'Chargement des données...';
+    
+    // Simuler un délai (à adapter selon vos besoins réels)
+    setTimeout(() => {
+      this.activeTab = tabId;
+      
+      // Mise à jour des données selon l'onglet
+      if (tabId === 'pending-courses') {
+        // Pour l'onglet courses non terminées, on peut vouloir recharger les données
+        this.getNonCompletedRaces();
+      } else {
+        // Pour l'onglet toutes les courses, on peut vouloir recharger toutes les données
+        this.loadRaces();
+      }
+      
+      this.isLoading = false;
+    }, 500); // Délai simulé de 500ms, à ajuster selon vos besoins
   }
 
   voirDetails(race: Race) {
-    console.log('Détails de la course:', race);
-    this.selectedRace = race;
-    this.userType = 'customer';
+    this.isLoading = true;
+    this.loadingMessage = 'Chargement des détails...';
+    
+    // Simuler un délai (à adapter selon vos besoins réels)
+    setTimeout(() => {
+      console.log('Détails de la course:', race);
+      this.selectedRace = race;
+      this.userType = 'customer';
+      
+      // Ouvrir la modal après le "chargement"
+      this.openModal(this.historyModal);
+      
+      this.isLoading = false;
+    }, 500); // Délai simulé de 500ms, à ajuster selon vos besoins
   }
 
   getLabel(status: string): string {

@@ -657,24 +657,18 @@
                       <th>Téléphone</th>
                       <th>Type</th>
                       <th>Date d'inscription</th>
-                      <th>Montant bonus</th>
-                      <th>Statut</th>
+
                     </tr>
                   </thead>
                   <tbody>
                     <tr *ngFor="let referral of referelList">
-                      <td>{{ referral.referred.firstname }} {{ referral.referred.lastname }}</td>
-                      <td>{{ referral.referred.phone_number }}</td>
-                      <td class="badge-light-primary mt-2">{{ referral.referred.user_type === 'zem' ? 'Transporteur' :
-                        'Client'}}</td>
-                      <td>{{ referral.referred.created_at | date:'dd/MM/yyyy' }}</td>
-                      <td>{{ referral.bonus_amount | number:'1.0-0' }} XOF</td>
-                      <td>
-                        <span
-                          [class]="'badge badge-light-' + (referral.zem_validation_bonus_paid ? 'success' : 'warning')">
-                          {{ referral.zem_validation_bonus_paid ? 'Bonus payé' : 'En attente' }}
-                        </span>
-                      </td>
+                      <td><span class="badge-light-primary mt-2">{{ referral.referred.firstname }} {{ referral.referred.lastname }}</span></td>
+                      <td><span class="badge-light-warning mt-2">{{ referral.referred.phone_number }}</span></td>
+                      <td><span class="badge-light-success mt-2">{{ referral.referred.user_type === 'zem' ? 'Transporteur' :
+                        'Client'}}</span></td>
+                      <td><span class="badge-light-primary mt-2">{{ referral.referred.created_at | date:'dd/MM/yyyy' }}</span></td>
+                      
+
                     </tr>
                     <tr *ngIf="!referelList || referelList.length === 0">
                       <td colspan="5" class="text-center py-3">Aucun référé trouvé</td>
@@ -683,6 +677,7 @@
                 </table>
               </div>
             </div>
+            <!-- <th>Montant bonus</th> <td>{{ referral.bonus_amount | number:'1.0-0' }} XOF</td>-->
 
             <div *ngIf="affiliationTab === 'gains'" class="border rounded p-4">
               <!-- Deux cartes centrées -->
@@ -692,20 +687,31 @@
                   <div class="card h-100">
                     <div class="card-body text-center p-4">
                       <h5 class="card-title text-muted mb-3">Gain réalisé</h5>
-                      <h2 class="text-primary mb-0">
-                        {{ referelMoneyList.totalBonus | number:'1.0-0' }} XOF
+                      <h2 class="text-primary mb-0" *ngIf="selectedUser.user_type === 'customer'">
+                        {{ referelMoneyList.totalBonus | number:'1.2-2' }} XOF
+                      </h2>
+                      <h2 class="text-primary mb-0"
+                        *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador === false">
+                        {{ referelMoneyList.totalBonus | number:'1.2-2' }} XOF
+                      </h2>
+                      <h2 class="text-primary mb-0"
+                        *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador === true ">
+                        {{ calculateTotalAmbassadorBonus() | number:'1.2-2' }} XOF
                       </h2>
                     </div>
                   </div>
                 </div>
 
-                <!-- Deuxième carte - Nombre d'affiliation -->
+                <!-- Deuxième carte - Nombre de affiliation -->
                 <div class="col-md-5 mb-3">
                   <div class="card h-100">
                     <div class="card-body text-center p-4">
                       <h5 class="card-title text-muted mb-3">Nombre d'affiliation</h5>
-                      <h2 class="text-success mb-0">
-                        {{ referelMoneyList.totalReferred }}
+                      <h2 class="text-success mb-0" *ngIf="selectedUser.user_type === 'customer'">
+                        {{ referelList.length }}
+                      </h2>
+                      <h2 class="text-success mb-0" *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador">
+                        {{ referelList.length }}
                       </h2>
                     </div>
                   </div>

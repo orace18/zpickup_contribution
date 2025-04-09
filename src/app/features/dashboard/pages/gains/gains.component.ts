@@ -12,6 +12,7 @@ import * as Papa from 'papaparse';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { LoadingComponent } from "../../../../../core/components/loading/loading.component";
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'app-gains',
@@ -21,6 +22,7 @@ import { LoadingComponent } from "../../../../../core/components/loading/loading
     FormsModule,
     CardModule,
     TableModule,
+    DropdownModule,
     NgbDropdownModule,
     LoadingComponent
 ],
