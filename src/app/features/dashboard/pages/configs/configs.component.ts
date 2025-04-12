@@ -1,4 +1,3 @@
-// configs.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Config } from './models/config.model';
 import { ConfigService } from './services/config.service';

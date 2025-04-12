@@ -64,7 +64,6 @@
   justify-content: space-between;
 }
 
-/* Styles pour personnaliser la pagination */
 :host ::ng-deep .custom-pagination-table .p-paginator {
   background: #f8f9fa;
   border-radius: 0 0 8px 8px;
@@ -93,6 +92,8 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  background-color: var(--bs-primary);
+  color: white;
 }
 
 :host ::ng-deep .custom-pagination-table .p-paginator .p-paginator-page.p-highlight {
@@ -117,7 +118,8 @@
 
 /* Animation légère sur hover pour les boutons - maintenant carrée */
 :host ::ng-deep .custom-pagination-table .p-paginator button:not(.p-disabled):hover {
-  background-color: #e9ecef;
+  background-color: var(--bs-primary);
+  color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 0.25rem; /* Conserve la forme carrée en hover */
@@ -126,37 +128,6 @@
 /* Style pour les états désactivés */
 :host ::ng-deep .custom-pagination-table .p-paginator .p-disabled {
   opacity: 0.5;
-}
-
-/* Styles pour badges */
-.badge-light-primary {
-  background-color: rgba(var(--bs-primary-rgb), 0.1);
-  color: var(--bs-primary);
-}
-
-.badge-light-success {
-  background-color: rgba(var(--bs-success-rgb), 0.1);
-  color: var(--bs-success);
-}
-
-.badge-light-danger {
-  background-color: rgba(var(--bs-danger-rgb), 0.1);
-  color: var(--bs-danger);
-}
-
-.badge-light-warning {
-  background-color: rgba(var(--bs-warning-rgb), 0.1);
-  color: var(--bs-warning);
-}
-
-.badge-light-info {
-  background-color: rgba(var(--bs-info-rgb), 0.1);
-  color: var(--bs-info);
-}
-
-/* Message vide stylisé */
-:host ::ng-deep .custom-pagination-table .p-datatable-emptymessage td {
-  padding: 2rem !important;
 }
 
 /* Adaptation mobile */

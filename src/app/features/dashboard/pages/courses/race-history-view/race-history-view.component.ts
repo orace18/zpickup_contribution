@@ -360,7 +360,10 @@ startRealtimeUpdates(): void {
         title: this.latestAcceptedHistory!.street,
         animation: google.maps.Animation.DROP,
         icon: {
-          url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+          url: 'assets/images/image_zem.png', 
+          scaledSize: new google.maps.Size(40, 40),
+          origin: new google.maps.Point(0, 0),
+          anchor: new google.maps.Point(20, 20)
         }
       });
       
@@ -394,14 +397,19 @@ startRealtimeUpdates(): void {
         };
         
         const userInfo = this.getUserDisplayName(history.user);
+
         
         const marker = new google.maps.Marker({
           position: position,
           map: this.map,
           title: userInfo,
           animation: google.maps.Animation.DROP,
+          
           icon: {
-            url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+            url: 'assets/images/image_client.png',
+            scaledSize: new google.maps.Size(40, 40),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(20, 20)
           }
         });
         

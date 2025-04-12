@@ -47,6 +47,7 @@ import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 
 @Component({
@@ -72,7 +73,7 @@ import 'jspdf-autotable';
 })
 export class UsersComponent implements OnInit, AfterViewInit {
 
-
+  safePdfUrl: SafeResourceUrl | undefined;
   imageBase: string = environment.imageUrl;
   userStatusCache: Map<string, string> = new Map();
   userStatusMap: Map<string, string> = new Map();
@@ -153,6 +154,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     private referelService: ReferelService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
+    private sanitizer: DomSanitizer,
     private fb: FormBuilder,
   ) {
     this.userRaces.forEach(race => {
@@ -172,11 +174,11 @@ export class UsersComponent implements OnInit, AfterViewInit {
   }
 
 
-  handleImageError($event: ErrorEvent) {
+/*   handleImageError($event: ErrorEvent) {
 
     ($event.target as HTMLImageElement).src = 'default/icon_app.png';
 
-  }
+  } */
 
   toggleSection(raceId: string): void {
     this.collapsedSections[raceId] = !this.collapsedSections[raceId];
@@ -377,7 +379,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     return this.users.find(user => user._id === zemId);
   }
 
-  initMap(race: Race) {
+  /* initMap(race: Race) {
     const mapElement = document.getElementById(`map_${race.reference}`);
     if (!mapElement) return;
 
@@ -453,6 +455,94 @@ export class UsersComponent implements OnInit, AfterViewInit {
     });
 
 
+  } */
+
+    initMap(race: Race) {
+      const mapElement = document.getElementById(`map_${race.reference}`);
+      if (!mapElement) return;
+  
+      // Vérification des coordonnées requises
+      if (!race.latitude_start || !race.longitude_start || !race.latitude_end || !race.longitude_end) {
+        console.error('Coordonnées manquantes', race);
+        return;
+      }
+  
+      const startLocation = {
+        lat: parseFloat(String(race.latitude_start)),
+        lng: parseFloat(String(race.longitude_start))
+      };
+  
+      const endLocation = {
+        lat: race.latitude_end,
+        lng: race.longitude_end
+      };
+  
+      console.log('Coordonnées de départ:', startLocation);
+      console.log('Coordonnées d\'arrivée:', endLocation);
+  
+      // Ajustons le zoom et le centre pour voir les deux points
+      const bounds = new google.maps.LatLngBounds();
+      bounds.extend(startLocation);
+      bounds.extend(endLocation);
+  
+      const map = new google.maps.Map(mapElement, {
+        zoom: 12, // Zoom plus large
+        center: startLocation
+      });
+  
+      map.fitBounds(bounds); // Ajuste la vue pour montrer les deux points
+  
+      // Marqueur de départ avec l'image image_zem.png
+      const startMarker = new google.maps.Marker({
+        position: startLocation,
+        map: map,
+        title: 'Point de départ',
+        icon:'http://maps.google.com/mapfiles/ms/icons/green-dot.png' /* {
+          url: 'assets/images/image_zem.png',
+          scaledSize: new google.maps.Size(40, 40),
+          origin: new google.maps.Point(0, 0),
+          anchor: new google.maps.Point(20, 20)
+        } */
+      });
+      console.log('Marqueur de départ créé:', startMarker);
+  
+      
+      const endMarker = new google.maps.Marker({
+        position: endLocation,
+        map: map,
+        title: 'Point d\'arrivée',
+        icon: {
+          url: 'assets/images/image_client.png', 
+          scaledSize: new google.maps.Size(40, 40),
+          origin: new google.maps.Point(0, 0),
+          anchor: new google.maps.Point(20, 20)
+        }
+        // Ou garder l'icône rouge d'origine:
+        // icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+      });
+      console.log('Marqueur d\'arrivée créé:', endMarker);
+  
+      // Tracer l'itinéraire
+      const directionsService = new google.maps.DirectionsService();
+      const directionsRenderer = new google.maps.DirectionsRenderer({
+        map: map,
+        suppressMarkers: true // Pour garder nos marqueurs personnalisés
+      });
+  
+      directionsService.route({
+        origin: startLocation,
+        destination: endLocation,
+        travelMode: google.maps.TravelMode.DRIVING
+      }, (response: google.maps.DirectionsResult | null, status: google.maps.DirectionsStatus) => {
+        console.log('Statut de la direction:', status);
+        console.log('Réponse de la direction:', response);
+  
+        if (status === google.maps.DirectionsStatus.OK && response) {
+          directionsRenderer.setDirections(response);
+        } else {
+          console.error('Erreur de direction:', status);
+        }
+      });
   }
 
 
@@ -685,7 +775,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   getStatusLabel(status: string): string {
     switch (status.toLowerCase()) {
       case 'start':
-        return 'Démarré';
+        return 'Démarrée';
       case 'end':
         return 'Terminée';
       case 'accepted':
@@ -1079,7 +1169,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     const inValidationData: ZemValidationRequest = {
       profile_validation_status: 'rejected',
       type_action: 'rejected_zem'
-    };
+    }; 
 
     this.usersService.validateZemProfile(zemId, inValidationData)
       .subscribe({
@@ -1374,15 +1464,19 @@ export class UsersComponent implements OnInit, AfterViewInit {
     switch (photoType) {
       case 'card_photo':
         this.currentPhoto = this.zem?.card_image || '';
+        console.log("La photo de la carte", this.currentPhoto);
         break;
       case 'plate_photo':
         this.currentPhoto = this.zem?.plate_picture || '';
+        console.log("La photo de la plaque", this.currentPhoto);
         break;
       case 'residence_photo':
         this.currentPhoto = this.zem?.image_of_residence_certificate || '';
+        console.log("La photo du certificat", this.currentPhoto);
         break;
       case 'ifu_photo':
         this.currentPhoto = this.zem?.ifu_number_image || '';
+        console.log("La photo du ifu", this.currentPhoto);
         break;
     }
     const photoModal = new bootstrap.Modal(document.getElementById('photoModal')!);
@@ -1391,12 +1485,29 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
   currentPdf: string = '';
 
+  updatePdfUrl() {
+
+    if (this.currentPdf && this.imageBase) {
+      const fullUrl = this.imageBase + this.currentPdf;
+      this.safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fullUrl);
+    }
+  }
+
   openPdfModal(pdfType: string) {
     switch (pdfType) {
       case 'doc_ambassador':
         this.currentPdf = this.zem?.contrat_document || '';
+        console.log("Le document ambassadeur", this.currentPdf);
         break;
     }
+    
+    // Sécurisez l'URL avant d'ouvrir la modal
+    if (this.currentPdf) {
+      // Si vous avez une URL de base, concaténez-la
+      const fullUrl = this.imageBase ? this.imageBase + this.currentPdf : this.currentPdf;
+      this.safePdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fullUrl);
+    }
+    
     const PdfModal = new bootstrap.Modal(document.getElementById('pdfModal')!);
     PdfModal.show();
   }
@@ -1411,7 +1522,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
     }, 300);
   }
 
-  initGoogleMap() {
+  /* initGoogleMap() {
 
     if (!(window as any).google || !(window as any).google.maps) {
       console.error('Google Maps JavaScript API not loaded');
@@ -1438,7 +1549,42 @@ export class UsersComponent implements OnInit, AfterViewInit {
         title: 'Position du Zem'
       });
     }
-  }
+  } */
+
+    initGoogleMap() {
+      if (!(window as any).google || !(window as any).google.maps) {
+        console.error('Google Maps JavaScript API not loaded');
+        return;
+      }
+    
+      if (this.zem?.service_latitude && this.zem?.service_longitude) {
+        const mapOptions = {
+          center: {
+            lat: this.zem.service_latitude,
+            lng: this.zem.service_longitude
+          },
+          zoom: 15
+        };
+    
+        const map = new google.maps.Map(
+          document.getElementById('zemLocationMap') as HTMLElement,
+          mapOptions
+        );
+    
+        // Créer un marqueur personnalisé avec votre image
+        const customMarker = new google.maps.Marker({
+          position: mapOptions.center,
+          map: map,
+          title: 'Position du Zem',
+          icon: {
+            url: 'assets/images/image_zem.png', 
+            scaledSize: new google.maps.Size(40, 40), 
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(20, 20) 
+          }
+        });
+      }
+    }
 
   async statutOfUser(user: User): Promise<string> {
     if (user.user_type === 'customer') {

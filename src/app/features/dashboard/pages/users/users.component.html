@@ -662,12 +662,17 @@
                   </thead>
                   <tbody>
                     <tr *ngFor="let referral of referelList">
-                      <td><span class="badge-light-primary mt-2">{{ referral.referred.firstname }} {{ referral.referred.lastname }}</span></td>
+                      <td><span class="badge-light-primary mt-2">{{ referral.referred.firstname }} {{
+                          referral.referred.lastname }}</span></td>
                       <td><span class="badge-light-warning mt-2">{{ referral.referred.phone_number }}</span></td>
-                      <td><span class="badge-light-success mt-2">{{ referral.referred.user_type === 'zem' ? 'Transporteur' :
-                        'Client'}}</span></td>
-                      <td><span class="badge-light-primary mt-2">{{ referral.referred.created_at | date:'dd/MM/yyyy' }}</span></td>
+                      <td><span class="badge-light-success mt-2">{{ referral.referred.user_type === 'zem' ?
+                          'Transporteur' :
+                          'Client'}}</span></td>
+                      <td><span class="badge-light-primary mt-2">{{ referral.referred.created_at | date:'dd/MM/yyyy'
+                          }}</span></td>
+
                       
+
 
                     </tr>
                     <tr *ngIf="!referelList || referelList.length === 0">
@@ -677,7 +682,7 @@
                 </table>
               </div>
             </div>
-            <!-- <th>Montant bonus</th> <td>{{ referral.bonus_amount | number:'1.0-0' }} XOF</td>-->
+            <!-- <th>Montant bonus</th>                       <td><span class="badge-light-success mt-2">{{ referral.bonus_amount | number:'1.2-2' }} XOF</span></td> -->
 
             <div *ngIf="affiliationTab === 'gains'" class="border rounded p-4">
               <!-- Deux cartes centrées -->
@@ -1434,14 +1439,31 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body text-center">
-                    <object [data]="currentPdf" type="application/pdf" class="w-100" style="height: 75vh;">
-                      <p>Votre navigateur ne peut pas afficher ce PDF. <a [href]="'imageBase+currentPdf'"
-                          target="_blank">Cliquez ici pour le télécharger</a>.</p>
+                    <object [data]="safePdfUrl" type="application/pdf" class="w-100" style="height: 75vh;">
+                      <p>Votre navigateur ne peut pas afficher ce PDF. <a [href]="safePdfUrl" target="_blank">Cliquez
+                          ici pour le télécharger</a>.</p>
                     </object>
                   </div>
                 </div>
               </div>
             </div>
+
+            <!--
+            <div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="pdfModalLabel">Document PDF</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body text-center">
+                    <object [data]="currentPdf" type="application/pdf" class="w-100" style="height: 75vh;">
+                      <p>Votre navigateur ne peut pas afficher ce PDF. <a [href]="imageBase+currentPdf" target="_blank">Cliquez ici pour le télécharger</a>.</p>
+                    </object>
+                  </div>
+                </div>
+              </div>
+            </div>-->
 
             <!-- Photo Modal -->
             <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
@@ -1452,8 +1474,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body text-center">
-                    <img [src]="imageBase + currentPhoto" class="img-fluid" alt="Photo"
-                      (error)="handleImageError($event)">
+                    <img [src]="imageBase + currentPhoto" class="img-fluid" alt="Photo">
                   </div>
                 </div>
               </div>

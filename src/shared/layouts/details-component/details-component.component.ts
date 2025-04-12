@@ -155,7 +155,12 @@ export class DetailsComponentComponent implements OnInit, OnChanges{
       position: endLocation,
       map: map,
       title: 'Point d\'arrivée',
-      icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+      icon: {
+        url: 'assets/images/image_client.png', 
+        scaledSize: new google.maps.Size(40, 40),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(20, 20)
+      }
     });
     console.log('Marqueur d\'arrivée créé:', endMarker);
 
