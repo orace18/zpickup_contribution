@@ -657,7 +657,7 @@
                       <th>Téléphone</th>
                       <th>Type</th>
                       <th>Date d'inscription</th>
-
+                      <th>Nombre de course éffectuée</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -670,7 +670,14 @@
                           'Client'}}</span></td>
                       <td><span class="badge-light-primary mt-2">{{ referral.created_at | date:'dd/MM/yyyy'
                           }}</span></td>
-
+                      <td>
+                        <span *ngIf="referral.referred.user_type === 'zem'" class="badge-light-warning mt-2">
+                          {{ referral.referred.zem?.zem_races_count }}
+                        </span>
+                        <span *ngIf="referral.referred.user_type === 'customer'" class="badge-light-primary mt-2">
+                          {{ referral.referred.user_races_count }}
+                        </span>
+                      </td>
 
 
 
@@ -715,10 +722,12 @@
                       <h2 class="text-success mb-0" *ngIf="selectedUser.user_type === 'customer'">
                         {{ referelList.length }}
                       </h2>
-                      <h2 class="text-success mb-0" *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador === true">
+                      <h2 class="text-success mb-0"
+                        *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador === true">
                         {{ referelList.length }}
                       </h2>
-                      <h2 class="text-success mb-0" *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador === false">
+                      <h2 class="text-success mb-0"
+                        *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador === false">
                         {{ referelList.length }}
                       </h2>
                     </div>
@@ -771,7 +780,7 @@
                               <th>Date</th>
                               <th>Référé</th>
                               <th>Montant</th>
-                             
+
                             </tr>
                           </thead>
                           <tbody>
@@ -779,7 +788,7 @@
                               <td>{{ item.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
                               <td>{{ item.referred.firstname }} {{ item.referred.lastname }}</td>
                               <td>{{ item.bonus_amount | number:'1.2-2' }} XOF</td>
-                              
+
                             </tr>
                             <tr *ngIf="!referelList || referelList.length === 0">
                               <td colspan="4" class="text-center">Aucune affiliation trouvée</td>

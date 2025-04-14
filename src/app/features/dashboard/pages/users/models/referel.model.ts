@@ -18,6 +18,11 @@ export interface Referred {
       user_type: string;
       firstname: string;
       lastname: string;
+      user_races_count?: string;
+      zem?: {
+        _id: string;
+        zem_races_count: string
+      }
     };
     bonus_amount: number;
     is_ambassador_referral: boolean;
