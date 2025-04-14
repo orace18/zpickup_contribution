@@ -41,7 +41,7 @@ import { LoadingComponent } from "../../../../../core/components/loading/loading
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { environment } from '../../../../../environments/environment';
 import { ReferelService } from './services/referel.service';
-import { AmbassadorReferral, MoneyRefferal, Referral } from './models/referel.model';
+import { AmbassadorReferral, AmbassadorTransaction, MoneyRefferal, Referral } from './models/referel.model';
 declare var bootstrap: any;
 import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
@@ -97,6 +97,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
   roles: Role[] = [];
   referelList: Referral[] = [];
   ambassadorReferrals: AmbassadorReferral[] = [];
+  ambassadorHistoryList: AmbassadorTransaction[] = [];
   referelMoneyList: MoneyRefferal = {
     totalBonus: 0,
     totalReferred: 0
@@ -1974,6 +1975,18 @@ export class UsersComponent implements OnInit, AfterViewInit {
           this.referelService.getAmbassadorMoneyReferral(userId).subscribe(
             (response) => {
               this.ambassadorReferrals = [response as AmbassadorReferral];
+             
+              console.log("Réponse de la liste des gains issue referes", response);
+            },
+            (error) => {
+              this.toastr.error('Erreur lors du chargement des referes');
+              console.error(error);
+            }
+          );
+          console.log("User id:", userId);
+          this.referelService.getAmbassadorHistory(userId).subscribe(
+            (response) => {
+              this.ambassadorHistoryList = response as AmbassadorTransaction[];
               console.log("Réponse de la liste des gains issue referes", response);
             },
             (error) => {
@@ -1999,6 +2012,14 @@ export class UsersComponent implements OnInit, AfterViewInit {
         console.error(error);
       }
     );
+  }
+
+  getAffiliationHistory() {
+    if (this.selectedUser?.user_type === 'zem' && this.zem?.is_ambassador === true) {
+      return this.ambassadorHistoryList || [];
+    } else {
+      return this.referelList || [];
+    }
   }
 
 

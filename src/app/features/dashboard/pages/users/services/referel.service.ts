@@ -1,7 +1,8 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { environment } from "../../../../../../environments/environment";
-import { catchError, throwError } from "rxjs";
+import { catchError, Observable, throwError } from "rxjs";
+import { AmbassadorTransaction } from "../models/referel.model";
 
 @Injectable({
     providedIn: 'root'
@@ -11,6 +12,7 @@ export class ReferelService {
 
     private apiUrl = environment.apiUrl + '/reference-history';
     private ambassadorApiUrl = environment.apiUrl + '/wallet/ambassador/balance/';
+    private ambassadorHistoryApiUrl = environment.apiUrl + '/wallet-history/ambassador/';
     private getHeaders(): HttpHeaders {
         return new HttpHeaders().set(
           'Authorization',
@@ -48,4 +50,8 @@ export class ReferelService {
           );
       }
 
+
+      getAmbassadorHistory(userId: string): Observable<AmbassadorTransaction[]> {
+        return this.http.get<AmbassadorTransaction[]>(`${this.ambassadorHistoryApiUrl}${userId}`, { headers: this.getHeaders() });
+      }
 }

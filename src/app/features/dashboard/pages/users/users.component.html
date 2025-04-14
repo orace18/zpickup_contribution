@@ -668,10 +668,10 @@
                       <td><span class="badge-light-success mt-2">{{ referral.referred.user_type === 'zem' ?
                           'Transporteur' :
                           'Client'}}</span></td>
-                      <td><span class="badge-light-primary mt-2">{{ referral.referred.created_at | date:'dd/MM/yyyy'
+                      <td><span class="badge-light-primary mt-2">{{ referral.created_at | date:'dd/MM/yyyy'
                           }}</span></td>
 
-                      
+
 
 
                     </tr>
@@ -715,13 +715,84 @@
                       <h2 class="text-success mb-0" *ngIf="selectedUser.user_type === 'customer'">
                         {{ referelList.length }}
                       </h2>
-                      <h2 class="text-success mb-0" *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador">
+                      <h2 class="text-success mb-0" *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador === true">
+                        {{ referelList.length }}
+                      </h2>
+                      <h2 class="text-success mb-0" *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador === false">
                         {{ referelList.length }}
                       </h2>
                     </div>
                   </div>
                 </div>
               </div>
+
+              <div class="row mt-4">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header bg-light">
+                      <h5 class="mb-0">
+                        {{ (selectedUser.user_type === 'zem' && zem?.is_ambassador) ? 'Historique des gains
+                        d\'affiliation' : 'Liste des affiliations' }}
+                      </h5>
+                    </div>
+                    <div class="card-body">
+                      <div class="table-responsive">
+                        <!-- Tableau pour les ambassadeurs -->
+                        <table *ngIf="selectedUser.user_type === 'zem' && zem?.is_ambassador" class="table table-hover">
+                          <thead>
+                            <tr>
+                              <th>Date</th>
+                              <th>Type</th>
+                              <th>Montant</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let item of ambassadorHistoryList">
+                              <td><span class="badge badge-light-warning ms-2">{{ item.formatted_date }}</span></td>
+                              <td>
+                                <span class="badge badge-light-primary ms-2">
+                                  {{ item.type === 'bonus' ? 'Bonus d\'affiliation' : item.type }}
+                                </span>
+                              </td>
+                              <td><span class="badge badge-light-success ms-2">{{ item.amount | number:'1.2-2' }}
+                                  XOF</span></td>
+                            </tr>
+                            <tr *ngIf="!ambassadorHistoryList || ambassadorHistoryList.length === 0">
+                              <td colspan="3" class="text-center">Aucune transaction trouvée</td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+                        <!-- Tableau pour les non-ambassadeurs -->
+                        <table *ngIf="!(selectedUser.user_type === 'zem' && zem?.is_ambassador)"
+                          class="table table-hover">
+                          <thead>
+                            <tr>
+                              <th>Date</th>
+                              <th>Référé</th>
+                              <th>Montant</th>
+                             
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let item of referelList">
+                              <td>{{ item.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+                              <td>{{ item.referred.firstname }} {{ item.referred.lastname }}</td>
+                              <td>{{ item.bonus_amount | number:'1.2-2' }} XOF</td>
+                              
+                            </tr>
+                            <tr *ngIf="!referelList || referelList.length === 0">
+                              <td colspan="4" class="text-center">Aucune affiliation trouvée</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
             </div>
           </div>
 
