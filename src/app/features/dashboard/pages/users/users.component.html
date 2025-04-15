@@ -2,8 +2,9 @@
 
   <!-- Card -->
   <div class="card">
-    <app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading>
     <h1>Utilisateurs</h1>
+    <app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading>
+
     <!-- Tabs navigation -->
     <div class="card-header border-0 pt-6">
       <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6">

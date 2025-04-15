@@ -59,11 +59,11 @@
     </div>
   </div>
 
-  <div *ngIf="isLoading" class="text-center">
+  <!-- <div *ngIf="isLoading" class="text-center">
     <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">Chargement...</span>
     </div>
-  </div>
+  </div> -->
 
   <div *ngIf="error" class="alert alert-danger">
     {{ error }}
@@ -76,7 +76,8 @@
         (click)="changeTab('all-courses')" type="button" role="tab" aria-controls="all-courses"
         [attr.aria-selected]="activeTab === 'all-courses'">
         Toutes les courses
-      </button><app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading>
+      </button>
+      <!-- <app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading> -->
 
     </li>
     <li class="nav-item" role="presentation">
@@ -85,7 +86,7 @@
         [attr.aria-selected]="activeTab === 'pending-courses'">
         Courses non terminées
       </button>
-      <app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading>
+      <!-- <app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading> -->
     </li>
   </ul>
 
@@ -141,7 +142,7 @@
                 <td class="p-3">
                   <button pButton class="btn btn-primary rounded-1"
                     (click)="selectedRace = race; openModal(historyModal)">
-                    <app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading>
+                    <!-- <app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading> -->
                     <div class="d-flex mm"><span class="text-sm">Détails</span>
                       <i class="bi bi-info-circle ms-1 small"></i>
                     </div>
@@ -174,7 +175,7 @@
     <div class="tab-pane fade" [class.show]="activeTab === 'pending-courses'"
       [class.active]="activeTab === 'pending-courses'" id="pending-courses" role="tabpanel"
       aria-labelledby="pending-courses-tab">
-      <app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading>
+      <!-- <app-loading *ngIf="isLoading" [message]="loadingMessage" [overlay]="true"></app-loading> -->
       <div class="card border-0 shadow-sm rounded-3">
         <div class="card-header bg-white border-0 py-4">
           <div class="d-flex justify-content-between align-items-center">

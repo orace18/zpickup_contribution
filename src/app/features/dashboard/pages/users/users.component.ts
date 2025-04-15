@@ -852,7 +852,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
         this.userRaces.forEach(race => {
           this.collapsedSections[race._id] = true;
         });
-      }, 2000);
+      }, 500);
     });
   }
 
