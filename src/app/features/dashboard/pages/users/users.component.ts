@@ -1757,6 +1757,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
           if (this.zem) {
             this.zem.is_ambassador = false;
           }
+          console.log("Le statut d'ambassadeur a été mis à jour avec succès",response);
           this.toastr.success(`${this.selectedUser?.firstname} ${this.selectedUser?.lastname} n'est plus ambassadeur`);
           this.closeAmbassadorDialog();
         },

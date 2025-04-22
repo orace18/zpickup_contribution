@@ -243,6 +243,7 @@ import { Race } from '../../users/models/race.model';
 export class UserService {
  
   private apiUrl = environment.apiUrl;
+  private userUrl = environment.apiUrl + "/reset-password";
   private monthNames = [
     'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
@@ -316,4 +317,18 @@ export class UserService {
     const [month, year] = monthYear.split(' ');
     return [this.monthNames.indexOf(month), parseInt(year)];
   }
+
+  sendVerificationCode(email: string): Observable<any> {
+    return this.http.post(`${this.userUrl}/send-code`, { email });
+  }
+  
+  verifyCode(email: string, code: string): Observable<any> {
+    return this.http.post(`${this.userUrl}/verify-code`, { email, code });
+  }
+
+  updatePassword(email: string, password: string): Observable<any> {
+    return this.http.post(`${this.userUrl}/reset`, { email, password });
+  }
+
+
 }

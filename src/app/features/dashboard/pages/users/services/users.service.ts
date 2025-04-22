@@ -82,6 +82,7 @@ export class UsersService {
 
   updateAmbassadorStatus(userId: string, status: string): Observable<Zem> {
     const token = this.authService.getToken();
+    console.log("Service - User ID:", userId);
 
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${token}`)

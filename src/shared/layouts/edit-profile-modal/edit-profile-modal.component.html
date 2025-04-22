@@ -1,0 +1,122 @@
+<!-- edit-profile-modal.component.html -->
+<div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()"></div>
+
+<div class="modal" [class.show]="isModalOpen" *ngIf="isModalOpen">
+  <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <span *ngIf="currentStep === 1">Modifier mon profil</span>
+          <span *ngIf="currentStep === 2">Vérification</span>
+          <span *ngIf="currentStep === 3">Nouveau mot de passe</span>
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Messages -->
+        <div *ngIf="errorMessage" class="alert alert-danger mb-3">
+          {{ errorMessage }}
+        </div>
+        <div *ngIf="successMessage" class="alert alert-success mb-3">
+          {{ successMessage }}
+        </div>
+        
+        <!-- Step 1: Email Form -->
+        <form [formGroup]="profileForm" *ngIf="currentStep === 1" (ngSubmit)="submitEmail()">
+          <div class="mb-3">
+            <label for="email" class="form-label">Adresse email</label>
+            <input 
+              type="email" 
+              class="form-control" 
+              id="email" 
+              formControlName="email" 
+              placeholder="Entrez votre adresse email"
+              [ngClass]="{'is-invalid': isFieldInvalid(profileForm, 'email')}"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid(profileForm, 'email')">
+              Veuillez saisir une adresse email valide.
+            </div>
+          </div>
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+              Continuer
+            </button>
+          </div>
+        </form>
+        
+        <!-- Step 2: Verification Code Form -->
+        <form [formGroup]="verificationForm" *ngIf="currentStep === 2" (ngSubmit)="verifyCode()">
+          <div class="mb-3">
+            <label for="verificationCode" class="form-label">Code de vérification</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="verificationCode" 
+              formControlName="verificationCode" 
+              placeholder="Entrez le code reçu par email"
+              [ngClass]="{'is-invalid': isFieldInvalid(verificationForm, 'verificationCode')}"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid(verificationForm, 'verificationCode')">
+              Veuillez saisir le code de vérification (6 chiffres).
+            </div>
+            <small class="form-text text-muted">
+              Un code de vérification a été envoyé à l'adresse email indiquée.
+            </small>
+          </div>
+          <div class="text-end">
+            <button type="button" class="btn btn-outline-secondary me-2" (click)="currentStep = 1">
+              Retour
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+              Vérifier
+            </button>
+          </div>
+        </form>
+        
+        <!-- Step 3: New Password Form -->
+        <form [formGroup]="passwordForm" *ngIf="currentStep === 3" (ngSubmit)="updatePassword()">
+          <div class="mb-3">
+            <label for="password" class="form-label">Nouveau mot de passe</label>
+            <input 
+              type="password" 
+              class="form-control" 
+              id="password" 
+              formControlName="password" 
+              placeholder="Entrez votre nouveau mot de passe"
+              [ngClass]="{'is-invalid': isFieldInvalid(passwordForm, 'password')}"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid(passwordForm, 'password')">
+              Le mot de passe doit contenir au moins 8 caractères.
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Confirmer le mot de passe</label>
+            <input 
+              type="password" 
+              class="form-control" 
+              id="confirmPassword" 
+              formControlName="confirmPassword" 
+              placeholder="Confirmez votre nouveau mot de passe"
+              [ngClass]="{'is-invalid': passwordForm.errors?.['notMatching'] && passwordForm.get('confirmPassword')?.touched}"
+            >
+            <div class="invalid-feedback" *ngIf="passwordForm.errors?.['notMatching'] && passwordForm.get('confirmPassword')?.touched">
+              Les mots de passe ne correspondent pas.
+            </div>
+          </div>
+          <div class="text-end">
+            <button type="button" class="btn btn-outline-secondary me-2" (click)="currentStep = 2">
+              Retour
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+              Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

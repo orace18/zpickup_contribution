@@ -1,25 +1,33 @@
 // modal.component.ts
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, ViewContainerRef, ComponentFactoryResolver } from '@angular/core';
 import { UserData } from './models/userdata.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { EditProfileModalComponent } from "../edit-profile-modal/edit-profile-modal.component";
+import { ModalService } from '../../../core/services/modal.service';
+
 
 @Component({
   selector: 'app-modal',
-  imports: [],
+  imports: [EditProfileModalComponent],
+  standalone: true,
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.css']
 })
 export class ModalComponent {
+  isOpen = false;
+  userData: UserData | null = null;
+  editProfileModalRef: any;
+
   constructor(
     private authService: AuthService,
     private router: Router,
-    private toast: ToastrService
+    private toast: ToastrService,
+    private modalService: ModalService,
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private viewContainerRef: ViewContainerRef
   ) { }
-
-  isOpen = false;
-  userData: UserData | null = null;
 
   ngOnInit() {
     this.getCurrentUser();
@@ -74,5 +82,19 @@ export class ModalComponent {
         this.toast.error('Échec de la déconnexion');
       }
     });
+  }
+
+  openEditProfileModal(): void {
+    // Option 1: Utiliser le service de modal
+    this.modalService.open(EditProfileModalComponent);
+    
+    // Option 2: Créer dynamiquement le composant
+    // const factory = this.componentFactoryResolver.resolveComponentFactory(EditProfileModalComponent);
+    // this.editProfileModalRef = this.viewContainerRef.createComponent(factory);
+    // this.editProfileModalRef.instance.openModal();
+    
+    // Option 3: Émettre un événement
+    // const event = new CustomEvent('openEditProfileModal');
+    // window.dispatchEvent(event);
   }
 }
