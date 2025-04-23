@@ -1,9 +1,10 @@
-/*  
-    export let APIURL = "https://api.zpickupgroup.com";
-    export let IMAGE_BASE_URL = "https://api.zpickupgroup.com/"; 
+export let APIURL = "https://api.zpickupgroup.com";
+export let IMAGE_BASE_URL = "https://api.zpickupgroup.com/";
+/*
+ export let APIURL = "http://192.168.0.103:3000";
+export let IMAGE_BASE_URL = "http://192.168.0.103:3000/";
 */
-export let APIURL = "http://192.168.0.106:3000";
-export let IMAGE_BASE_URL = "http://192.168.0.106:3000/";
+
 
 export let TINYKEY = "i7i2tuvtvi6low6h60ldjuxlwyx1haqpajgnf0ypfn8kkiou";
 
