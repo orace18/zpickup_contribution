@@ -326,8 +326,8 @@ export class UserService {
     return this.http.post(`${this.userUrl}/verify-code`, { email, code });
   }
 
-  updatePassword(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.userUrl}/reset`, { email, password });
+  updatePassword(email: string, code:string ,password: string): Observable<any> {
+    return this.http.post(`${this.userUrl}/reset`, { email, code ,password });
   }
 
 

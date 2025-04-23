@@ -111,6 +111,8 @@ export class EditProfileModalComponent implements OnInit{
     this.isLoading = true;
     const code = this.verificationForm.get('verificationCode')!.value;
     const email = this.profileForm.get('email')!.value;
+    console.log('Code de vérification:', code);
+    console.log('Email:', email);
 
     // Appel API pour vérifier le code
     this.userService.verifyCode(email, code).subscribe(
@@ -140,9 +142,10 @@ export class EditProfileModalComponent implements OnInit{
     this.isLoading = true;
     const email = this.profileForm.get('email')!.value;
     const password = this.passwordForm.get('password')!.value;
+    const code = this.verificationForm.get('verificationCode')!.value;
 
     // Appel API pour mettre à jour le mot de passe
-    this.userService.updatePassword(email, password).subscribe(
+    this.userService.updatePassword(email,code ,password).subscribe(
       () => {
         this.isLoading = false;
         this.successMessage = 'Mot de passe mis à jour avec succès.';
@@ -151,6 +154,7 @@ export class EditProfileModalComponent implements OnInit{
         }, 2000);
       },
       (error) => {
+        console.error('Erreur lors de la mise à jour du mot de passe:', error);
         this.isLoading = false;
         this.errorMessage = 'Erreur lors de la mise à jour du mot de passe.';
       }
