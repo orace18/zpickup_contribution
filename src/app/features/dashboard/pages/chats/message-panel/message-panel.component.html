@@ -40,13 +40,13 @@
             </div>
           </ng-template>
         </div>
-      
+
         <div class="message-container">
           <!-- Sender name for non-admin messages -->
           <div class="message-header" *ngIf="message.sender?.userId !== userId">
             <span class="sender-name">{{ message.sender.name }}</span>
           </div>
-      
+
           <!-- <div class="message-bubble">
             <div class="message-content">
               
@@ -88,57 +88,50 @@
               </ng-container>
             </div>
           </div> -->
-      
+
 
           <div class="message-bubble">
             <div class="message-content">
               <!-- Gestion conditionnelle du contenu basée sur mediaType -->
-              
+
               <!-- Image -->
               <ng-container *ngIf="message.mediaType === 'image'">
                 <div class="media-container">
-                  <img 
-                    [src]="message.mediaUrl?.startsWith('http') ? message.mediaUrl : imageURI + message.mediaUrl" 
-                    class="message-image" 
-                    alt="Image"
-                    (load)="scrollContainer.scrollTop = scrollContainer.scrollHeight"
-                  >
-                  <a [href]="message.mediaUrl" download class="download-button">Télécharger</a>
+                  <img [src]="getMediaUrl(message)" class="message-image" alt="Image"
+                    (load)="scrollContainer.scrollTop = scrollContainer.scrollHeight">
+                  <a [href]="getMediaUrl(message)" download class="download-button">Télécharger</a>
                 </div>
               </ng-container>
-              
+
               <!-- Vidéo -->
               <ng-container *ngIf="message.mediaType === 'video'">
                 <div class="media-container">
-                  <video controls class="message-video" (loadeddata)="scrollContainer.scrollTop = scrollContainer.scrollHeight">
-                    <source 
-                      [src]="message.mediaUrl?.startsWith('http') ? message.mediaUrl : imageURI + message.mediaUrl" 
-                      type="video/mp4"
-                    >
-                    Votre navigateur ne prend pas en charge la lecture vidéo.
+                  <video controls class="message-video"
+                    (loadeddata)="scrollContainer.scrollTop = scrollContainer.scrollHeight">
+                    <source [src]="getMediaUrl(message)" type="video/mp4">
+                   
                   </video>
-                  <a [href]="message.mediaUrl" download class="download-button">Télécharger</a>
+                  <a [href]="getMediaUrl(message)" download class="download-button">Télécharger</a>
                 </div>
               </ng-container>
-              
+
               <!-- Audio -->
               <ng-container *ngIf="message.mediaType === 'audio'">
-                <audio controls class="message-audio" (loadeddata)="scrollContainer.scrollTop = scrollContainer.scrollHeight">
-                  <source 
-                    [src]="message.mediaUrl?.startsWith('http') ? message.mediaUrl : imageURI + message.mediaUrl" 
-                    type="audio/mpeg"
-                  >
+                <audio controls class="message-audio"
+                  (loadeddata)="scrollContainer.scrollTop = scrollContainer.scrollHeight">
+                  <source [src]="getMediaUrl(message)" type="audio/mpeg">
                   Votre navigateur ne prend pas en charge la lecture audio.
                 </audio>
               </ng-container>
-              
+
               <!-- Texte (seulement si ce n'est pas un média) -->
-              <ng-container *ngIf="message.mediaType !== 'image' && message.mediaType !== 'video' && message.mediaType !== 'audio'">
+              <ng-container
+                *ngIf="message.mediaType !== 'image' && message.mediaType !== 'video' && message.mediaType !== 'audio'">
                 {{ message.content }}
               </ng-container>
             </div>
           </div>
-          
+
           <!-- Message timestamp -->
           <div class="message-footer">
             <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
@@ -159,12 +152,7 @@
   <!-- Message Composer -->
   <div class="message-composer">
     <!-- Hidden file input for media upload -->
-    <input 
-      type="file" 
-      #mediaUpload
-      (change)="handleMediaSelect($event)" 
-      style="display: none;" 
-    />
+    <input type="file" #mediaUpload (change)="handleMediaSelect($event)" style="display: none;" />
 
     <!-- Media buttons -->
     <div class="media-buttons">
@@ -183,20 +171,21 @@
     <div class="selected-media-preview" *ngIf="selectedMedia">
       <div class="preview-container">
         <!-- Image preview -->
-        <img *ngIf="selectedMediaType === 'image'" [src]="selectedMediaPreview" alt="Image à envoyer" class="preview-image">
-        
+        <img *ngIf="selectedMediaType === 'image'" [src]="selectedMediaPreview" alt="Image à envoyer"
+          class="preview-image">
+
         <!-- Video preview -->
         <div *ngIf="selectedMediaType === 'video'" class="media-preview">
           <i class="bi bi-camera-video-fill"></i>
           <span class="media-filename">{{ selectedMedia.name }}</span>
         </div>
-        
+
         <!-- Audio preview -->
         <div *ngIf="selectedMediaType === 'audio'" class="media-preview">
           <i class="bi bi-file-music-fill"></i>
           <span class="media-filename">{{ selectedMedia.name }}</span>
         </div>
-        
+
         <button class="remove-media-btn" (click)="removeSelectedMedia()">
           <i class="bi bi-x-circle-fill"></i>
         </button>
@@ -204,22 +193,13 @@
     </div>
 
     <div class="composer-input-container">
-      <textarea 
-        class="composer-input" 
-        [(ngModel)]="newMessage" 
-        (input)="autoResize($event)" 
-        [disabled]="loading"
-        rows="1" 
-        placeholder="Écrivez un message..."
-        (keydown.enter)="$event.preventDefault(); send()">
+      <textarea class="composer-input" [(ngModel)]="newMessage" (input)="autoResize($event)" [disabled]="loading"
+        rows="1" placeholder="Écrivez un message..." (keydown.enter)="$event.preventDefault(); send()">
       </textarea>
     </div>
 
     <!-- Send button -->
-    <button 
-      class="send-button" 
-      [disabled]="loading || (!newMessage.trim() && !selectedMedia)" 
-      (click)="send()"
+    <button class="send-button" [disabled]="loading || (!newMessage.trim() && !selectedMedia)" (click)="send()"
       title="Envoyer">
       <i class="bi bi-send-fill"></i>
     </button>

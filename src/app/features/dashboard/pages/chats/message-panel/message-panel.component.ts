@@ -253,6 +253,7 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
 
     this.chatService.getMessagesByConversationId(this.conversationId).subscribe({
       next: (messages) => {
+        console.log('Fetched messages:', messages);
         if (messages.length > 0) {
           const latestMessageId = messages[messages.length - 1].id;
           
@@ -327,7 +328,7 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
     const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.svg'];
     
     const isImageExtension = imageExtensions.some(ext => content.toLowerCase().endsWith(ext));
-    const isValidUrl = content.startsWith('/uploads/') || content.startsWith('http');
+    const isValidUrl = content.startsWith('uploads/') || content.startsWith('http');
     
     return isValidUrl && isImageExtension;
   }
@@ -338,7 +339,7 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
     const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi'];
     
     const isVideoExtension = videoExtensions.some(ext => content.toLowerCase().endsWith(ext));
-    const isValidUrl = content.startsWith('/uploads/') || content.startsWith('http');
+    const isValidUrl = content.startsWith('uploads/') || content.startsWith('http');
     
     return isValidUrl && isVideoExtension;
   }
@@ -349,9 +350,33 @@ export class MessagePanelComponent implements OnInit, OnDestroy {
     const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a'];
     
     const isAudioExtension = audioExtensions.some(ext => content.toLowerCase().endsWith(ext));
-    const isValidUrl = content.startsWith('/uploads/') || content.startsWith('http');
+    const isValidUrl = content.startsWith('uploads/') || content.startsWith('http');
     
     return isValidUrl && isAudioExtension;
+  }
+
+  getMediaUrl(message: Message): string {
+    if (!message || !message.mediaType) return '';
+    
+    // Pour la compatibilité avec les deux versions (mediaUrl ou typeUrl spécifique)
+    if (message.mediaUrl) {
+      return message.mediaUrl.startsWith('/') ? this.imageURI +message.mediaUrl : this.imageURI + "/"+message.mediaUrl;
+    }
+    
+    // Utiliser les propriétés spécifiques si disponibles
+    if (message.mediaType === 'image' && message.imageUrl) {
+      return message.imageUrl.startsWith('/') ?this.imageURI + message.imageUrl : this.imageURI + "/"+message.imageUrl;
+    }
+    
+    if (message.mediaType === 'video' && message.videoUrl) {
+      return message.videoUrl.startsWith('/') ? this.imageURI +message.videoUrl : this.imageURI +"/"+ message.videoUrl;
+    }
+    
+    if (message.mediaType === 'audio' && message.audioUrl) {
+      return message.audioUrl.startsWith('/') ?this.imageURI + message.audioUrl : this.imageURI +"/"+ message.audioUrl;
+    }
+    
+    return '';
   }
   
 }

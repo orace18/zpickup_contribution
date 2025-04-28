@@ -189,10 +189,10 @@ export class ConversationListComponent implements OnInit, OnChanges, OnDestroy {
     // Collecter tous les IDs de créateurs uniques
     const creatorIds = [...new Set(this.conversations.map(conv => conv.creator))];
     
-    // Préparer les observables pour chaque créateur
+    // Préparer les observables pour chaque créateur ${user.firstname} ${user.lastname}
     const observables = creatorIds.map(id => 
       this.userService.getUserById(id).pipe(
-        map(user => ({ id, name: `${user.firstname} ${user.lastname}` }))
+        map(user => ({ id, name: `Client` }))
       )
     );
     
